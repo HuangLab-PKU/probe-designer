@@ -10,6 +10,7 @@ dataset/*
 !dataset/_example_dataset/**
 
 # local files
+.localuse*
 binding_searcher**
 !binding_searcher_ensembl.ipynb
 !binding_searcher_NCBI.ipynb
