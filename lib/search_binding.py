@@ -39,7 +39,7 @@ def pre_blast_filter(seq):
 
 
 def seq_minus(seq):
-    translib = {"A": "T", "T": "A", "C": "G", "G": "C"}
+    translib = {"A": "T", "T": "A", "C": "G", "G": "C", "-":"-"}
     return "".join(list(reversed([translib[i] for i in seq])))
 
 
@@ -60,14 +60,22 @@ def gb_extract(record, gene_name='Nan', CDS=True):
     if CDS:
         if coding_sequence == "":
             print(f"No CDS found in genbank file, please use another file or select on all sequence.")
-        seq_minus = [translib[i] for i in str(coding_sequence)]
-        seq = "".join(list(reversed(seq_minus)))
+        seq = coding_sequence
+        # seq_minus = [translib[i] for i in str(coding_sequence)]
+        # seq = "".join(list(reversed(seq_minus)))
 
     else:
-        seq_minus = [translib[i] for i in str(record.seq)]
-        seq = "".join(list(reversed(seq_minus)))
-
-    return gene_id, gene_name, mol_type, organism, seq
+        seq = record.seq
+    #     seq_minus = [translib[i] for i in str(record.seq)]
+    #     seq = "".join(list(reversed(seq_minus)))
+    gb_info = {
+        'gene_id': gene_id,
+        'gene_name': gene_name,
+        'mol_type': mol_type,
+        'organism': organism,
+        'seq': seq,
+    }
+    return gb_info
 
 
 def site_searcher(
@@ -256,37 +264,42 @@ def position_search(sequence,
     
     seq_gap = int(len(sequence) * pin_gap)
     position = [_ for _ in range(seq_gap, len(sequence) - seq_gap - BDS_len)]
-    pos_candidate = []
+    plp_pos_candidate = []
 
     for pos in tqdm(position, desc=f"{gene}", disable=not verbose, position=verbose_pos, leave=leave):
-        bds = sequence[pos : pos + BDS_len]
+        target_seq = sequence[pos : pos + BDS_len]
         # non consective base
-        if "G" * G_consecutive in bds: continue
+        if "G" * G_consecutive in target_seq: continue
         # check G 40%-70%,
-        G_pct = bds.count("G") / len(bds)
+        G_pct = target_seq.count("G") / len(target_seq)
         if G_pct < G_min or G_pct > G_max: continue
         # check Tm
-        Tm_l = mt.Tm_NN(bds[: BDS_len // 2], nn_table=mt.R_DNA_NN1)
-        Tm_r = mt.Tm_NN(bds[BDS_len // 2 :], nn_table=mt.R_DNA_NN1)
-        Tm = mt.Tm_NN(bds, nn_table=mt.R_DNA_NN1)
-        if Tm_l > Tm_high or Tm_l < Tm_low or Tm_r > Tm_high or Tm_r < Tm_low: continue # Tm too high or too low
-        if abs(Tm_r - Tm_l) > Tm_dif_thre: continue # Tm difference too large
+        plp_Tm_3 = mt.Tm_NN(target_seq[BDS_len//2:], nn_table=mt.R_DNA_NN1)
+        plp_Tm_5 = mt.Tm_NN(target_seq[:BDS_len//2], nn_table=mt.R_DNA_NN1)
+        plp_Tm = mt.Tm_NN(target_seq, nn_table=mt.R_DNA_NN1)
+        if plp_Tm_3 > Tm_high or plp_Tm_3 < Tm_low or plp_Tm_5 > Tm_high or plp_Tm_5 < Tm_low: continue # Tm too high or too low
+        if abs(plp_Tm_5 - plp_Tm_3) > Tm_dif_thre: continue # Tm difference too great
         # check 2nd structure
-        _, mfe = RNA.fold(bds)
+        _, mfe = RNA.fold(target_seq)
         if mfe < mfe_thre: continue
 
-        pos_candidate.append({'pos': pos, 
-            'Tm': round(Tm,2), 'Tm_l': round(Tm_l,2), 'Tm_r': round(Tm_r,2), 'mfe': round(mfe,2)})
+        plp_pos_candidate.append({
+            'pos': pos, 
+            'plp_Tm': round(plp_Tm,2), "plp_Tm5'": round(plp_Tm_5,2), "plp_Tm3'": round(plp_Tm_3,2), 
+            'mfe': round(mfe,2)})
 
-    pos_best = optimize_subsequence([_['pos'] for _ in pos_candidate], 
+    pos_best = optimize_subsequence(
+        [_['pos'] for _ in plp_pos_candidate], 
         BDS_num, min_gap=min_gap, better_gap=better_gap,
         gene=gene, warn=warn,)
     
     pos_info = []
-    for record in pos_candidate:
+    for record in plp_pos_candidate:
         if record['pos'] in pos_best:
             pos = record['pos']
-            record['bds'] = sequence[pos : pos + BDS_len]
+            record['plp_bds'] = seq_minus(sequence[pos : pos + BDS_len])
+            record["plp_bds3'"] = record['plp_bds'][: BDS_len // 2]
+            record["plp_bds5'"] = record['plp_bds'][BDS_len // 2 :]
             pos_info.append(record)
 
     return pos_info
