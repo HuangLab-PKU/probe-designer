@@ -48,7 +48,7 @@ gene_info = pd.read_excel(os.path.join(workdir, "Gene list_mouse.xlsx"), sheet_n
 gene_list = list(gene_info['gene_name'].unique())
 
 
-from lib.database_interaction import ensembl_name_to_seqs
+from lib.database_ensembl import ensembl_name_to_seqs
 import time
 
 max_trial = 3

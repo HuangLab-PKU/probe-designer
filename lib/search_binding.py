@@ -172,7 +172,6 @@ def site_searcher(
 import random
 from tqdm import tqdm
 
-
 def random_no_overlap_seqs(input_string, length, num_substrings):
     if length > len(input_string) or num_substrings * length > len(input_string):
         # if length > len(input_string):
@@ -288,10 +287,7 @@ def position_search(sequence,
             'plp_Tm': round(plp_Tm,2), "plp_Tm5'": round(plp_Tm_5,2), "plp_Tm3'": round(plp_Tm_3,2), 
             'mfe': round(mfe,2)})
 
-    pos_best = optimize_subsequence(
-        [_['pos'] for _ in plp_pos_candidate], 
-        BDS_num, min_gap=min_gap, better_gap=better_gap,
-        gene=gene, warn=warn,)
+    pos_best = optimize_subsequence([_['pos'] for _ in plp_pos_candidate], BDS_num, min_gap=min_gap, better_gap=better_gap, gene=gene, warn=warn)
     
     pos_info = []
     for record in plp_pos_candidate:
@@ -303,3 +299,56 @@ def position_search(sequence,
             pos_info.append(record)
 
     return pos_info
+
+def plp_params_cal(target_seq):
+    BDS_len = len(target_seq)
+    return {
+        'plp_Tm': round(mt.Tm_NN(target_seq, nn_table=mt.R_DNA_NN1), 2), 
+        "plp_Tm5'": round(mt.Tm_NN(target_seq[:BDS_len//2], nn_table=mt.R_DNA_NN1), 2), 
+        "plp_Tm3'": round(mt.Tm_NN(target_seq[BDS_len//2:], nn_table=mt.R_DNA_NN1), 2), 
+        'mfe': round(RNA.fold(target_seq)[1], 2),
+        'plp_bds': seq_minus(target_seq),
+        "plp_bds3'": seq_minus(target_seq)[: BDS_len // 2],
+        "plp_bds5'": seq_minus(target_seq)[BDS_len // 2 :]
+        }
+
+def plp_wanted(record, plpargs):
+    G_consecutive = plpargs.get("G_consecutive", 5)
+    G_min = plpargs.get("G_min", 0.3)
+    G_max = plpargs.get("G_max", 0.7)
+    Tm_low = plpargs.get("Tm_low", 50)
+    Tm_high = plpargs.get("Tm_high", 65)
+    Tm_dif_thre = plpargs.get("Tm_dif_thre", 5)
+    mfe_thre = plpargs.get("mfe_thre", -10)
+    wanted = True
+    # non consective base
+    if "G" * G_consecutive in record['plp_bds']: wanted = False
+    # check G 40%-70%,
+    G_pct = record['plp_bds'].count("G") / len(record['plp_bds'])
+    if G_pct < G_min or G_pct > G_max: wanted = False
+    # Tm too high or too low
+    if record["plp_Tm3'"] > Tm_high or record["plp_Tm3'"] < Tm_low or record["plp_Tm5'"] > Tm_high or record["plp_Tm5'"] < Tm_low: wanted = False 
+    # Tm difference too great
+    if abs(record["plp_Tm3'"] - record["plp_Tm5'"]) > Tm_dif_thre: wanted = False 
+    # check 2nd structure
+    if record["mfe"] < mfe_thre: wanted = False
+    return wanted
+
+def plp_search(sequence, strand, plpargs, gene="gene", verbose=True, verbose_pos=0, leave=True, warn=True):
+    BDS_len = plpargs.get("BDS_len", 40)
+    pin_gap = plpargs.get("pin_gap", 0.1)
+    if len(sequence) < BDS_len:
+        if warn: print(f"Gene {gene}: sequence too short, please use longer sequence.")
+        return []
+
+    seq_gap = int(len(sequence) * pin_gap)
+    st_en_pairs = [(_, _ + BDS_len) for _ in range(seq_gap, len(sequence) - seq_gap - BDS_len)]
+
+    plp_pos_candidate = []
+    for start, end in tqdm(st_en_pairs, desc=f"search {gene}", disable=not verbose, position=verbose_pos, leave=leave):
+        target_seq = sequence[start: end] if strand == 1 else seq_minus(sequence[start: end])
+        record = {'start': start, 'end': end, 'target_strand': strand}
+        record.update(plp_params_cal(target_seq))
+        if plp_wanted(record, plpargs): plp_pos_candidate.append(record)
+
+    return plp_pos_candidate

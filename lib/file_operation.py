@@ -2,7 +2,6 @@
 import os
 import pandas as pd
 
-
 def merge(workdir=str, resultsdir="./results/", gene_name_file="immune.xlsx"):
     os.chdir(workdir)
     resultsdir = os.listdir("./results/")
