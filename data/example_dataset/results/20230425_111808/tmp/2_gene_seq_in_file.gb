@@ -1,0 +1,360 @@
+LOCUS       XM_054342460             736 bp    mRNA    linear   PRI 20-MAR-2023
+DEFINITION  PREDICTED: Homo sapiens programmed cell death 1 (PDCD1), transcript
+            variant X1, mRNA.
+ACCESSION   XM_054342460
+VERSION     XM_054342460.1
+DBLINK      BioProject: PRJNA807723
+KEYWORDS    RefSeq.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+COMMENT     MODEL REFSEQ:  This record is predicted by automated computational
+            analysis. This record is derived from a genomic sequence
+            (NC_060926) annotated using gene prediction method: Gnomon,
+            supported by EST evidence.
+            Also see:
+                Documentation of NCBI's Annotation Process
+            
+            ##Genome-Annotation-Data-START##
+            Annotation Provider         :: NCBI RefSeq
+            Annotation Status           :: Updated annotation
+            Annotation Name             :: GCF_009914755.1-RS_2023_03
+            Annotation Pipeline         :: NCBI eukaryotic genome annotation
+                                           pipeline
+            Annotation Software Version :: 10.1
+            Annotation Method           :: Best-placed RefSeq; Gnomon;
+                                           RefSeqFE; cmsearch; tRNAscan-SE
+            Features Annotated          :: Gene; mRNA; CDS; ncRNA
+            Annotation Date             :: 03/15/2023
+            ##Genome-Annotation-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..736
+                     /organism="Homo sapiens"
+                     /mol_type="mRNA"
+                     /isolate="CHM13"
+                     /db_xref="taxon:9606"
+                     /chromosome="2"
+                     /sex="female"
+                     /cell_line="CHM13htert"
+                     /tissue_type="hydatidiform mole"
+                     /note="haploid cell line"
+     gene            1..736
+                     /gene="PDCD1"
+                     /gene_synonym="CD279; hPD-1; hPD-l; hSLE1; PD-1; PD1;
+                     SLEB2"
+                     /note="programmed cell death 1; Derived by automated
+                     computational analysis using gene prediction method:
+                     Gnomon. Supporting evidence includes similarity to: 1 EST,
+                     1 Protein, and 100% coverage of the annotated genomic
+                     feature by RNAseq alignments, including 9 samples with
+                     support for all annotated introns"
+                     /db_xref="GeneID:5133"
+                     /db_xref="HGNC:HGNC:8760"
+                     /db_xref="MIM:600244"
+     CDS             57..653
+                     /gene="PDCD1"
+                     /gene_synonym="CD279; hPD-1; hPD-l; hSLE1; PD-1; PD1;
+                     SLEB2"
+                     /codon_start=1
+                     /product="programmed cell death protein 1 isoform X1"
+                     /protein_id="XP_054198435.1"
+                     /db_xref="GeneID:5133"
+                     /db_xref="HGNC:HGNC:8760"
+                     /db_xref="MIM:600244"
+                     /translation="MQIPQAPWPVVWAVLQLGWRPGWFLDSPDRPWNPPTFSPALLVV
+                     TEGDNATFTCSFSNTSESFVLNWYRMSPSNQTDKLAAFPEDRSQPGQDCRFRVTQLPN
+                     GRDFHMSVVRARRNDSGTYLCGAISLAPKAQIKESLRAELRVTERRAEVPTAHPSPSP
+                     RPAGQFQTLVVGVVGGLLGSLVLLVWVLAVICSRAARG"
+ORIGIN      
+        1 gctcacctcc gcctgagcag tggagaaggc ggcactctgg tggggctgct ccaggcatgc
+       61 agatcccaca ggcgccctgg ccagtcgtct gggcggtgct acaactgggc tggcggccag
+      121 gatggttctt agactcccca gacaggccct ggaacccccc caccttctcc ccagccctgc
+      181 tcgtggtgac cgaaggggac aacgccacct tcacctgcag cttctccaac acatcggaga
+      241 gcttcgtgct aaactggtac cgcatgagcc ccagcaacca gacggacaag ctggccgcct
+      301 tccccgagga ccgcagccag cccggccagg actgccgctt ccgtgtcaca caactgccca
+      361 acgggcgtga cttccacatg agcgtggtca gggcccggcg caatgacagc ggcacctacc
+      421 tctgtggggc catctccctg gcccccaagg cgcagatcaa agagagcctg cgggcagagc
+      481 tcagggtgac agagagaagg gcagaagtgc ccacagccca ccccagcccc tcacccaggc
+      541 cagccggcca gttccaaacc ctggtggttg gtgtcgtggg cggcctgctg ggcagcctgg
+      601 tgctgctagt ctgggtcctg gccgtcatct gctcccgggc cgcacgaggc taagtccctg
+      661 atgaaggccc ctggactaag accccccacc taggagcacg gctcagggtc ggcctggtga
+      721 ccccaagtgt gtttct
+//
+
+LOCUS       NM_001870               1762 bp    mRNA    linear   PRI 25-DEC-2022
+DEFINITION  Homo sapiens carboxypeptidase A3 (CPA3), mRNA.
+ACCESSION   NM_001870
+VERSION     NM_001870.4
+KEYWORDS    RefSeq; MANE Select.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 1762)
+  AUTHORS   Soria-Castro R, Meneses-Preza YG, Rodriguez-Lopez GM,
+            Romero-Ramirez S, Sosa-Hernandez VA, Cervantes-Diaz R,
+            Perez-Fragoso A, Torres-Ruiz JJ, Gomez-Martin D, Campillo-Navarro
+            M, Alvarez-Jimenez VD, Perez-Tapia SM, Chavez-Blanco AD,
+            Estrada-Parra S, Maravillas-Montero JL and Chacon-Salinas R.
+  TITLE     Severe COVID-19 is marked by dysregulated serum levels of
+            carboxypeptidase A3 and serotonin
+  JOURNAL   J Leukoc Biol 110 (3), 425-431 (2021)
+   PUBMED   34057753
+  REMARK    GeneRIF: Severe COVID-19 is marked by dysregulated serum levels of
+            carboxypeptidase A3 and serotonin.
+REFERENCE   2  (bases 1 to 1762)
+  AUTHORS   Lewicki L, Siebert J, Kolinski T, Piekarska K, Reiwer-Gostomska M,
+            Targonski R, Trzonkowski P and Marek-Trzonkowska N.
+  TITLE     Mast cell derived carboxypeptidase A3 is decreased among patients
+            with advanced coronary artery disease
+  JOURNAL   Cardiol J 26 (6), 680-686 (2019)
+   PUBMED   29512095
+  REMARK    GeneRIF: Decreased serum level of carboxypeptidase is a hallmark of
+            more advanced coronary artery disease.
+REFERENCE   3  (bases 1 to 1762)
+  AUTHORS   Barallobre-Barreiro J, Gupta SK, Zoccarato A, Kitazume-Taneike R,
+            Fava M, Yin X, Werner T, Hirt MN, Zampetaki A, Viviano A, Chong M,
+            Bern M, Kourliouros A, Domenech N, Willeit P, Shah AM, Jahangiri M,
+            Schaefer L, Fischer JW, Iozzo RV, Viner R, Thum T, Heineke J,
+            Kichler A, Otsu K and Mayr M.
+  TITLE     Glycoproteomics Reveals Decorin Peptides With Anti-Myostatin
+            Activity in Human Atrial Fibrillation
+  JOURNAL   Circulation 134 (11), 817-832 (2016)
+   PUBMED   27559042
+REFERENCE   4  (bases 1 to 1762)
+  AUTHORS   Jones KD, Gelbart T, Whisenant TC, Waalen J, Mondala TS, Ikle DN,
+            Salomon DR, Bennett RM and Kurian SM.
+  TITLE     Genome-wide expression profiling in the peripheral blood of
+            patients with fibromyalgia
+  JOURNAL   Clin Exp Rheumatol 34 (2 Suppl 96), S89-S98 (2016)
+   PUBMED   27157394
+  REMARK    GeneRIF: Carboxypeptidase A3 was differentially expressed between
+            Fibromyalgia patients and healthy controls.
+REFERENCE   5  (bases 1 to 1762)
+  AUTHORS   Caughey GH.
+  TITLE     Mast cell proteases as protective and inflammatory mediators
+  JOURNAL   Adv Exp Med Biol 716, 212-234 (2011)
+   PUBMED   21713659
+  REMARK    Review article
+REFERENCE   6  (bases 1 to 1762)
+  AUTHORS   Natsuaki M, Stewart CB, Vanderslice P, Schwartz LB, Natsuaki M,
+            Wintroub BU, Rutter WJ and Goldstein SM.
+  TITLE     Human skin mast cell carboxypeptidase: functional characterization,
+            cDNA cloning, and genealogy
+  JOURNAL   J Invest Dermatol 99 (2), 138-145 (1992)
+   PUBMED   1629626
+REFERENCE   7  (bases 1 to 1762)
+  AUTHORS   Reynolds DS, Gurley DS and Austen KF.
+  TITLE     Cloning and characterization of the novel gene for mast cell
+            carboxypeptidase A
+  JOURNAL   J Clin Invest 89 (1), 273-282 (1992)
+   PUBMED   1729276
+REFERENCE   8  (bases 1 to 1762)
+  AUTHORS   Reynolds DS, Gurley DS, Stevens RL, Sugarbaker DJ, Austen KF and
+            Serafin WE.
+  TITLE     Cloning of cDNAs that encode human mast cell carboxypeptidase A,
+            and comparison of the protein with mouse mast cell carboxypeptidase
+            A and rat pancreatic carboxypeptidases
+  JOURNAL   Proc Natl Acad Sci U S A 86 (23), 9480-9484 (1989)
+   PUBMED   2594780
+REFERENCE   9  (bases 1 to 1762)
+  AUTHORS   Goldstein SM, Kaempfer CE, Kealey JT and Wintroub BU.
+  TITLE     Human mast cell carboxypeptidase. Purification and characterization
+  JOURNAL   J Clin Invest 83 (5), 1630-1636 (1989)
+   PUBMED   2708524
+REFERENCE   10 (bases 1 to 1762)
+  AUTHORS   Goldstein SM, Kaempfer CE, Proud D, Schwartz LB, Irani AM and
+            Wintroub BU.
+  TITLE     Detection and partial characterization of a human mast cell
+            carboxypeptidase
+  JOURNAL   J Immunol 139 (8), 2724-2729 (1987)
+   PUBMED   2443571
+COMMENT     REVIEWED REFSEQ: This record has been curated by NCBI staff. The
+            reference sequence was derived from BG501260.1, M27717.1,
+            DR005288.1, BC012613.1, BX105358.1 and AC092979.3.
+            
+            On Nov 23, 2018 this sequence version replaced NM_001870.3.
+            
+            Summary: This gene encodes a member of the carboxypeptidase A
+            family of zinc metalloproteases. The encoded preproprotein is
+            proteolytically processed to generate a mature protease that is
+            released by mast cells and may be involved in the degradation of
+            endogenous proteins and the inactivation of venom-associated
+            peptides. Expression of this gene may be elevated in human asthma
+            patients. [provided by RefSeq, Nov 2015].
+            
+            Publication Note:  This RefSeq record includes a subset of the
+            publications that are available for this gene. Please see the Gene
+            record to access additional publications.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: SRR5189667.329931.1, BC012613.1
+                                           [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMEA1965299, SAMEA1966682
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+            
+            ##RefSeq-Attributes-START##
+            MANE Ensembl match     :: ENST00000296046.4/ ENSP00000296046.3
+            RefSeq Select criteria :: based on single protein-coding transcript
+            ##RefSeq-Attributes-END##
+            COMPLETENESS: full length.
+PRIMARY     REFSEQ_SPAN         PRIMARY_IDENTIFIER PRIMARY_SPAN        COMP
+            1-12                BG501260.1         42-53
+            13-523              M27717.1           1-511
+            524-588             DR005288.1         514-578
+            589-1640            BC012613.1         592-1643
+            1641-1650           BX105358.1         584-593
+            1651-1762           AC092979.3         49663-49774
+FEATURES             Location/Qualifiers
+     source          1..1762
+                     /organism="Homo sapiens"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9606"
+                     /chromosome="3"
+                     /map="3q24"
+     gene            1..1762
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /note="carboxypeptidase A3"
+                     /db_xref="GeneID:1359"
+                     /db_xref="HGNC:HGNC:2298"
+                     /db_xref="MIM:114851"
+     exon            1..80
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     CDS             13..1266
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /EC_number="3.4.17.1"
+                     /note="mast cell carboxypeptidase A; tissue
+                     carboxypeptidase A; carboxypeptidase A3 (mast cell)"
+                     /codon_start=1
+                     /product="mast cell carboxypeptidase A preproprotein"
+                     /protein_id="NP_001861.2"
+                     /db_xref="CCDS:CCDS3138.1"
+                     /db_xref="GeneID:1359"
+                     /db_xref="HGNC:HGNC:2298"
+                     /db_xref="MIM:114851"
+                     /translation="MRLILPVGLIATTLAIAPVRFDREKVFRVKPQDEKQADIIKDLA
+                     KTNELDFWYPGATHHVAANMMVDFRVSEKESQAIQSALDQNKMHYEILIHDLQEEIEK
+                     QFDVKEDIPGRHSYAKYNNWEKIVAWTEKMMDKYPEMVSRIKIGSTVEDNPLYVLKIG
+                     EKNERRKAIFTDCGIHAREWVSPAFCQWFVYQATKTYGRNKIMTKLLDRMNFYILPVF
+                     NVDGYIWSWTKNRMWRKNRSKNQNSKCIGTDLNRNFNASWNSIPNTNDPCADNYRGSA
+                     PESEKETKAVTNFIRSHLNEIKVYITFHSYSQMLLFPYGYTSKLPPNHEDLAKVAKIG
+                     TDVLSTRYETRYIYGPIESTIYPISGSSLDWAYDLGIKHTFAFELRDKGKFGFLLPES
+                     RIKPTCRETMLAVKFIAKYILKHTS"
+     sig_peptide     13..57
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="COORDINATES: ab initio prediction:SignalP:4.0"
+     mat_peptide     340..1263
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /product="Mast cell carboxypeptidase A.
+                     /id=PRO_0000004396"
+                     /note="propagated from UniProtKB/Swiss-Prot (P15088.2)"
+     exon            81..156
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            157..281
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            282..384
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            385..486
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            487..588
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            589..699
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            700..790
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            791..993
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            994..1078
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     exon            1079..1762
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /inference="alignment:Splign:2.1.0"
+     regulatory      1616..1621
+                     /regulatory_class="polyA_signal_sequence"
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /note="hexamer: AATAAA"
+     regulatory      1621..1626
+                     /regulatory_class="polyA_signal_sequence"
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /note="hexamer: AATAAA"
+     polyA_site      1636
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+     polyA_site      1646
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /note="major polyA site"
+     regulatory      1737..1742
+                     /regulatory_class="polyA_signal_sequence"
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+                     /note="hexamer: AATAAT"
+     polyA_site      1762
+                     /gene="CPA3"
+                     /gene_synonym="MC-CPA"
+ORIGIN      
+        1 caaagaagaa ccatgaggct catcctgcct gtgggtttga ttgctaccac tcttgcaatt
+       61 gctcctgtcc gctttgacag ggagaaggtg ttccgcgtga agccccagga tgaaaaacaa
+      121 gcagacatca taaaggactt ggccaaaacc aatgagcttg acttctggta tccaggtgcc
+      181 acccaccacg tagctgctaa tatgatggtg gatttccgag ttagtgagaa ggaatcccaa
+      241 gccatccagt ctgccttgga tcaaaataaa atgcactatg aaatcttgat tcatgatcta
+      301 caagaagaga ttgagaaaca gtttgatgtt aaagaagata tcccaggcag gcacagctac
+      361 gcaaaataca ataattggga aaagattgtg gcttggactg aaaagatgat ggataagtat
+      421 cctgaaatgg tctctcgtat taaaattgga tctactgttg aagataatcc actatatgtt
+      481 ctgaagattg gggaaaagaa tgaaagaaga aaggctattt ttacggattg tggcattcac
+      541 gcacgagaat gggtctcccc agcattctgc cagtggtttg tctatcaggc aaccaaaact
+      601 tatgggagaa acaaaattat gaccaaactc ttggaccgaa tgaattttta cattcttcct
+      661 gtgttcaatg ttgatggata tatttggtca tggacaaaga accgcatgtg gagaaaaaat
+      721 cgttccaaga accaaaactc caaatgcatc ggcactgacc tcaacaggaa ttttaatgct
+      781 tcatggaact ccattcctaa caccaatgac ccatgtgcag ataactatcg gggctctgca
+      841 ccagagtccg agaaagagac gaaagctgtc actaatttca ttagaagcca cctgaatgaa
+      901 atcaaggttt acatcacctt ccattcctac tcccagatgc tattgtttcc ctatggatat
+      961 acatcaaaac tgccacctaa ccatgaggac ttggccaaag ttgcaaagat tggcactgat
+     1021 gttctatcaa ctcgatatga aacccgctac atctatggcc caatagaatc aacaatttac
+     1081 ccgatatcag gttcttcttt agactgggct tatgacctgg gcatcaaaca cacatttgcc
+     1141 tttgagctcc gagataaagg caaatttggt tttctccttc cagaatcccg gataaagcca
+     1201 acgtgcagag agaccatgct agctgtcaaa tttattgcca agtatatcct caagcatact
+     1261 tcctaaagaa ctgccctctg tttggaataa gccaattaat ccttttttgt gcctttcatc
+     1321 agaaagtcaa tcttcagtta tccccaaatg cagcttctat ttcacctgaa tccttctctt
+     1381 gctcatttaa gtcccatgtt actgctgttt gcttttactt actttcagta gcaccataac
+     1441 gaagtagctt taagtgaaac cttttaacta cctttctttg ctccaagtga agtttggacc
+     1501 cagcagaaag cattattttg aaaggtgata tacagtgggg cacagaaaac aaatgaaaac
+     1561 cttcagtttc tcacagattt tcaccatgtg gcttcatcaa tttatgtgct aatacaataa
+     1621 aataaaatgc acttaatgct ttaaaattca tctttttatg ataaactata ttctctgtat
+     1681 ttctctatag cattaataat caatattaat gccattcatt cagtctgtta ataagaaata
+     1741 atatcttcaa ttttcaaaaa ca
+//
+
+Supplied+id+parameter+is+empty.

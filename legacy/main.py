@@ -48,7 +48,7 @@ gene_info = pd.read_excel(os.path.join(workdir, "Gene list_mouse.xlsx"), sheet_n
 gene_list = list(gene_info['gene_name'].unique())
 
 
-from lib.database_ensembl import ensembl_name_to_seqs
+from lib.database_ensembl import ensembl_genename2seq
 import time
 
 max_trial = 3
@@ -67,7 +67,7 @@ with tqdm(total=len(gene_list), desc="total_process", position=0) as pbar_total:
             while retry_attempts < max_trial:
                 retry_attempts += 1
                 try:
-                    sequences_of_all[gene] = ensembl_name_to_seqs(gene=gene, species='mouse', seq_type='cds', tqdm_args={'position': 2,'leave': False})
+                    sequences_of_all[gene] = ensembl_genename2seq(gene=gene, species='mouse', seq_type='cds', tqdm_args={'position': 2,'leave': False})
                     break  # Successful retrieval, exit the retry loop
                 
                 except Exception as e:

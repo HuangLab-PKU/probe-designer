@@ -18,7 +18,7 @@ conda env create --file environment.yml
 ```
 
 ### Step 2: prepare your gene list
-Create a directory for you task, like `exmple_dataset`. Prepare a .xlsx file including column "gene_name" which include target genes as `Exmple_dataset/gene_list.xlsx`.
+Create a directory for you task, like `exmple_dataset`. Prepare a .xlsx file including column "gene_name" which include target genes as `data/gene_list.xlsx`.
 
 | gene_name | ... |
 | --------- | --- |

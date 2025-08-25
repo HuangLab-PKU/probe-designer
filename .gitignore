@@ -1,8 +1,24 @@
+# 忽略编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 忽略系统和临时文件
+.DS_Store
+*.log
+*.tmp
+Thumbs.db
+desktop.ini
+
 # cache
 lib/__pycache__/*
 
 # test
-test/*
+/test/
+
+# local files
+/local/
 
 # dataset
 dataset/*
