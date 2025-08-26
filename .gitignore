@@ -12,7 +12,7 @@ Thumbs.db
 desktop.ini
 
 # cache
-lib/__pycache__/*
+*/__pycache__/*
 
 # test
 /test/

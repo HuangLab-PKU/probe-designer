@@ -1,0 +1,43 @@
+{
+  "database": {
+    "organism": "mouse",
+    "database_type": "ensembl",
+    "coord_system_version": "GRCh38",
+    "max_retries": 3
+  },
+  "search": {
+    "binding_site_length": 40,
+    "max_binding_sites": 30,
+    "search_strategy": "exon_junction",
+    "step_size": null
+  },
+  "filter": {
+    "min_g_content": 0.4,
+    "max_g_content": 0.7,
+    "max_consecutive_g": 4,
+    "min_tm": 45.0,
+    "max_tm": 65.0,
+    "min_free_energy": -10.0,
+    "max_alignments": 5,
+    "require_specificity": true,
+    "target_organisms": ["Mus musculus", "Homo sapiens"]
+  },
+  "probe": {
+    "panel_type": "PRISM",
+    "barcode_file": null,
+    "primer_left": null,
+    "primer_right": null
+  },
+  "blast": {
+    "blast_type": "local",
+    "database": "refseq_rna",
+    "task": "megablast",
+    "evalue": 1e-5
+  },
+  "output": {
+    "output_dir": "results",
+    "create_timestamp": true,
+    "save_intermediate": true,
+    "file_formats": ["xlsx", "fasta", "json"]
+  }
+}
