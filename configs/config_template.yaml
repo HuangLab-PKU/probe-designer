@@ -1,0 +1,60 @@
+# Configuration template for DNA probe design
+# This file contains all parameters for database access, search strategies, filtering, BLAST analysis, and output
+
+database:
+  # Database connection settings
+  database_type: "ensembl"  # "ensembl" or "ncbi"
+  api_key: "your_ncbi_api_key_here"  # Required for NCBI database access
+  email: "your_email@example.com"  # Required for API requests
+
+search:
+  # Binding site search strategy configuration
+  search_strategy: "isoform_consensus"  # "brute_force", "exon_junction", "isoform_specific", "isoform_consensus"
+  binding_site_length: 40  # Length of binding sites in base pairs (20-60 recommended)
+  max_binding_sites: 100  # Maximum binding sites per gene
+  window_size: 50  # Search window size for certain strategies
+  step_size: 1  # Step size for sliding window search
+
+filter:
+  # Sequence filtering criteria
+  min_g_content: 0.3  # Minimum G content (0.0-1.0)
+  max_g_content: 0.7  # Maximum G content (0.0-1.0)
+  max_consecutive_g: 5  # Maximum consecutive G nucleotides
+  min_tm: 50.0  # Minimum melting temperature (°C)
+  max_tm: 80.0  # Maximum melting temperature (°C)
+  max_tm_diff: 10.0  # Maximum temperature difference between 3' and 5' arms (°C)
+  min_free_energy: -5.0  # Minimum RNA secondary structure free energy (kcal/mol)
+  check_rna_structure: true  # Whether to check RNA secondary structure
+  require_specificity: true  # Whether to require specificity filtering
+  final_probes_per_gene: 3  # Final number of probes per gene
+
+blast:
+  # BLAST analysis configuration
+  blast_type: "local"  # "local" or "online"
+  database: "refseq_rna"  # BLAST database: "nt", "refseq_rna", "nr"
+  task: "megablast"  # BLAST task: "megablast", "blastn", "blastp"
+  evalue: 1.0e-5  # E-value threshold
+  hitlist_size: 50  # Number of hits to return
+  alignments: 500  # Number of alignments to show
+  descriptions: 500  # Number of descriptions to show
+  megablast: true  # Use megablast algorithm
+  short_query: false  # Optimize for short queries
+  filter: "none"  # Sequence filtering: "none", "L", "R", "F"
+  format_type: "XML"  # Output format: "XML", "Text"
+  service: "plain"  # BLAST service: "plain", "psi"
+  batch_size: 100  # Batch size for online BLAST
+  concurrency: 3  # Number of concurrent requests
+  # species: ["Mus musculus"]  # Target species for BLAST search
+
+output:
+  # Output file configuration
+  output_dir: "results"  # Output directory path
+  save_fasta: true  # Save FASTA format files
+  save_json: true  # Save JSON format files
+  save_excel: true  # Save Excel format files
+
+genome:
+  # Genome access configuration
+  use_local_first: true  # Prefer local genome over online access
+
+species: "mouse"  # Target species: "mouse", "human", "rat", "zebrafish"
