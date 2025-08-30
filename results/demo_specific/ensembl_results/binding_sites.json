@@ -1,0 +1,5364 @@
+{
+  "Actb": [
+    {
+      "gene_name": "Actb",
+      "sequence": "ATCCTCCTCTTAGGAGTGGGGGTGGCTTTTGGGAGGGTGA",
+      "target_sequence": "TCACCCTCCCAAAAGCCACCCCCACTCCTAAGAGGAGGAT",
+      "arm_3prime": "ATCCTCCTCTTAGGAGTGGG",
+      "arm_5prime": "GGTGGCTTTTGGGAGGGTGA",
+      "position": 283,
+      "genomic_start": 142889153,
+      "genomic_end": 142889193,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 70.02733273502508,
+      "tm_3": 53.385485303337134,
+      "tm_5": 58.21749296268615,
+      "tm_diff": 4.832007659349017,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142888989,
+          142889155
+        ],
+        [
+          142889155,
+          142889256
+        ]
+      ],
+      "tm_3prime": 53.385485303337134,
+      "tm_5prime": 58.21749296268615,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGGTGGCTTTTGGGAGGGTGAGGGACTTCCTGTAACCACT",
+      "target_sequence": "AGTGGTTACAGGAAGTCCCTCACCCTCCCAAAAGCCACCC",
+      "arm_3prime": "GGGTGGCTTTTGGGAGGGTG",
+      "arm_5prime": "AGGGACTTCCTGTAACCACT",
+      "position": 302,
+      "genomic_start": 142889172,
+      "genomic_end": 142889212,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 72.13099805383496,
+      "tm_3": 60.23667830269295,
+      "tm_5": 53.85324747870618,
+      "tm_diff": 6.383430823986771,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142889155,
+          142889256
+        ]
+      ],
+      "tm_3prime": 60.23667830269295,
+      "tm_5prime": 53.85324747870618,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGTGGCTTTTGGGAGGGTGAGGGACTTCCTGTAACCACTT",
+      "target_sequence": "AAGTGGTTACAGGAAGTCCCTCACCCTCCCAAAAGCCACC",
+      "arm_3prime": "GGTGGCTTTTGGGAGGGTGA",
+      "arm_5prime": "GGGACTTCCTGTAACCACTT",
+      "position": 303,
+      "genomic_start": 142889173,
+      "genomic_end": 142889213,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 69.31148818358287,
+      "tm_3": 58.21749296268615,
+      "tm_5": 50.199057687005165,
+      "tm_diff": 8.018435275680986,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142889155,
+          142889256
+        ]
+      ],
+      "tm_3prime": 58.21749296268615,
+      "tm_5prime": 50.199057687005165,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCAAAGAAGCTGTGCTCGCGGGTGGACGCGACTCGACAGT",
+      "target_sequence": "ACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTTCTTTGC",
+      "arm_3prime": "GCAAAGAAGCTGTGCTCGCG",
+      "arm_5prime": "GGTGGACGCGACTCGACAGT",
+      "position": 3571,
+      "genomic_start": 142892441,
+      "genomic_end": 142892481,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 73.10539579335637,
+      "tm_3": 55.92174680674157,
+      "tm_5": 59.60828984985267,
+      "tm_diff": 3.686543043111101,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 55.92174680674157,
+      "tm_5prime": 59.60828984985267,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CAAAGAAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTG",
+      "target_sequence": "CACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTTCTTTG",
+      "arm_3prime": "CAAAGAAGCTGTGCTCGCGG",
+      "arm_5prime": "GTGGACGCGACTCGACAGTG",
+      "position": 3572,
+      "genomic_start": 142892442,
+      "genomic_end": 142892482,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 73.10539579335637,
+      "tm_3": 55.78952769544162,
+      "tm_5": 57.23675036274375,
+      "tm_diff": 1.4472226673021282,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 55.78952769544162,
+      "tm_5prime": 57.23675036274375,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAAGAAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGG",
+      "target_sequence": "CCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTTCTTT",
+      "arm_3prime": "AAAGAAGCTGTGCTCGCGGG",
+      "arm_5prime": "TGGACGCGACTCGACAGTGG",
+      "position": 3573,
+      "genomic_start": 142892443,
+      "genomic_end": 142892483,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 74.99599591493893,
+      "tm_3": 59.31174344952382,
+      "tm_5": 60.24315556228959,
+      "tm_diff": 0.93141211276577,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 59.31174344952382,
+      "tm_5prime": 60.24315556228959,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGAAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGC",
+      "target_sequence": "GCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTTCTT",
+      "arm_3prime": "AAGAAGCTGTGCTCGCGGGT",
+      "arm_5prime": "GGACGCGACTCGACAGTGGC",
+      "position": 3574,
+      "genomic_start": 142892444,
+      "genomic_end": 142892484,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 75.71619483167183,
+      "tm_3": 59.49750924607156,
+      "tm_5": 62.87314283893414,
+      "tm_diff": 3.3756335928625845,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 59.49750924607156,
+      "tm_5prime": 62.87314283893414,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AGAAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCT",
+      "target_sequence": "AGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTTCT",
+      "arm_3prime": "AGAAGCTGTGCTCGCGGGTG",
+      "arm_5prime": "GACGCGACTCGACAGTGGCT",
+      "position": 3575,
+      "genomic_start": 142892445,
+      "genomic_end": 142892485,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 74.36424010863698,
+      "tm_3": 60.30315413085657,
+      "tm_5": 59.523719897389924,
+      "tm_diff": 0.7794342334666453,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.30315413085657,
+      "tm_5prime": 59.523719897389924,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GAAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTG",
+      "target_sequence": "CAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTTC",
+      "arm_3prime": "GAAGCTGTGCTCGCGGGTGG",
+      "arm_5prime": "ACGCGACTCGACAGTGGCTG",
+      "position": 3576,
+      "genomic_start": 142892446,
+      "genomic_end": 142892486,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 76.68731759268854,
+      "tm_3": 61.93234206627329,
+      "tm_5": 59.41496000656019,
+      "tm_diff": 2.5173820597131,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 61.93234206627329,
+      "tm_5prime": 59.41496000656019,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGC",
+      "target_sequence": "GCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTT",
+      "arm_3prime": "AAGCTGTGCTCGCGGGTGGA",
+      "arm_5prime": "CGCGACTCGACAGTGGCTGC",
+      "position": 3577,
+      "genomic_start": 142892447,
+      "genomic_end": 142892487,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 75.42116805469931,
+      "tm_3": 61.93234206627329,
+      "tm_5": 60.36999173836267,
+      "tm_diff": 1.5623503279106217,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 61.93234206627329,
+      "tm_5prime": 60.36999173836267,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGCG",
+      "target_sequence": "CGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCT",
+      "arm_3prime": "AGCTGTGCTCGCGGGTGGAC",
+      "arm_5prime": "GCGACTCGACAGTGGCTGCG",
+      "position": 3578,
+      "genomic_start": 142892448,
+      "genomic_end": 142892488,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 77.6605710517174,
+      "tm_3": 64.36092773750545,
+      "tm_5": 60.36999173836267,
+      "tm_diff": 3.9909359991427777,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 64.36092773750545,
+      "tm_5prime": 60.36999173836267,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGCGC",
+      "target_sequence": "GCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGC",
+      "arm_3prime": "GCTGTGCTCGCGGGTGGACG",
+      "arm_5prime": "CGACTCGACAGTGGCTGCGC",
+      "position": 3579,
+      "genomic_start": 142892449,
+      "genomic_end": 142892489,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.784365889644,
+      "tm_3": 63.008415218662094,
+      "tm_5": 60.36999173836267,
+      "tm_diff": 2.638423480299423,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 63.008415218662094,
+      "tm_5prime": 60.36999173836267,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGCGCG",
+      "target_sequence": "CGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAG",
+      "arm_3prime": "CTGTGCTCGCGGGTGGACGC",
+      "arm_5prime": "GACTCGACAGTGGCTGCGCG",
+      "position": 3580,
+      "genomic_start": 142892450,
+      "genomic_end": 142892490,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 77.80800371830975,
+      "tm_3": 63.00841521866204,
+      "tm_5": 60.36999173836267,
+      "tm_diff": 2.638423480299366,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 63.00841521866204,
+      "tm_5prime": 60.36999173836267,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGT",
+      "target_sequence": "ACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACA",
+      "arm_3prime": "TGTGCTCGCGGGTGGACGCG",
+      "arm_5prime": "ACTCGACAGTGGCTGCGCGT",
+      "position": 3581,
+      "genomic_start": 142892451,
+      "genomic_end": 142892491,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 74.13843336296429,
+      "tm_3": 63.158885078485525,
+      "tm_5": 59.62020941482831,
+      "tm_diff": 3.538675663657216,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 63.158885078485525,
+      "tm_5prime": 59.62020941482831,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTT",
+      "target_sequence": "AACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCAC",
+      "arm_3prime": "GTGCTCGCGGGTGGACGCGA",
+      "arm_5prime": "CTCGACAGTGGCTGCGCGTT",
+      "position": 3582,
+      "genomic_start": 142892452,
+      "genomic_end": 142892492,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 73.41395226913272,
+      "tm_3": 63.350829557075315,
+      "tm_5": 55.296153180252645,
+      "tm_diff": 8.05467637682267,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 63.350829557075315,
+      "tm_5prime": 55.296153180252645,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGCTCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTG",
+      "target_sequence": "CAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCA",
+      "arm_3prime": "TGCTCGCGGGTGGACGCGAC",
+      "arm_5prime": "TCGACAGTGGCTGCGCGTTG",
+      "position": 3583,
+      "genomic_start": 142892453,
+      "genomic_end": 142892493,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 74.7216615319578,
+      "tm_3": 65.51154595775631,
+      "tm_5": 56.25077928021534,
+      "tm_diff": 9.260766677540971,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 65.51154595775631,
+      "tm_5prime": 56.25077928021534,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCTCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGC",
+      "target_sequence": "GCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAGC",
+      "arm_3prime": "GCTCGCGGGTGGACGCGACT",
+      "arm_5prime": "CGACAGTGGCTGCGCGTTGC",
+      "position": 3584,
+      "genomic_start": 142892454,
+      "genomic_end": 142892494,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.31709880540882,
+      "tm_3": 64.70190688579402,
+      "tm_5": 58.58058132092782,
+      "tm_diff": 6.121325564866197,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 64.70190688579402,
+      "tm_5prime": 58.58058132092782,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CTCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCG",
+      "target_sequence": "CGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGAG",
+      "arm_3prime": "CTCGCGGGTGGACGCGACTC",
+      "arm_5prime": "GACAGTGGCTGCGCGTTGCG",
+      "position": 3585,
+      "genomic_start": 142892455,
+      "genomic_end": 142892495,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.97930945364783,
+      "tm_3": 62.300334984889446,
+      "tm_5": 58.58058132092782,
+      "tm_diff": 3.719753663961626,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.300334984889446,
+      "tm_5prime": 58.58058132092782,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGC",
+      "target_sequence": "GCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGA",
+      "arm_3prime": "TCGCGGGTGGACGCGACTCG",
+      "arm_5prime": "ACAGTGGCTGCGCGTTGCGC",
+      "position": 3586,
+      "genomic_start": 142892456,
+      "genomic_end": 142892496,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.16311956446032,
+      "tm_3": 62.48341833293193,
+      "tm_5": 60.887168750092656,
+      "tm_diff": 1.5962495828392775,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.48341833293193,
+      "tm_5prime": 60.887168750092656,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGCC",
+      "target_sequence": "GGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCG",
+      "arm_3prime": "CGCGGGTGGACGCGACTCGA",
+      "arm_5prime": "CAGTGGCTGCGCGTTGCGCC",
+      "position": 3587,
+      "genomic_start": 142892457,
+      "genomic_end": 142892497,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.91261269916515,
+      "tm_3": 62.57750101277554,
+      "tm_5": 60.46948557803921,
+      "tm_diff": 2.1080154347363305,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.57750101277554,
+      "tm_5prime": 60.46948557803921,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCG",
+      "target_sequence": "CGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGC",
+      "arm_3prime": "GCGGGTGGACGCGACTCGAC",
+      "arm_5prime": "AGTGGCTGCGCGTTGCGCCG",
+      "position": 3588,
+      "genomic_start": 142892458,
+      "genomic_end": 142892498,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 77.8246610211578,
+      "tm_3": 64.91375830969326,
+      "tm_5": 60.96110515787012,
+      "tm_diff": 3.9526531518231423,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 64.91375830969326,
+      "tm_5prime": 60.96110515787012,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGC",
+      "target_sequence": "GCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCG",
+      "arm_3prime": "CGGGTGGACGCGACTCGACA",
+      "arm_5prime": "GTGGCTGCGCGTTGCGCCGC",
+      "position": 3589,
+      "genomic_start": 142892459,
+      "genomic_end": 142892499,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 76.53819064331185,
+      "tm_3": 61.25522928871254,
+      "tm_5": 62.71618102504681,
+      "tm_diff": 1.4609517363342661,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 61.25522928871254,
+      "tm_5prime": 62.71618102504681,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCC",
+      "target_sequence": "GGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCC",
+      "arm_3prime": "GGGTGGACGCGACTCGACAG",
+      "arm_5prime": "TGGCTGCGCGTTGCGCCGCC",
+      "position": 3590,
+      "genomic_start": 142892460,
+      "genomic_end": 142892500,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 77.09766480037763,
+      "tm_3": 62.549333220508686,
+      "tm_5": 64.33891625419955,
+      "tm_diff": 1.7895830336908602,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.549333220508686,
+      "tm_5prime": 64.33891625419955,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCG",
+      "target_sequence": "CGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACC",
+      "arm_3prime": "GGTGGACGCGACTCGACAGT",
+      "arm_5prime": "GGCTGCGCGTTGCGCCGCCG",
+      "position": 3591,
+      "genomic_start": 142892461,
+      "genomic_end": 142892501,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 76.90433714938433,
+      "tm_3": 59.60828984985267,
+      "tm_5": 63.667173160079074,
+      "tm_diff": 4.058883310226406,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 59.60828984985267,
+      "tm_5prime": 63.667173160079074,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GTGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGG",
+      "target_sequence": "CCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCAC",
+      "arm_3prime": "GTGGACGCGACTCGACAGTG",
+      "arm_5prime": "GCTGCGCGTTGCGCCGCCGG",
+      "position": 3592,
+      "genomic_start": 142892462,
+      "genomic_end": 142892502,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.86076049195577,
+      "tm_3": 57.23675036274375,
+      "tm_5": 63.667173160079074,
+      "tm_diff": 6.430422797335325,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 57.23675036274375,
+      "tm_5prime": 63.667173160079074,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGG",
+      "target_sequence": "CCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCA",
+      "arm_3prime": "TGGACGCGACTCGACAGTGG",
+      "arm_5prime": "CTGCGCGTTGCGCCGCCGGG",
+      "position": 3593,
+      "genomic_start": 142892463,
+      "genomic_end": 142892503,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.54042537970957,
+      "tm_3": 60.24315556228959,
+      "tm_5": 63.37214717309547,
+      "tm_diff": 3.1289916108058833,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.24315556228959,
+      "tm_5prime": 63.37214717309547,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGGT",
+      "target_sequence": "ACCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCC",
+      "arm_3prime": "GGACGCGACTCGACAGTGGC",
+      "arm_5prime": "TGCGCGTTGCGCCGCCGGGT",
+      "position": 3594,
+      "genomic_start": 142892464,
+      "genomic_end": 142892504,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 77.2158853302376,
+      "tm_3": 62.87314283893414,
+      "tm_5": 63.627646263288284,
+      "tm_diff": 0.7545034243541409,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.87314283893414,
+      "tm_5prime": 63.627646263288284,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGGTT",
+      "target_sequence": "AACCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTC",
+      "arm_3prime": "GACGCGACTCGACAGTGGCT",
+      "arm_5prime": "GCGCGTTGCGCCGCCGGGTT",
+      "position": 3595,
+      "genomic_start": 142892465,
+      "genomic_end": 142892505,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 74.3682963468757,
+      "tm_3": 59.523719897389924,
+      "tm_5": 61.12339008342832,
+      "tm_diff": 1.599670186038395,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 59.523719897389924,
+      "tm_5prime": 61.12339008342832,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "ACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGGTTT",
+      "target_sequence": "AAACCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGT",
+      "arm_3prime": "ACGCGACTCGACAGTGGCTG",
+      "arm_5prime": "CGCGTTGCGCCGCCGGGTTT",
+      "position": 3596,
+      "genomic_start": 142892466,
+      "genomic_end": 142892506,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 70.68907156550932,
+      "tm_3": 59.41496000656019,
+      "tm_5": 56.62353426665766,
+      "tm_diff": 2.791425739902536,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 59.41496000656019,
+      "tm_5prime": 56.62353426665766,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGGTTTT",
+      "target_sequence": "AAAACCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCG",
+      "arm_3prime": "CGCGACTCGACAGTGGCTGC",
+      "arm_5prime": "GCGTTGCGCCGCCGGGTTTT",
+      "position": 3597,
+      "genomic_start": 142892467,
+      "genomic_end": 142892507,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 70.88949661511708,
+      "tm_3": 60.36999173836267,
+      "tm_5": 54.65296082005551,
+      "tm_diff": 5.7170309183071595,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.36999173836267,
+      "tm_5prime": 54.65296082005551,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGGTTTTA",
+      "target_sequence": "TAAAACCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGC",
+      "arm_3prime": "GCGACTCGACAGTGGCTGCG",
+      "arm_5prime": "CGTTGCGCCGCCGGGTTTTA",
+      "position": 3598,
+      "genomic_start": 142892468,
+      "genomic_end": 142892508,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 69.16582671177207,
+      "tm_3": 60.36999173836267,
+      "tm_5": 51.27574248541208,
+      "tm_diff": 9.09424925295059,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.36999173836267,
+      "tm_5prime": 51.27574248541208,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGGTTTTAT",
+      "target_sequence": "ATAAAACCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCG",
+      "arm_3prime": "CGACTCGACAGTGGCTGCGC",
+      "arm_5prime": "GTTGCGCCGCCGGGTTTTAT",
+      "position": 3599,
+      "genomic_start": 142892469,
+      "genomic_end": 142892509,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 68.8561314062348,
+      "tm_3": 60.36999173836267,
+      "tm_5": 50.52216939542501,
+      "tm_diff": 9.847822342937661,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000100497"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.36999173836267,
+      "tm_5prime": 50.52216939542501,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGGCTATAGTCACCTCGGGGCCGCCAAGAGCAGCCGCTG",
+      "target_sequence": "CAGCGGCTGCTCTTGGCGGCCCCGAGGTGACTATAGCCTT",
+      "arm_3prime": "AAGGCTATAGTCACCTCGGG",
+      "arm_5prime": "GCCGCCAAGAGCAGCCGCTG",
+      "position": 1359,
+      "genomic_start": 142891465,
+      "genomic_end": 142891505,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 75.92445776707518,
+      "tm_3": 55.89156015369434,
+      "tm_5": 64.89147636687755,
+      "tm_diff": 8.999916213183212,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 55.89156015369434,
+      "tm_5prime": 64.89147636687755,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GAGCAGCCGCTGCCGCCCTGCCCACTTCCGGCAAGCCGCG",
+      "target_sequence": "CGCGGCTTGCCGGAAGTGGGCAGGGCGGCAGCGGCTGCTC",
+      "arm_3prime": "GAGCAGCCGCTGCCGCCCTG",
+      "arm_5prime": "CCCACTTCCGGCAAGCCGCG",
+      "position": 1387,
+      "genomic_start": 142891493,
+      "genomic_end": 142891533,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 78.9321716041893,
+      "tm_3": 66.57189560698379,
+      "tm_5": 59.88675228813349,
+      "tm_diff": 6.685143318850294,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 66.57189560698379,
+      "tm_5prime": 59.88675228813349,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AGCAGCCGCTGCCGCCCTGCCCACTTCCGGCAAGCCGCGG",
+      "target_sequence": "CCGCGGCTTGCCGGAAGTGGGCAGGGCGGCAGCGGCTGCT",
+      "arm_3prime": "AGCAGCCGCTGCCGCCCTGC",
+      "arm_5prime": "CCACTTCCGGCAAGCCGCGG",
+      "position": 1388,
+      "genomic_start": 142891494,
+      "genomic_end": 142891534,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 79.72415429031668,
+      "tm_3": 69.02811740724889,
+      "tm_5": 60.93307174027274,
+      "tm_diff": 8.095045666976148,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 69.02811740724889,
+      "tm_5prime": 60.93307174027274,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AGCCGCTGCCGCCCTGCCCACTTCCGGCAAGCCGCGGGCT",
+      "target_sequence": "AGCCCGCGGCTTGCCGGAAGTGGGCAGGGCGGCAGCGGCT",
+      "arm_3prime": "AGCCGCTGCCGCCCTGCCCA",
+      "arm_5prime": "CTTCCGGCAAGCCGCGGGCT",
+      "position": 1391,
+      "genomic_start": 142891497,
+      "genomic_end": 142891537,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 79.1980971293089,
+      "tm_3": 68.10624413527114,
+      "tm_5": 63.0394188439825,
+      "tm_diff": 5.066825291288637,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 68.10624413527114,
+      "tm_5prime": 63.0394188439825,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGCTGCCGCCCTGCCCACTTCCGGCAAGCCGCGGGCTCGA",
+      "target_sequence": "TCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGGCGGCAGCG",
+      "arm_3prime": "CGCTGCCGCCCTGCCCACTT",
+      "arm_5prime": "CCGGCAAGCCGCGGGCTCGA",
+      "position": 1394,
+      "genomic_start": 142891500,
+      "genomic_end": 142891540,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 79.22946446899743,
+      "tm_3": 61.3746821694632,
+      "tm_5": 66.08134806979649,
+      "tm_diff": 4.706665900333292,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 61.3746821694632,
+      "tm_5prime": 66.08134806979649,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCTGCCGCCCTGCCCACTTCCGGCAAGCCGCGGGCTCGAG",
+      "target_sequence": "CTCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGGCGGCAGC",
+      "arm_3prime": "GCTGCCGCCCTGCCCACTTC",
+      "arm_5prime": "CGGCAAGCCGCGGGCTCGAG",
+      "position": 1395,
+      "genomic_start": 142891501,
+      "genomic_end": 142891541,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 79.703522668093,
+      "tm_3": 62.15613575942626,
+      "tm_5": 65.56796425091812,
+      "tm_diff": 3.4118284914918604,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 62.15613575942626,
+      "tm_5prime": 65.56796425091812,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGCCGCCCTGCCCACTTCCGGCAAGCCGCGGGCTCGAGCC",
+      "target_sequence": "GGCTCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGGCGGCA",
+      "arm_3prime": "TGCCGCCCTGCCCACTTCCG",
+      "arm_5prime": "GCAAGCCGCGGGCTCGAGCC",
+      "position": 1397,
+      "genomic_start": 142891503,
+      "genomic_end": 142891543,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 78.89904738994983,
+      "tm_3": 60.98350774622975,
+      "tm_5": 67.95072530984191,
+      "tm_diff": 6.9672175636121665,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 60.98350774622975,
+      "tm_5prime": 67.95072530984191,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCCGCCCTGCCCACTTCCGGCAAGCCGCGGGCTCGAGCCG",
+      "target_sequence": "CGGCTCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGGCGGC",
+      "arm_3prime": "GCCGCCCTGCCCACTTCCGG",
+      "arm_5prime": "CAAGCCGCGGGCTCGAGCCG",
+      "position": 1398,
+      "genomic_start": 142891504,
+      "genomic_end": 142891544,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 79.2679281084242,
+      "tm_3": 63.24924545552324,
+      "tm_5": 64.61277645317546,
+      "tm_diff": 1.3635309976522194,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 63.24924545552324,
+      "tm_5prime": 64.61277645317546,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCCCTGCCCACTTCCGGCAAGCCGCGGGCTCGAGCCGCCA",
+      "target_sequence": "TGGCGGCTCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGGC",
+      "arm_3prime": "GCCCTGCCCACTTCCGGCAA",
+      "arm_5prime": "GCCGCGGGCTCGAGCCGCCA",
+      "position": 1401,
+      "genomic_start": 142891507,
+      "genomic_end": 142891547,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 79.74651268989834,
+      "tm_3": 60.7563783405443,
+      "tm_5": 68.31063865524999,
+      "tm_diff": 7.554260314705687,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 60.7563783405443,
+      "tm_5prime": 68.31063865524999,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CCCTGCCCACTTCCGGCAAGCCGCGGGCTCGAGCCGCCAG",
+      "target_sequence": "CTGGCGGCTCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGG",
+      "arm_3prime": "CCCTGCCCACTTCCGGCAAG",
+      "arm_5prime": "CCGCGGGCTCGAGCCGCCAG",
+      "position": 1402,
+      "genomic_start": 142891508,
+      "genomic_end": 142891548,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 78.67947680967245,
+      "tm_3": 58.78939874541743,
+      "tm_5": 66.44065353949236,
+      "tm_diff": 7.65125479407493,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 58.78939874541743,
+      "tm_5prime": 66.44065353949236,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CCTGCCCACTTCCGGCAAGCCGCGGGCTCGAGCCGCCAGG",
+      "target_sequence": "CCTGGCGGCTCGAGCCCGCGGCTTGCCGGAAGTGGGCAGG",
+      "arm_3prime": "CCTGCCCACTTCCGGCAAGC",
+      "arm_5prime": "CGCGGGCTCGAGCCGCCAGG",
+      "position": 1403,
+      "genomic_start": 142891509,
+      "genomic_end": 142891549,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 79.860383241678,
+      "tm_3": 60.1803483549711,
+      "tm_5": 67.36673908127932,
+      "tm_diff": 7.186390726308218,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000171419",
+      "isoform_name": "ENSMUST00000171419",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 60.1803483549711,
+      "tm_5prime": 67.36673908127932,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCAGGGCAGGTGAAACTGTATGGATAGATCTGAGACATGC",
+      "target_sequence": "GCATGTCTCAGATCTATCCATACAGTTTCACCTGCCCTGA",
+      "arm_3prime": "TCAGGGCAGGTGAAACTGTA",
+      "arm_5prime": "TGGATAGATCTGAGACATGC",
+      "position": 69,
+      "genomic_start": 142890590,
+      "genomic_end": 142890630,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 70.04779719196887,
+      "tm_3": 56.311964160955256,
+      "tm_5": 51.98976434822174,
+      "tm_diff": 4.3221998127335155,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000165629",
+      "isoform_name": "ENSMUST00000165629",
+      "overlapping_regions": [
+        [
+          142890537,
+          142890628
+        ],
+        [
+          142890628,
+          142890843
+        ]
+      ],
+      "tm_3prime": 56.311964160955256,
+      "tm_5prime": 51.98976434822174,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CAGGGCAGGTGAAACTGTATGGATAGATCTGAGACATGCA",
+      "target_sequence": "TGCATGTCTCAGATCTATCCATACAGTTTCACCTGCCCTG",
+      "arm_3prime": "CAGGGCAGGTGAAACTGTAT",
+      "arm_5prime": "GGATAGATCTGAGACATGCA",
+      "position": 70,
+      "genomic_start": 142890591,
+      "genomic_end": 142890631,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 70.24287377629764,
+      "tm_3": 55.07628257888979,
+      "tm_5": 50.601573492402,
+      "tm_diff": 4.474709086487792,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000165629",
+      "isoform_name": "ENSMUST00000165629",
+      "overlapping_regions": [
+        [
+          142890537,
+          142890628
+        ],
+        [
+          142890628,
+          142890843
+        ]
+      ],
+      "tm_3prime": 55.07628257888979,
+      "tm_5prime": 50.601573492402,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCAGGTGAAACTGTATGGATAGATCTGAGACATGCAAGGA",
+      "target_sequence": "TCCTTGCATGTCTCAGATCTATCCATACAGTTTCACCTGC",
+      "arm_3prime": "GCAGGTGAAACTGTATGGAT",
+      "arm_5prime": "AGATCTGAGACATGCAAGGA",
+      "position": 74,
+      "genomic_start": 142890595,
+      "genomic_end": 142890635,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 69.63954285417975,
+      "tm_3": 51.94313949031499,
+      "tm_5": 53.48635070505753,
+      "tm_diff": 1.5432112147425414,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000165629",
+      "isoform_name": "ENSMUST00000165629",
+      "overlapping_regions": [
+        [
+          142890537,
+          142890628
+        ],
+        [
+          142890628,
+          142890843
+        ]
+      ],
+      "tm_3prime": 51.94313949031499,
+      "tm_5prime": 53.48635070505753,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGGATAGATCTGAGACATGCAAGGAGTGCAAGAACACAGC",
+      "target_sequence": "GCTGTGTTCTTGCACTCCTTGCATGTCTCAGATCTATCCA",
+      "arm_3prime": "TGGATAGATCTGAGACATGC",
+      "arm_5prime": "AAGGAGTGCAAGAACACAGC",
+      "position": 89,
+      "genomic_start": 142890610,
+      "genomic_end": 142890650,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 71.69136501477539,
+      "tm_3": 51.98976434822174,
+      "tm_5": 58.32300877431635,
+      "tm_diff": 6.333244426094609,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000165629",
+      "isoform_name": "ENSMUST00000165629",
+      "overlapping_regions": [
+        [
+          142890537,
+          142890628
+        ],
+        [
+          142890628,
+          142890843
+        ]
+      ],
+      "tm_3prime": 51.98976434822174,
+      "tm_5prime": 58.32300877431635,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGATAGATCTGAGACATGCAAGGAGTGCAAGAACACAGCT",
+      "target_sequence": "AGCTGTGTTCTTGCACTCCTTGCATGTCTCAGATCTATCC",
+      "arm_3prime": "GGATAGATCTGAGACATGCA",
+      "arm_5prime": "AGGAGTGCAAGAACACAGCT",
+      "position": 90,
+      "genomic_start": 142890611,
+      "genomic_end": 142890651,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 71.42253377499219,
+      "tm_3": 50.601573492402,
+      "tm_5": 58.17067579295792,
+      "tm_diff": 7.569102300555926,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000165629",
+      "isoform_name": "ENSMUST00000165629",
+      "overlapping_regions": [
+        [
+          142890537,
+          142890628
+        ],
+        [
+          142890628,
+          142890843
+        ]
+      ],
+      "tm_3prime": 50.601573492402,
+      "tm_5prime": 58.17067579295792,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGCAAGGAGTGCAAGAACACAGCTAAGTTCAGTGTGCTGG",
+      "target_sequence": "CCAGCACACTGAACTTAGCTGTGTTCTTGCACTCCTTGCA",
+      "arm_3prime": "TGCAAGGAGTGCAAGAACAC",
+      "arm_5prime": "AGCTAAGTTCAGTGTGCTGG",
+      "position": 106,
+      "genomic_start": 142890627,
+      "genomic_end": 142890667,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 69.73539600509997,
+      "tm_3": 57.63553096492808,
+      "tm_5": 50.51857896429175,
+      "tm_diff": 7.116952000636331,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000165629",
+      "isoform_name": "ENSMUST00000165629",
+      "overlapping_regions": [
+        [
+          142890537,
+          142890628
+        ],
+        [
+          142890628,
+          142890843
+        ]
+      ],
+      "tm_3prime": 57.63553096492808,
+      "tm_5prime": 50.51857896429175,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "ACAGGTCACTTACCTGGTGCCTAGGGCGGCCCACGATGGA",
+      "target_sequence": "TCCATCGTGGGCCGCCCTAGGCACCAGGTAAGTGACCTGT",
+      "arm_3prime": "ACAGGTCACTTACCTGGTGC",
+      "arm_5prime": "CTAGGGCGGCCCACGATGGA",
+      "position": 678,
+      "genomic_start": 142891306,
+      "genomic_end": 142891346,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 75.18150413618002,
+      "tm_3": 55.30970227470601,
+      "tm_5": 64.74666341416605,
+      "tm_diff": 9.436961139460038,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000164765"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000164765",
+      "isoform_name": "ENSMUST00000164765",
+      "overlapping_regions": [
+        [
+          142891319,
+          142891447
+        ],
+        [
+          142891231,
+          142891319
+        ]
+      ],
+      "tm_3prime": 55.30970227470601,
+      "tm_5prime": 64.74666341416605,
+      "thermal_filter_passed": true
+    }
+  ],
+  "Tuba1a": [
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAAGTGGATGCGAGGGTAGGGTACCAGGTTGGTCTGGAAT",
+      "target_sequence": "ATTCCAGACCAACCTGGTACCCTACCCTCGCATCCACTTC",
+      "arm_3prime": "GAAGTGGATGCGAGGGTAGG",
+      "arm_5prime": "GTACCAGGTTGGTCTGGAAT",
+      "position": 0,
+      "genomic_start": 98830018,
+      "genomic_end": 98830058,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 71.11670397787185,
+      "tm_3": 60.3680999467727,
+      "tm_5": 51.67088823931732,
+      "tm_diff": 8.69721170745538,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 60.3680999467727,
+      "tm_5prime": 51.67088823931732,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ACATTCAGGGCCCCATCAAATCTGAGGGAAGCAGTGATGG",
+      "target_sequence": "CCATCACTGCTTCCCTCAGATTTGATGGGGCCCTGAATGT",
+      "arm_3prime": "ACATTCAGGGCCCCATCAAA",
+      "arm_5prime": "TCTGAGGGAAGCAGTGATGG",
+      "position": 52,
+      "genomic_start": 98830070,
+      "genomic_end": 98830110,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 71.62848969244982,
+      "tm_3": 53.20295354424081,
+      "tm_5": 58.797146774211,
+      "tm_diff": 5.5941932299701875,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 53.20295354424081,
+      "tm_5prime": 58.797146774211,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ATCAAATCTGAGGGAAGCAGTGATGGAAGACACAATCTGG",
+      "target_sequence": "CCAGATTGTGTCTTCCATCACTGCTTCCCTCAGATTTGAT",
+      "arm_3prime": "ATCAAATCTGAGGGAAGCAG",
+      "arm_5prime": "TGATGGAAGACACAATCTGG",
+      "position": 66,
+      "genomic_start": 98830084,
+      "genomic_end": 98830124,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.13666790194537,
+      "tm_3": 52.69865619395023,
+      "tm_5": 52.826245042047674,
+      "tm_diff": 0.12758884809744586,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 52.69865619395023,
+      "tm_5prime": 52.826245042047674,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGGGAAGCAGTGATGGAAGACACAATCTGGCTAATAAGGC",
+      "target_sequence": "GCCTTATTAGCCAGATTGTGTCTTCCATCACTGCTTCCCT",
+      "arm_3prime": "AGGGAAGCAGTGATGGAAGA",
+      "arm_5prime": "CACAATCTGGCTAATAAGGC",
+      "position": 76,
+      "genomic_start": 98830094,
+      "genomic_end": 98830134,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 70.7569019074748,
+      "tm_3": 59.640378638708,
+      "tm_5": 51.00290866944641,
+      "tm_diff": 8.637469969261588,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 59.640378638708,
+      "tm_5prime": 51.00290866944641,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ATGGAAGACACAATCTGGCTAATAAGGCGGTTAAGGTTGG",
+      "target_sequence": "CCAACCTTAACCGCCTTATTAGCCAGATTGTGTCTTCCAT",
+      "arm_3prime": "ATGGAAGACACAATCTGGCT",
+      "arm_5prime": "AATAAGGCGGTTAAGGTTGG",
+      "position": 88,
+      "genomic_start": 98830106,
+      "genomic_end": 98830146,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 67.73715031578558,
+      "tm_3": 54.41505820225575,
+      "tm_5": 51.04594476575397,
+      "tm_diff": 3.3691134365017774,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 54.41505820225575,
+      "tm_5prime": 51.04594476575397,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AATCTGGCTAATAAGGCGGTTAAGGTTGGTGTAGGTTGGG",
+      "target_sequence": "CCCAACCTACACCAACCTTAACCGCCTTATTAGCCAGATT",
+      "arm_3prime": "AATCTGGCTAATAAGGCGGT",
+      "arm_5prime": "TAAGGTTGGTGTAGGTTGGG",
+      "position": 99,
+      "genomic_start": 98830117,
+      "genomic_end": 98830157,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 67.51690320304141,
+      "tm_3": 53.43511524100734,
+      "tm_5": 52.76947450932522,
+      "tm_diff": 0.6656407316821173,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 53.43511524100734,
+      "tm_5prime": 52.76947450932522,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AATAAGGCGGTTAAGGTTGGTGTAGGTTGGGCGCTCAATG",
+      "target_sequence": "CATTGAGCGCCCAACCTACACCAACCTTAACCGCCTTATT",
+      "arm_3prime": "AATAAGGCGGTTAAGGTTGG",
+      "arm_5prime": "TGTAGGTTGGGCGCTCAATG",
+      "position": 108,
+      "genomic_start": 98830126,
+      "genomic_end": 98830166,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 66.6925863466542,
+      "tm_3": 51.04594476575397,
+      "tm_5": 54.32955998268869,
+      "tm_diff": 3.28361521693472,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 51.04594476575397,
+      "tm_5prime": 54.32955998268869,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGTCTACCATGAAGGCACAATCAGAGTGCTCCAGGGTGGT",
+      "target_sequence": "ACCACCCTGGAGCACTCTGATTGTGCCTTCATGGTAGACA",
+      "arm_3prime": "TGTCTACCATGAAGGCACAA",
+      "arm_5prime": "TCAGAGTGCTCCAGGGTGGT",
+      "position": 185,
+      "genomic_start": 98830203,
+      "genomic_end": 98830243,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.805755012583,
+      "tm_3": 51.58914354283678,
+      "tm_5": 59.347498393686806,
+      "tm_diff": 7.758354850850026,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 51.58914354283678,
+      "tm_5prime": 59.347498393686806,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGAAGGCACAATCAGAGTGCTCCAGGGTGGTGTGGGTGGT",
+      "target_sequence": "ACCACCCACACCACCCTGGAGCACTCTGATTGTGCCTTCA",
+      "arm_3prime": "TGAAGGCACAATCAGAGTGC",
+      "arm_5prime": "TCCAGGGTGGTGTGGGTGGT",
+      "position": 194,
+      "genomic_start": 98830212,
+      "genomic_end": 98830252,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 73.16556798339667,
+      "tm_3": 55.63658763123948,
+      "tm_5": 62.98907569065494,
+      "tm_diff": 7.352488059415464,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 55.63658763123948,
+      "tm_5prime": 62.98907569065494,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AATCAGAGTGCTCCAGGGTGGTGTGGGTGGTGAGGATGGA",
+      "target_sequence": "TCCATCCTCACCACCCACACCACCCTGGAGCACTCTGATT",
+      "arm_3prime": "AATCAGAGTGCTCCAGGGTG",
+      "arm_5prime": "GTGTGGGTGGTGAGGATGGA",
+      "position": 203,
+      "genomic_start": 98830221,
+      "genomic_end": 98830261,
+      "length": 40,
+      "g_content": 0.475,
+      "tm": 73.04932462617467,
+      "tm_3": 55.5633555848234,
+      "tm_5": 60.677202327174086,
+      "tm_diff": 5.113846742350688,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 55.5633555848234,
+      "tm_5prime": 60.677202327174086,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CTCCAGGGTGGTGTGGGTGGTGAGGATGGAATTGTAGGGC",
+      "target_sequence": "GCCCTACAATTCCATCCTCACCACCCACACCACCCTGGAG",
+      "arm_3prime": "CTCCAGGGTGGTGTGGGTGG",
+      "arm_5prime": "TGAGGATGGAATTGTAGGGC",
+      "position": 213,
+      "genomic_start": 98830231,
+      "genomic_end": 98830271,
+      "length": 40,
+      "g_content": 0.5,
+      "tm": 75.11731959537309,
+      "tm_3": 62.70493615162286,
+      "tm_5": 56.90565805588841,
+      "tm_diff": 5.799278095734451,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 62.70493615162286,
+      "tm_5prime": 56.90565805588841,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTGTGGGTGGTGAGGATGGAATTGTAGGGCTCAACCACAG",
+      "target_sequence": "CTGTGGTTGAGCCCTACAATTCCATCCTCACCACCCACAC",
+      "arm_3prime": "GTGTGGGTGGTGAGGATGGA",
+      "arm_5prime": "ATTGTAGGGCTCAACCACAG",
+      "position": 223,
+      "genomic_start": 98830241,
+      "genomic_end": 98830281,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 73.14477100652965,
+      "tm_3": 60.677202327174086,
+      "tm_5": 52.77296119695893,
+      "tm_diff": 7.904241130215155,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 60.677202327174086,
+      "tm_5prime": 52.77296119695893,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTGAGGATGGAATTGTAGGGCTCAACCACAGCAGTGGAAA",
+      "target_sequence": "TTTCCACTGCTGTGGTTGAGCCCTACAATTCCATCCTCAC",
+      "arm_3prime": "GTGAGGATGGAATTGTAGGG",
+      "arm_5prime": "CTCAACCACAGCAGTGGAAA",
+      "position": 232,
+      "genomic_start": 98830250,
+      "genomic_end": 98830290,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 69.47158845940987,
+      "tm_3": 53.748603486784816,
+      "tm_5": 53.04226161613457,
+      "tm_diff": 0.7063418706502489,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 53.748603486784816,
+      "tm_5prime": 53.04226161613457,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGCAGTGGAAACCTGGGGGGCTGGGTAAATGGAGAAC",
+      "target_sequence": "GTTCTCCATTTACCCAGCCCCCCAGGTTTCCACTGCTGTG",
+      "arm_3prime": "CACAGCAGTGGAAACCTGGG",
+      "arm_5prime": "GGGCTGGGTAAATGGAGAAC",
+      "position": 258,
+      "genomic_start": 98830276,
+      "genomic_end": 98830316,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 77.5027617151643,
+      "tm_3": 60.3129582101476,
+      "tm_5": 61.6797233150881,
+      "tm_diff": 1.366765104940498,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 60.3129582101476,
+      "tm_5prime": 61.6797233150881,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCCGTAATCCACAGAGAGCCGCTCCATCAGCAGGGAGGTG",
+      "target_sequence": "CACCTCCCTGCTGATGGAGCGGCTCTCTGTGGATTACGGA",
+      "arm_3prime": "TCCGTAATCCACAGAGAGCC",
+      "arm_5prime": "GCTCCATCAGCAGGGAGGTG",
+      "position": 315,
+      "genomic_start": 98830333,
+      "genomic_end": 98830373,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 73.14039729874412,
+      "tm_3": 54.097511989210545,
+      "tm_5": 60.8911810986894,
+      "tm_diff": 6.793669109478856,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 54.097511989210545,
+      "tm_5prime": 60.8911810986894,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGAGAGCCGCTCCATCAGCAGGGAGGTGAAGCCAGAG",
+      "target_sequence": "CTCTGGCTTCACCTCCCTGCTGATGGAGCGGCTCTCTGTG",
+      "arm_3prime": "CACAGAGAGCCGCTCCATCA",
+      "arm_5prime": "GCAGGGAGGTGAAGCCAGAG",
+      "position": 324,
+      "genomic_start": 98830342,
+      "genomic_end": 98830382,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 77.95831924086792,
+      "tm_3": 55.30514376948037,
+      "tm_5": 65.01691245092695,
+      "tm_diff": 9.711768681446586,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 55.30514376948037,
+      "tm_5prime": 65.01691245092695,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CCGCTCCATCAGCAGGGAGGTGAAGCCAGAGCCAGTTCCC",
+      "target_sequence": "GGGAACTGGCTCTGGCTTCACCTCCCTGCTGATGGAGCGG",
+      "arm_3prime": "CCGCTCCATCAGCAGGGAGG",
+      "arm_5prime": "TGAAGCCAGAGCCAGTTCCC",
+      "position": 333,
+      "genomic_start": 98830351,
+      "genomic_end": 98830391,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 76.09597665559852,
+      "tm_3": 62.04573927067008,
+      "tm_5": 57.47237442003109,
+      "tm_diff": 4.5733648506389954,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 62.04573927067008,
+      "tm_5prime": 57.47237442003109,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CAGCAGGGAGGTGAAGCCAGAGCCAGTTCCCCCACCAAAG",
+      "target_sequence": "CTTTGGTGGGGGAACTGGCTCTGGCTTCACCTCCCTGCTG",
+      "arm_3prime": "CAGCAGGGAGGTGAAGCCAG",
+      "arm_5prime": "AGCCAGTTCCCCCACCAAAG",
+      "position": 342,
+      "genomic_start": 98830360,
+      "genomic_end": 98830400,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 77.1341871395914,
+      "tm_3": 63.52144052025875,
+      "tm_5": 56.006159822009295,
+      "tm_diff": 7.515280698249455,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 63.52144052025875,
+      "tm_5prime": 56.006159822009295,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGCTGTGGAAAACCAAGAAGCCCTGGAGACCTGTGCACTG",
+      "target_sequence": "CAGTGCACAGGTCTCCAGGGCTTCTTGGTTTTCCACAGCT",
+      "arm_3prime": "AGCTGTGGAAAACCAAGAAG",
+      "arm_5prime": "CCCTGGAGACCTGTGCACTG",
+      "position": 380,
+      "genomic_start": 98830398,
+      "genomic_end": 98830438,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 73.90982617374152,
+      "tm_3": 54.096639222050385,
+      "tm_5": 59.61877951655049,
+      "tm_diff": 5.522140294500105,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 54.096639222050385,
+      "tm_5prime": 59.61877951655049,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ACCAAGAAGCCCTGGAGACCTGTGCACTGGTCAGCCTGTG",
+      "target_sequence": "CACAGGCTGACCAGTGCACAGGTCTCCAGGGCTTCTTGGT",
+      "arm_3prime": "ACCAAGAAGCCCTGGAGACC",
+      "arm_5prime": "TGTGCACTGGTCAGCCTGTG",
+      "position": 391,
+      "genomic_start": 98830409,
+      "genomic_end": 98830449,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 76.71823768517129,
+      "tm_3": 63.612551515210384,
+      "tm_5": 56.37002819959838,
+      "tm_diff": 7.242523315612004,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 63.612551515210384,
+      "tm_5prime": 56.37002819959838,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CCCTGGAGACCTGTGCACTGGTCAGCCTGTGGGAGAAAAG",
+      "target_sequence": "CTTTTCTCCCACAGGCTGACCAGTGCACAGGTCTCCAGGG",
+      "arm_3prime": "CCCTGGAGACCTGTGCACTG",
+      "arm_5prime": "GTCAGCCTGTGGGAGAAAAG",
+      "position": 400,
+      "genomic_start": 98830418,
+      "genomic_end": 98830458,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 75.91483919783144,
+      "tm_3": 59.61877951655049,
+      "tm_5": 56.223164977479655,
+      "tm_diff": 3.3956145390708343,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 59.61877951655049,
+      "tm_5prime": 56.223164977479655,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CCTGTGCACTGGTCAGCCTGTGGGAGAAAAGGAAATGTAA",
+      "target_sequence": "TTACATTTCCTTTTCTCCCACAGGCTGACCAGTGCACAGG",
+      "arm_3prime": "CCTGTGCACTGGTCAGCCTG",
+      "arm_5prime": "TGGGAGAAAAGGAAATGTAA",
+      "position": 409,
+      "genomic_start": 98830427,
+      "genomic_end": 98830467,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 71.34743864494305,
+      "tm_3": 57.248677210268,
+      "tm_5": 51.53266789426698,
+      "tm_diff": 5.716009316001021,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 57.248677210268,
+      "tm_5prime": 51.53266789426698,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTACCCGTTGCCGCCCCGCATTGCAGCGGCGCGCCCCTGT",
+      "target_sequence": "ACAGGGGCGCGCCGCTGCAATGCGGGGCGGCAACGGGTAC",
+      "arm_3prime": "GTACCCGTTGCCGCCCCGCA",
+      "arm_5prime": "TTGCAGCGGCGCGCCCCTGT",
+      "position": 2,
+      "genomic_start": 98832520,
+      "genomic_end": 98832560,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 75.39375929293158,
+      "tm_3": 59.35079729523653,
+      "tm_5": 63.26163262834058,
+      "tm_diff": 3.910835333104046,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 59.35079729523653,
+      "tm_5prime": 63.26163262834058,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCTGCGACAGTACCCGTTGCCGCCCCGCATTGCAGCGGCG",
+      "target_sequence": "CGCCGCTGCAATGCGGGGCGGCAACGGGTACTGTCGCAGA",
+      "arm_3prime": "TCTGCGACAGTACCCGTTGC",
+      "arm_5prime": "CGCCCCGCATTGCAGCGGCG",
+      "position": 11,
+      "genomic_start": 98832529,
+      "genomic_end": 98832569,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 72.15845753819343,
+      "tm_3": 54.029899616870864,
+      "tm_5": 61.90065995341689,
+      "tm_diff": 7.870760336546027,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 54.029899616870864,
+      "tm_5prime": 61.90065995341689,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGACATGCCAAGTCCCAGGGCTCGCCCACATGGAGCGATT",
+      "target_sequence": "AATCGCTCCATGTGGGCGAGCCCTGGGACTTGGCATGTCC",
+      "arm_3prime": "GGACATGCCAAGTCCCAGGG",
+      "arm_5prime": "CTCGCCCACATGGAGCGATT",
+      "position": 65,
+      "genomic_start": 98832583,
+      "genomic_end": 98832623,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 73.20420909473734,
+      "tm_3": 61.804086030146266,
+      "tm_5": 54.417338577098405,
+      "tm_diff": 7.38674745304786,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 61.804086030146266,
+      "tm_5prime": 54.417338577098405,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGCTCGGCTTTAAGCAAAGATCTGGGTCAGGAAGAAAGAG",
+      "target_sequence": "CTCTTTCTTCCTGACCCAGATCTTTGCTTAAAGCCGAGCT",
+      "arm_3prime": "AGCTCGGCTTTAAGCAAAGA",
+      "arm_5prime": "TCTGGGTCAGGAAGAAAGAG",
+      "position": 6960,
+      "genomic_start": 98839478,
+      "genomic_end": 98839518,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 68.77887644085916,
+      "tm_3": 50.0294668756037,
+      "tm_5": 56.23508111976156,
+      "tm_diff": 6.205614244157857,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98839497,
+          98839705
+        ]
+      ],
+      "tm_3prime": 50.0294668756037,
+      "tm_5prime": 56.23508111976156,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGGGATACAAGCTCGGCTTTAAGCAAAGATCTGGGTCAGG",
+      "target_sequence": "CCTGACCCAGATCTTTGCTTAAAGCCGAGCTTGTATCCCT",
+      "arm_3prime": "AGGGATACAAGCTCGGCTTT",
+      "arm_5prime": "AAGCAAAGATCTGGGTCAGG",
+      "position": 6969,
+      "genomic_start": 98839487,
+      "genomic_end": 98839527,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 70.03040324786758,
+      "tm_3": 53.83424055753028,
+      "tm_5": 55.71520163889954,
+      "tm_diff": 1.8809610813692643,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98839497,
+          98839705
+        ]
+      ],
+      "tm_3prime": 53.83424055753028,
+      "tm_5prime": 55.71520163889954,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAGTCCAGGAACTCAAGAGTTCATCTTCAGGGCAGGGATA",
+      "target_sequence": "TATCCCTGCCCTGAAGATGAACTCTTGAGTTCCTGGACTC",
+      "arm_3prime": "GAGTCCAGGAACTCAAGAGT",
+      "arm_5prime": "TCATCTTCAGGGCAGGGATA",
+      "position": 7002,
+      "genomic_start": 98839520,
+      "genomic_end": 98839560,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.53616476059369,
+      "tm_3": 52.76633687970917,
+      "tm_5": 53.887708480692424,
+      "tm_diff": 1.1213716009832524,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98839497,
+          98839705
+        ]
+      ],
+      "tm_3prime": 52.76633687970917,
+      "tm_5prime": 53.887708480692424,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ACTAAAGCTGGCAATAATGGTGTGAATCAGGGAAAGGAAA",
+      "target_sequence": "TTTCCTTTCCCTGATTCACACCATTATTGCCAGCTTTAGT",
+      "arm_3prime": "ACTAAAGCTGGCAATAATGG",
+      "arm_5prime": "TGTGAATCAGGGAAAGGAAA",
+      "position": 7078,
+      "genomic_start": 98839596,
+      "genomic_end": 98839636,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 67.63014938706158,
+      "tm_3": 51.36089533651375,
+      "tm_5": 52.98560020152263,
+      "tm_diff": 1.62470486500888,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98839497,
+          98839705
+        ]
+      ],
+      "tm_3prime": 51.36089533651375,
+      "tm_5prime": 52.98560020152263,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AACTTGTGATCTAGGCGAGCCCAGGCCTCAGCAATGGCTG",
+      "target_sequence": "CAGCCATTGCTGAGGCCTGGGCTCGCCTAGATCACAAGTT",
+      "arm_3prime": "AACTTGTGATCTAGGCGAGC",
+      "arm_5prime": "CCAGGCCTCAGCAATGGCTG",
+      "position": 369,
+      "genomic_start": 98848087,
+      "genomic_end": 98848127,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 72.27322815796668,
+      "tm_3": 52.35035741433654,
+      "tm_5": 60.37534351051039,
+      "tm_diff": 8.024986096173848,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 52.35035741433654,
+      "tm_5prime": 60.37534351051039,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCTAGGCGAGCCCAGGCCTCAGCAATGGCTGTGGTGTTGC",
+      "target_sequence": "GCAACACCACAGCCATTGCTGAGGCCTGGGCTCGCCTAGA",
+      "arm_3prime": "TCTAGGCGAGCCCAGGCCTC",
+      "arm_5prime": "AGCAATGGCTGTGGTGTTGC",
+      "position": 378,
+      "genomic_start": 98848096,
+      "genomic_end": 98848136,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 75.03926036204092,
+      "tm_3": 64.61339495628329,
+      "tm_5": 55.81419330512091,
+      "tm_diff": 8.799201651162377,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 64.61339495628329,
+      "tm_5prime": 55.81419330512091,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CCCAGGCCTCAGCAATGGCTGTGGTGTTGCTCAGCATGCA",
+      "target_sequence": "TGCATGCTGAGCAACACCACAGCCATTGCTGAGGCCTGGG",
+      "arm_3prime": "CCCAGGCCTCAGCAATGGCT",
+      "arm_5prime": "GTGGTGTTGCTCAGCATGCA",
+      "position": 388,
+      "genomic_start": 98848106,
+      "genomic_end": 98848146,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 73.12671728000936,
+      "tm_3": 61.62524686742188,
+      "tm_5": 51.899275879112736,
+      "tm_diff": 9.725970988309143,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 61.62524686742188,
+      "tm_5prime": 51.899275879112736,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCTGCACCTTGGCCAGGTCACCACCGGGTACCACAGTGGG",
+      "target_sequence": "CCCACTGTGGTACCCGGTGGTGACCTGGCCAAGGTGCAGA",
+      "arm_3prime": "TCTGCACCTTGGCCAGGTCA",
+      "arm_5prime": "CCACCGGGTACCACAGTGGG",
+      "position": 436,
+      "genomic_start": 98848154,
+      "genomic_end": 98848194,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 74.99243378748628,
+      "tm_3": 57.16464600659327,
+      "tm_5": 62.96438666699396,
+      "tm_diff": 5.799740660400687,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 57.16464600659327,
+      "tm_5prime": 62.96438666699396,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGGCCAGGTCACCACCGGGTACCACAGTGGGAGGCTGGTA",
+      "target_sequence": "TACCAGCCTCCCACTGTGGTACCCGGTGGTGACCTGGCCA",
+      "arm_3prime": "TGGCCAGGTCACCACCGGGT",
+      "arm_5prime": "ACCACAGTGGGAGGCTGGTA",
+      "position": 445,
+      "genomic_start": 98848163,
+      "genomic_end": 98848203,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 79.18899145623601,
+      "tm_3": 65.51817526049689,
+      "tm_5": 63.32305021113302,
+      "tm_diff": 2.1951250493638668,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 65.51817526049689,
+      "tm_5prime": 63.32305021113302,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACCACCGGGTACCACAGTGGGAGGCTGGTAGTTAATGCC",
+      "target_sequence": "GGCATTAACTACCAGCCTCCCACTGTGGTACCCGGTGGTG",
+      "arm_3prime": "CACCACCGGGTACCACAGTG",
+      "arm_5prime": "GGAGGCTGGTAGTTAATGCC",
+      "position": 454,
+      "genomic_start": 98848172,
+      "genomic_end": 98848212,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 73.42671995398103,
+      "tm_3": 58.751930645553784,
+      "tm_5": 55.97309076452149,
+      "tm_diff": 2.7788398810322974,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 58.751930645553784,
+      "tm_5prime": 55.97309076452149,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGTGGGAGGCTGGTAGTTAATGCCAACCTTGAAGCCA",
+      "target_sequence": "TGGCTTCAAGGTTGGCATTAACTACCAGCCTCCCACTGTG",
+      "arm_3prime": "CACAGTGGGAGGCTGGTAGT",
+      "arm_5prime": "TAATGCCAACCTTGAAGCCA",
+      "position": 467,
+      "genomic_start": 98848185,
+      "genomic_end": 98848225,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 72.4613761416461,
+      "tm_3": 60.37312247581076,
+      "tm_5": 50.627416882384864,
+      "tm_diff": 9.745705593425896,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.37312247581076,
+      "tm_5prime": 50.627416882384864,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CAGTCCACAAACTGGATGGTACGCTTGGTCTTGATGGTGG",
+      "target_sequence": "CCACCATCAAGACCAAGCGTACCATCCAGTTTGTGGACTG",
+      "arm_3prime": "CAGTCCACAAACTGGATGGT",
+      "arm_5prime": "ACGCTTGGTCTTGATGGTGG",
+      "position": 516,
+      "genomic_start": 98848234,
+      "genomic_end": 98848274,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 69.05425064808168,
+      "tm_3": 52.619730648502525,
+      "tm_5": 52.713963323290955,
+      "tm_diff": 0.09423267478842945,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 52.619730648502525,
+      "tm_5prime": 52.713963323290955,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AACTGGATGGTACGCTTGGTCTTGATGGTGGCAATGGCAG",
+      "target_sequence": "CTGCCATTGCCACCATCAAGACCAAGCGTACCATCCAGTT",
+      "arm_3prime": "AACTGGATGGTACGCTTGGT",
+      "arm_5prime": "CTTGATGGTGGCAATGGCAG",
+      "position": 525,
+      "genomic_start": 98848243,
+      "genomic_end": 98848283,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 69.55065769858498,
+      "tm_3": 54.35558381961147,
+      "tm_5": 54.69784718469674,
+      "tm_diff": 0.3422633650852731,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 54.35558381961147,
+      "tm_5prime": 54.69784718469674,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TACAGCAGGCAGCAAGCCATGTATTTACCATGGCGAGGGT",
+      "target_sequence": "ACCCTCGCCATGGTAAATACATGGCTTGCTGCCTGCTGTA",
+      "arm_3prime": "TACAGCAGGCAGCAAGCCAT",
+      "arm_5prime": "GTATTTACCATGGCGAGGGT",
+      "position": 597,
+      "genomic_start": 98848315,
+      "genomic_end": 98848355,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 68.77177339532739,
+      "tm_3": 60.11217590434296,
+      "tm_5": 50.80357155369103,
+      "tm_diff": 9.308604350651933,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.11217590434296,
+      "tm_5prime": 50.80357155369103,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TACCATGGCGAGGGTCACATTTCACCATCTGGTTGGCTGG",
+      "target_sequence": "CCAGCCAACCAGATGGTGAAATGTGACCCTCGCCATGGTA",
+      "arm_3prime": "TACCATGGCGAGGGTCACAT",
+      "arm_5prime": "TTCACCATCTGGTTGGCTGG",
+      "position": 622,
+      "genomic_start": 98848340,
+      "genomic_end": 98848380,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.62528534195184,
+      "tm_3": 57.78096367570453,
+      "tm_5": 52.54698318530899,
+      "tm_diff": 5.233980490395538,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 57.78096367570453,
+      "tm_5prime": 52.54698318530899,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TTCACCATCTGGTTGGCTGGCTCAAAGCAGGCATTGGTGA",
+      "target_sequence": "TCACCAATGCCTGCTTTGAGCCAGCCAACCAGATGGTGAA",
+      "arm_3prime": "TTCACCATCTGGTTGGCTGG",
+      "arm_5prime": "CTCAAAGCAGGCATTGGTGA",
+      "position": 642,
+      "genomic_start": 98848360,
+      "genomic_end": 98848400,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 66.5304442164857,
+      "tm_3": 52.54698318530899,
+      "tm_5": 51.957062347290275,
+      "tm_diff": 0.5899208380187133,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 52.54698318530899,
+      "tm_5prime": 51.957062347290275,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGGTTGGCTGGCTCAAAGCAGGCATTGGTGATCTCTGCTA",
+      "target_sequence": "TAGCAGAGATCACCAATGCCTGCTTTGAGCCAGCCAACCA",
+      "arm_3prime": "TGGTTGGCTGGCTCAAAGCA",
+      "arm_5prime": "GGCATTGGTGATCTCTGCTA",
+      "position": 651,
+      "genomic_start": 98848369,
+      "genomic_end": 98848409,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 68.47013005132186,
+      "tm_3": 57.61633488299776,
+      "tm_5": 50.007218466802215,
+      "tm_diff": 7.609116416195548,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 57.61633488299776,
+      "tm_5prime": 50.007218466802215,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGCAGGCATTGGTGATCTCTGCTACAGAAAGCTGCTCGTG",
+      "target_sequence": "CACGAGCAGCTTTCTGTAGCAGAGATCACCAATGCCTGCT",
+      "arm_3prime": "AGCAGGCATTGGTGATCTCT",
+      "arm_5prime": "GCTACAGAAAGCTGCTCGTG",
+      "position": 667,
+      "genomic_start": 98848385,
+      "genomic_end": 98848425,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.07902342954793,
+      "tm_3": 52.73735180021123,
+      "tm_5": 53.385878595607096,
+      "tm_diff": 0.6485267953958669,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 52.73735180021123,
+      "tm_5prime": 53.385878595607096,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGGTGATCTCTGCTACAGAAAGCTGCTCGTGGTAGGCTTT",
+      "target_sequence": "AAAGCCTACCACGAGCAGCTTTCTGTAGCAGAGATCACCA",
+      "arm_3prime": "TGGTGATCTCTGCTACAGAA",
+      "arm_5prime": "AGCTGCTCGTGGTAGGCTTT",
+      "position": 676,
+      "genomic_start": 98848394,
+      "genomic_end": 98848434,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 65.69310824639047,
+      "tm_3": 50.032843787915,
+      "tm_5": 53.370387278686565,
+      "tm_diff": 3.3375434907715658,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 50.032843787915,
+      "tm_5prime": 53.370387278686565,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGCTACAGAAAGCTGCTCGTGGTAGGCTTTCTCAGCAGAG",
+      "target_sequence": "CTCTGCTGAGAAAGCCTACCACGAGCAGCTTTCTGTAGCA",
+      "arm_3prime": "TGCTACAGAAAGCTGCTCGT",
+      "arm_5prime": "GGTAGGCTTTCTCAGCAGAG",
+      "position": 686,
+      "genomic_start": 98848404,
+      "genomic_end": 98848444,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 68.01168023474287,
+      "tm_3": 53.385878595607096,
+      "tm_5": 51.67930814482537,
+      "tm_diff": 1.7065704507817259,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 53.385878595607096,
+      "tm_5prime": 51.67930814482537,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AAGCTGCTCGTGGTAGGCTTTCTCAGCAGAGATGACAGGG",
+      "target_sequence": "CCCTGTCATCTCTGCTGAGAAAGCCTACCACGAGCAGCTT",
+      "arm_3prime": "AAGCTGCTCGTGGTAGGCTT",
+      "arm_5prime": "TCTCAGCAGAGATGACAGGG",
+      "position": 695,
+      "genomic_start": 98848413,
+      "genomic_end": 98848453,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 72.35010075474406,
+      "tm_3": 55.30881068128849,
+      "tm_5": 57.704901153768674,
+      "tm_diff": 2.396090472480182,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 55.30881068128849,
+      "tm_5prime": 57.704901153768674,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCTCAGCAGAGATGACAGGGGCATAAGTGGCCAGAGGGAA",
+      "target_sequence": "TTCCCTCTGGCCACTTATGCCCCTGTCATCTCTGCTGAGA",
+      "arm_3prime": "TCTCAGCAGAGATGACAGGG",
+      "arm_5prime": "GCATAAGTGGCCAGAGGGAA",
+      "position": 715,
+      "genomic_start": 98848433,
+      "genomic_end": 98848473,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 74.32690350253478,
+      "tm_3": 57.704901153768674,
+      "tm_5": 59.717934784246495,
+      "tm_diff": 2.013033630477821,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 57.704901153768674,
+      "tm_5prime": 59.717934784246495,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCATAAGTGGCCAGAGGGAAGTGGATACGAGGGTAGGGT",
+      "target_sequence": "ACCCTACCCTCGTATCCACTTCCCTCTGGCCACTTATGCC",
+      "arm_3prime": "GGCATAAGTGGCCAGAGGGA",
+      "arm_5prime": "AGTGGATACGAGGGTAGGGT",
+      "position": 734,
+      "genomic_start": 98848452,
+      "genomic_end": 98848492,
+      "length": 40,
+      "g_content": 0.475,
+      "tm": 76.68863061889942,
+      "tm_3": 62.96507972205603,
+      "tm_5": 60.18045762112331,
+      "tm_diff": 2.7846221009327223,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 62.96507972205603,
+      "tm_5prime": 60.18045762112331,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCCAGAGGGAAGTGGATACGAGGGTAGGGTACCAGGTTG",
+      "target_sequence": "CAACCTGGTACCCTACCCTCGTATCCACTTCCCTCTGGCC",
+      "arm_3prime": "GGCCAGAGGGAAGTGGATAC",
+      "arm_5prime": "GAGGGTAGGGTACCAGGTTG",
+      "position": 743,
+      "genomic_start": 98848461,
+      "genomic_end": 98848501,
+      "length": 40,
+      "g_content": 0.475,
+      "tm": 77.60202979053673,
+      "tm_3": 63.46457712056787,
+      "tm_5": 58.88920042955846,
+      "tm_diff": 4.57537669100941,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 63.46457712056787,
+      "tm_5prime": 58.88920042955846,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAAGTGGATACGAGGGTAGGGTACCAGGTTGGTCTGGAAT",
+      "target_sequence": "ATTCCAGACCAACCTGGTACCCTACCCTCGTATCCACTTC",
+      "arm_3prime": "GAAGTGGATACGAGGGTAGG",
+      "arm_5prime": "GTACCAGGTTGGTCTGGAAT",
+      "position": 752,
+      "genomic_start": 98848470,
+      "genomic_end": 98848510,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 69.90441162574604,
+      "tm_3": 57.75752837368839,
+      "tm_5": 51.67088823931732,
+      "tm_diff": 6.086640134371066,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 57.75752837368839,
+      "tm_5prime": 51.67088823931732,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ACATTCAGGGCCCCATCAAATCTGAGGGAAGCAGTGATGG",
+      "target_sequence": "CCATCACTGCTTCCCTCAGATTTGATGGGGCCCTGAATGT",
+      "arm_3prime": "ACATTCAGGGCCCCATCAAA",
+      "arm_5prime": "TCTGAGGGAAGCAGTGATGG",
+      "position": 804,
+      "genomic_start": 98848522,
+      "genomic_end": 98848562,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 71.62848969244982,
+      "tm_3": 53.20295354424081,
+      "tm_5": 58.797146774211,
+      "tm_diff": 5.5941932299701875,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 53.20295354424081,
+      "tm_5prime": 58.797146774211,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGTCTACCATGAAGGCACAATCAGAGTGCTCCAGGGTGGT",
+      "target_sequence": "ACCACCCTGGAGCACTCTGATTGTGCCTTCATGGTAGACA",
+      "arm_3prime": "TGTCTACCATGAAGGCACAA",
+      "arm_5prime": "TCAGAGTGCTCCAGGGTGGT",
+      "position": 937,
+      "genomic_start": 98848655,
+      "genomic_end": 98848695,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.805755012583,
+      "tm_3": 51.58914354283678,
+      "tm_5": 59.347498393686806,
+      "tm_diff": 7.758354850850026,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 51.58914354283678,
+      "tm_5prime": 59.347498393686806,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGAAGGCACAATCAGAGTGCTCCAGGGTGGTGTGGGTGGT",
+      "target_sequence": "ACCACCCACACCACCCTGGAGCACTCTGATTGTGCCTTCA",
+      "arm_3prime": "TGAAGGCACAATCAGAGTGC",
+      "arm_5prime": "TCCAGGGTGGTGTGGGTGGT",
+      "position": 946,
+      "genomic_start": 98848664,
+      "genomic_end": 98848704,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 73.16556798339667,
+      "tm_3": 55.63658763123948,
+      "tm_5": 62.98907569065494,
+      "tm_diff": 7.352488059415464,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 55.63658763123948,
+      "tm_5prime": 62.98907569065494,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AATCAGAGTGCTCCAGGGTGGTGTGGGTGGTGAGGATGGA",
+      "target_sequence": "TCCATCCTCACCACCCACACCACCCTGGAGCACTCTGATT",
+      "arm_3prime": "AATCAGAGTGCTCCAGGGTG",
+      "arm_5prime": "GTGTGGGTGGTGAGGATGGA",
+      "position": 955,
+      "genomic_start": 98848673,
+      "genomic_end": 98848713,
+      "length": 40,
+      "g_content": 0.475,
+      "tm": 73.04932462617467,
+      "tm_3": 55.5633555848234,
+      "tm_5": 60.677202327174086,
+      "tm_diff": 5.113846742350688,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 55.5633555848234,
+      "tm_5prime": 60.677202327174086,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CTCCAGGGTGGTGTGGGTGGTGAGGATGGAATTGTAGGGC",
+      "target_sequence": "GCCCTACAATTCCATCCTCACCACCCACACCACCCTGGAG",
+      "arm_3prime": "CTCCAGGGTGGTGTGGGTGG",
+      "arm_5prime": "TGAGGATGGAATTGTAGGGC",
+      "position": 965,
+      "genomic_start": 98848683,
+      "genomic_end": 98848723,
+      "length": 40,
+      "g_content": 0.5,
+      "tm": 75.11731959537309,
+      "tm_3": 62.70493615162286,
+      "tm_5": 56.90565805588841,
+      "tm_diff": 5.799278095734451,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 62.70493615162286,
+      "tm_5prime": 56.90565805588841,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTGTGGGTGGTGAGGATGGAATTGTAGGGCTCAACCACAG",
+      "target_sequence": "CTGTGGTTGAGCCCTACAATTCCATCCTCACCACCCACAC",
+      "arm_3prime": "GTGTGGGTGGTGAGGATGGA",
+      "arm_5prime": "ATTGTAGGGCTCAACCACAG",
+      "position": 975,
+      "genomic_start": 98848693,
+      "genomic_end": 98848733,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 73.14477100652965,
+      "tm_3": 60.677202327174086,
+      "tm_5": 52.77296119695893,
+      "tm_diff": 7.904241130215155,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.677202327174086,
+      "tm_5prime": 52.77296119695893,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTGAGGATGGAATTGTAGGGCTCAACCACAGCAGTGGAAA",
+      "target_sequence": "TTTCCACTGCTGTGGTTGAGCCCTACAATTCCATCCTCAC",
+      "arm_3prime": "GTGAGGATGGAATTGTAGGG",
+      "arm_5prime": "CTCAACCACAGCAGTGGAAA",
+      "position": 984,
+      "genomic_start": 98848702,
+      "genomic_end": 98848742,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 69.47158845940987,
+      "tm_3": 53.748603486784816,
+      "tm_5": 53.04226161613457,
+      "tm_diff": 0.7063418706502489,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 53.748603486784816,
+      "tm_5prime": 53.04226161613457,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGCAGTGGAAACCTGGGGGGCTGGGTAAATGGAGAAC",
+      "target_sequence": "GTTCTCCATTTACCCAGCCCCCCAGGTTTCCACTGCTGTG",
+      "arm_3prime": "CACAGCAGTGGAAACCTGGG",
+      "arm_5prime": "GGGCTGGGTAAATGGAGAAC",
+      "position": 1010,
+      "genomic_start": 98848728,
+      "genomic_end": 98848768,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 77.5027617151643,
+      "tm_3": 60.3129582101476,
+      "tm_5": 61.6797233150881,
+      "tm_diff": 1.366765104940498,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.3129582101476,
+      "tm_5prime": 61.6797233150881,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCCGTAATCCACAGAGAGCCGCTCCATCAGCAGGGAGGTG",
+      "target_sequence": "CACCTCCCTGCTGATGGAGCGGCTCTCTGTGGATTACGGA",
+      "arm_3prime": "TCCGTAATCCACAGAGAGCC",
+      "arm_5prime": "GCTCCATCAGCAGGGAGGTG",
+      "position": 1067,
+      "genomic_start": 98848785,
+      "genomic_end": 98848825,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 73.14039729874412,
+      "tm_3": 54.097511989210545,
+      "tm_5": 60.8911810986894,
+      "tm_diff": 6.793669109478856,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ],
+        [
+          98848799,
+          98848895
+        ]
+      ],
+      "tm_3prime": 54.097511989210545,
+      "tm_5prime": 60.8911810986894,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGAGAGCCGCTCCATCAGCAGGGAGGTGAAGCCAGAG",
+      "target_sequence": "CTCTGGCTTCACCTCCCTGCTGATGGAGCGGCTCTCTGTG",
+      "arm_3prime": "CACAGAGAGCCGCTCCATCA",
+      "arm_5prime": "GCAGGGAGGTGAAGCCAGAG",
+      "position": 1076,
+      "genomic_start": 98848794,
+      "genomic_end": 98848834,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 77.95831924086792,
+      "tm_3": 55.30514376948037,
+      "tm_5": 65.01691245092695,
+      "tm_diff": 9.711768681446586,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ],
+        [
+          98848799,
+          98848895
+        ]
+      ],
+      "tm_3prime": 55.30514376948037,
+      "tm_5prime": 65.01691245092695,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGGCTGACCAGTGCACAGGTCTCCAGGGCTTCTTGGT",
+      "target_sequence": "ACCAAGAAGCCCTGGAGACCTGTGCACTGGTCAGCCTGTG",
+      "arm_3prime": "CACAGGCTGACCAGTGCACA",
+      "arm_5prime": "GGTCTCCAGGGCTTCTTGGT",
+      "position": 16343,
+      "genomic_start": 98848861,
+      "genomic_end": 98848901,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 72.26656395122774,
+      "tm_3": 58.99035288859932,
+      "tm_5": 54.61188580492956,
+      "tm_diff": 4.3784670836697615,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98848799,
+          98848895
+        ],
+        [
+          98848895,
+          98849069
+        ]
+      ],
+      "tm_3prime": 58.99035288859932,
+      "tm_5prime": 54.61188580492956,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AATGCCATATATGGATGGGTTTAAAATGCAGTGGGAGGGT",
+      "target_sequence": "ACCCTCCCACTGCATTTTAAACCCATCCATATATGGCATT",
+      "arm_3prime": "AATGCCATATATGGATGGGT",
+      "arm_5prime": "TTAAAATGCAGTGGGAGGGT",
+      "position": 16508,
+      "genomic_start": 98849026,
+      "genomic_end": 98849066,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 66.78934732983237,
+      "tm_3": 51.018839005230404,
+      "tm_5": 54.455671729900644,
+      "tm_diff": 3.4368327246702393,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98848895,
+          98849069
+        ]
+      ],
+      "tm_3prime": 51.018839005230404,
+      "tm_5prime": 54.455671729900644,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ACAGGATTCGCAAGCTGGTAAATGCCATATATGGATGGGT",
+      "target_sequence": "ACCCATCCATATATGGCATTTACCAGCTTGCGAATCCTGT",
+      "arm_3prime": "ACAGGATTCGCAAGCTGGTA",
+      "arm_5prime": "AATGCCATATATGGATGGGT",
+      "position": 16528,
+      "genomic_start": 98849046,
+      "genomic_end": 98849086,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 66.4210060404792,
+      "tm_3": 53.439446199046245,
+      "tm_5": 51.018839005230404,
+      "tm_diff": 2.42060719381584,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849069,
+          98849217
+        ],
+        [
+          98848895,
+          98849069
+        ]
+      ],
+      "tm_3prime": 53.439446199046245,
+      "tm_5prime": 51.018839005230404,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTGTGTGTCCTCGGTGGCCGATGGCTGACGTCTTCTCCCT",
+      "target_sequence": "AGGGAGAAGACGTCAGCCATCGGCCACCGAGGACACACAC",
+      "arm_3prime": "GTGTGTGTCCTCGGTGGCCG",
+      "arm_5prime": "ATGGCTGACGTCTTCTCCCT",
+      "position": 16706,
+      "genomic_start": 98849224,
+      "genomic_end": 98849264,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 68.75953119479209,
+      "tm_3": 56.37679472770452,
+      "tm_5": 51.58032911621342,
+      "tm_diff": 4.796465611491101,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 56.37679472770452,
+      "tm_5prime": 51.58032911621342,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGGTGAGTGAGCTTGTGTGTGTCCTCGGTGGCCGATGGCT",
+      "target_sequence": "AGCCATCGGCCACCGAGGACACACACAAGCTCACTCACCC",
+      "arm_3prime": "GGGTGAGTGAGCTTGTGTGT",
+      "arm_5prime": "GTCCTCGGTGGCCGATGGCT",
+      "position": 16720,
+      "genomic_start": 98849238,
+      "genomic_end": 98849278,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 72.02279913677438,
+      "tm_3": 53.28386342899603,
+      "tm_5": 60.90241140281228,
+      "tm_diff": 7.6185479738162485,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 53.28386342899603,
+      "tm_5prime": 60.90241140281228,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CAGACCCAGAAGGGTGAGTGAGCTTGTGTGTGTCCTCGGT",
+      "target_sequence": "ACCGAGGACACACACAAGCTCACTCACCCTTCTGGGTCTG",
+      "arm_3prime": "CAGACCCAGAAGGGTGAGTG",
+      "arm_5prime": "AGCTTGTGTGTGTCCTCGGT",
+      "position": 16731,
+      "genomic_start": 98849249,
+      "genomic_end": 98849289,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 69.64740369919178,
+      "tm_3": 58.68997456318391,
+      "tm_5": 50.24760672486593,
+      "tm_diff": 8.442367838317978,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 58.68997456318391,
+      "tm_5prime": 50.24760672486593,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ATCTCTCTCCAGACCCAGAAGGGTGAGTGAGCTTGTGTGT",
+      "target_sequence": "ACACACAAGCTCACTCACCCTTCTGGGTCTGGAGAGAGAT",
+      "arm_3prime": "ATCTCTCTCCAGACCCAGAA",
+      "arm_5prime": "GGGTGAGTGAGCTTGTGTGT",
+      "position": 16740,
+      "genomic_start": 98849258,
+      "genomic_end": 98849298,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 67.12770958333232,
+      "tm_3": 50.300366478308604,
+      "tm_5": 53.28386342899603,
+      "tm_diff": 2.9834969506874245,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 50.300366478308604,
+      "tm_5prime": 53.28386342899603,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCATCGGTAAGCTGGCTGGGGGCTTCCCCAGGCATTCCTT",
+      "target_sequence": "AAGGAATGCCTGGGGAAGCCCCCAGCCAGCTTACCGATGA",
+      "arm_3prime": "TCATCGGTAAGCTGGCTGGG",
+      "arm_5prime": "GGCTTCCCCAGGCATTCCTT",
+      "position": 16798,
+      "genomic_start": 98849316,
+      "genomic_end": 98849356,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.02271729440997,
+      "tm_3": 59.03339047275284,
+      "tm_5": 52.97399808704597,
+      "tm_diff": 6.059392385706872,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ],
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 59.03339047275284,
+      "tm_5prime": 52.97399808704597,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CGTAGACCTGGAACCCACGGTCATCGGTAAGCTGGCTGGG",
+      "target_sequence": "CCCAGCCAGCTTACCGATGACCGTGGGTTCCAGGTCTACG",
+      "arm_3prime": "CGTAGACCTGGAACCCACGG",
+      "arm_5prime": "TCATCGGTAAGCTGGCTGGG",
+      "position": 16818,
+      "genomic_start": 98849336,
+      "genomic_end": 98849376,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 75.50956622003042,
+      "tm_3": 59.21302774567016,
+      "tm_5": 59.03339047275284,
+      "tm_diff": 0.17963727291731857,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ],
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 59.21302774567016,
+      "tm_5prime": 59.03339047275284,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCAGTGTTCGTAGACCTGGAACCCACGGTCATCGGTAAG",
+      "target_sequence": "CTTACCGATGACCGTGGGTTCCAGGTCTACGAACACTGCC",
+      "arm_3prime": "GGCAGTGTTCGTAGACCTGG",
+      "arm_5prime": "AACCCACGGTCATCGGTAAG",
+      "position": 16827,
+      "genomic_start": 98849345,
+      "genomic_end": 98849385,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 69.66883998757442,
+      "tm_3": 54.011101731741576,
+      "tm_5": 53.64339265433972,
+      "tm_diff": 0.3677090774018552,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ],
+        [
+          98849217,
+          98849350
+        ]
+      ],
+      "tm_3prime": 54.011101731741576,
+      "tm_5prime": 53.64339265433972,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCGTGAGTGCATCTCCATCCATGTTGGCCAGGCTGGTGTC",
+      "target_sequence": "GACACCAGCCTGGCCAACATGGATGGAGATGCACTCACGC",
+      "arm_3prime": "GCGTGAGTGCATCTCCATCC",
+      "arm_5prime": "ATGTTGGCCAGGCTGGTGTC",
+      "position": 17016,
+      "genomic_start": 98849534,
+      "genomic_end": 98849574,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 69.6927113674742,
+      "tm_3": 52.46462854087042,
+      "tm_5": 57.672855465847476,
+      "tm_diff": 5.208226924977055,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ],
+        [
+          98849572,
+          98849671
+        ]
+      ],
+      "tm_3prime": 52.46462854087042,
+      "tm_5prime": 57.672855465847476,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTGCGGGACACGGAAACGCCCAGACCGGGAAGAACAAAGG",
+      "target_sequence": "CCTTTGTTCTTCCCGGTCTGGGCGTTTCCGTGTCCCGCAC",
+      "arm_3prime": "GTGCGGGACACGGAAACGCC",
+      "arm_5prime": "CAGACCGGGAAGAACAAAGG",
+      "position": 1,
+      "genomic_start": 98851139,
+      "genomic_end": 98851179,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 78.4993693224402,
+      "tm_3": 64.75508749989854,
+      "tm_5": 59.05232840691423,
+      "tm_diff": 5.702759092984309,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 64.75508749989854,
+      "tm_5prime": 59.05232840691423,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCCCGCCGCCGCAGTGCGGGACACGGAAACGCCCAGACCG",
+      "target_sequence": "CGGTCTGGGCGTTTCCGTGTCCCGCACTGCGGCGGCGGGA",
+      "arm_3prime": "TCCCGCCGCCGCAGTGCGGG",
+      "arm_5prime": "ACACGGAAACGCCCAGACCG",
+      "position": 14,
+      "genomic_start": 98851152,
+      "genomic_end": 98851192,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 78.71685610946975,
+      "tm_3": 66.93780866873453,
+      "tm_5": 61.72889527980169,
+      "tm_diff": 5.208913388932842,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 66.93780866873453,
+      "tm_5prime": 61.72889527980169,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTCTTTGAGTCCCGCCGCCGCAGTGCGGGACACGGAAACG",
+      "target_sequence": "CGTTTCCGTGTCCCGCACTGCGGCGGCGGGACTCAAAGAC",
+      "arm_3prime": "GTCTTTGAGTCCCGCCGCCG",
+      "arm_5prime": "CAGTGCGGGACACGGAAACG",
+      "position": 23,
+      "genomic_start": 98851161,
+      "genomic_end": 98851201,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 71.94808648812585,
+      "tm_3": 53.12295637070815,
+      "tm_5": 60.48435389087746,
+      "tm_diff": 7.361397520169305,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 53.12295637070815,
+      "tm_5prime": 60.48435389087746,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCTTTGGTCACCTCTGCGGGGAAAGGGTGGTCTCCATGCT",
+      "target_sequence": "AGCATGGAGACCACCCTTTCCCCGCAGAGGTGACCAAAGC",
+      "arm_3prime": "GCTTTGGTCACCTCTGCGGG",
+      "arm_5prime": "GAAAGGGTGGTCTCCATGCT",
+      "position": 77,
+      "genomic_start": 98851215,
+      "genomic_end": 98851255,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 70.84553934067782,
+      "tm_3": 55.8017094844555,
+      "tm_5": 56.08677120912904,
+      "tm_diff": 0.28506172467353963,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 55.8017094844555,
+      "tm_5prime": 56.08677120912904,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGTGTCAGTCGCCCCAGATCTGCAAGGAAACGTCTAAGGC",
+      "target_sequence": "GCCTTAGACGTTTCCTTGCAGATCTGGGGCGACTGACACC",
+      "arm_3prime": "GGTGTCAGTCGCCCCAGATC",
+      "arm_5prime": "TGCAAGGAAACGTCTAAGGC",
+      "position": 115,
+      "genomic_start": 98851253,
+      "genomic_end": 98851293,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 70.7894097778696,
+      "tm_3": 55.67419184228419,
+      "tm_5": 56.115270451008314,
+      "tm_diff": 0.4410786087241263,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 55.67419184228419,
+      "tm_5prime": 56.115270451008314,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TAGAGGGTGGGTGTCAGTCGCCCCAGATCTGCAAGGAAAC",
+      "target_sequence": "GTTTCCTTGCAGATCTGGGGCGACTGACACCCACCCTCTA",
+      "arm_3prime": "TAGAGGGTGGGTGTCAGTCG",
+      "arm_5prime": "CCCCAGATCTGCAAGGAAAC",
+      "position": 124,
+      "genomic_start": 98851262,
+      "genomic_end": 98851302,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 71.73070870434344,
+      "tm_3": 57.31318621374277,
+      "tm_5": 56.07177501621544,
+      "tm_diff": 1.2414111975273272,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 57.31318621374277,
+      "tm_5prime": 56.07177501621544,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CTCGGTAGATAGAGGGTGGGTGTCAGTCGCCCCAGATCTG",
+      "target_sequence": "CAGATCTGGGGCGACTGACACCCACCCTCTATCTACCGAG",
+      "arm_3prime": "CTCGGTAGATAGAGGGTGGG",
+      "arm_5prime": "TGTCAGTCGCCCCAGATCTG",
+      "position": 133,
+      "genomic_start": 98851271,
+      "genomic_end": 98851311,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 72.03531438064101,
+      "tm_3": 58.361013496408475,
+      "tm_5": 52.93402913124879,
+      "tm_diff": 5.426984365159683,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 58.361013496408475,
+      "tm_5prime": 52.93402913124879,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCCCCGGCTCTCGGTAGATAGAGGGTGGGTGTCAGTCGCC",
+      "target_sequence": "GGCGACTGACACCCACCCTCTATCTACCGAGAGCCGGGGA",
+      "arm_3prime": "TCCCCGGCTCTCGGTAGATA",
+      "arm_5prime": "GAGGGTGGGTGTCAGTCGCC",
+      "position": 142,
+      "genomic_start": 98851280,
+      "genomic_end": 98851320,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 72.87936917464765,
+      "tm_3": 55.38964784112852,
+      "tm_5": 61.87254646701092,
+      "tm_diff": 6.482898625882399,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 55.38964784112852,
+      "tm_5prime": 61.87254646701092,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGCAAGCCTTCCCCGGCTCTCGGTAGATAGAGGGTGGGTG",
+      "target_sequence": "CACCCACCCTCTATCTACCGAGAGCCGGGGAAGGCTTGCT",
+      "arm_3prime": "AGCAAGCCTTCCCCGGCTCT",
+      "arm_5prime": "CGGTAGATAGAGGGTGGGTG",
+      "position": 151,
+      "genomic_start": 98851289,
+      "genomic_end": 98851329,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 74.108775919261,
+      "tm_3": 59.4757644421349,
+      "tm_5": 58.624599259630315,
+      "tm_diff": 0.8511651825045874,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 59.4757644421349,
+      "tm_5prime": 58.624599259630315,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCCGCGAAGCAGCAACCATGGTGAGCAAGCCTTCCCCGGC",
+      "target_sequence": "GCCGGGGAAGGCTTGCTCACCATGGTTGCTGCTTCGCGGC",
+      "arm_3prime": "GCCGCGAAGCAGCAACCATG",
+      "arm_5prime": "GTGAGCAAGCCTTCCCCGGC",
+      "position": 174,
+      "genomic_start": 98851312,
+      "genomic_end": 98851352,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 75.09859458945039,
+      "tm_3": 59.793631733125494,
+      "tm_5": 60.8194048037675,
+      "tm_diff": 1.0257730706420034,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851332,
+          98851432
+        ],
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 59.793631733125494,
+      "tm_5prime": 60.8194048037675,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACCCGGCAGCCGCGAAGCAGCAACCATGGTGAGCAAGCC",
+      "target_sequence": "GGCTTGCTCACCATGGTTGCTGCTTCGCGGCTGCCGGGTG",
+      "arm_3prime": "CACCCGGCAGCCGCGAAGCA",
+      "arm_5prime": "GCAACCATGGTGAGCAAGCC",
+      "position": 183,
+      "genomic_start": 98851321,
+      "genomic_end": 98851361,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 78.67979055795564,
+      "tm_3": 64.52135779646954,
+      "tm_5": 60.1801445853348,
+      "tm_diff": 4.341213211134743,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851332,
+          98851432
+        ],
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 64.52135779646954,
+      "tm_5prime": 60.1801445853348,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GACAGGAGAGTGGTGATTGGTGCAAGCGACATGGTATGAG",
+      "target_sequence": "CTCATACCATGTCGCTTGCACCAATCACCACTCTCCTGTC",
+      "arm_3prime": "GACAGGAGAGTGGTGATTGG",
+      "arm_5prime": "TGCAAGCGACATGGTATGAG",
+      "position": 3821,
+      "genomic_start": 98851539,
+      "genomic_end": 98851579,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 71.64246027580549,
+      "tm_3": 55.983315193894214,
+      "tm_5": 53.740075294774044,
+      "tm_diff": 2.2432398991201694,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000097014",
+      "isoform_name": "ENSMUST00000097014",
+      "overlapping_regions": [
+        [
+          98851531,
+          98851578
+        ],
+        [
+          98851578,
+          98851584
+        ]
+      ],
+      "tm_3prime": 55.983315193894214,
+      "tm_5prime": 53.740075294774044,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGACTAGACTGCCAGGGACTGCCGACTCAGCAAAACAGAG",
+      "target_sequence": "CTCTGTTTTGCTGAGTCGGCAGTCCCTGGCAGTCTAGTCC",
+      "arm_3prime": "GGACTAGACTGCCAGGGACT",
+      "arm_5prime": "GCCGACTCAGCAAAACAGAG",
+      "position": 23855,
+      "genomic_start": 98875386,
+      "genomic_end": 98875426,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 77.9591552293328,
+      "tm_3": 63.817323343480496,
+      "tm_5": 55.40011985346513,
+      "tm_diff": 8.417203490015368,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875127,
+          98875406
+        ],
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 63.817323343480496,
+      "tm_5prime": 55.40011985346513,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTTCCCTGAGCAGAAGGGAAGGCCCTTCACTGGTACAATG",
+      "target_sequence": "CATTGTACCAGTGAAGGGCCTTCCCTTCTGCTCAGGGAAC",
+      "arm_3prime": "GTTCCCTGAGCAGAAGGGAA",
+      "arm_5prime": "GGCCCTTCACTGGTACAATG",
+      "position": 23911,
+      "genomic_start": 98875442,
+      "genomic_end": 98875482,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 71.43909365065133,
+      "tm_3": 56.03198291037836,
+      "tm_5": 52.94248494320118,
+      "tm_diff": 3.0894979671771807,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 56.03198291037836,
+      "tm_5prime": 52.94248494320118,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAAGGACTGGTTCCCTGAGCAGAAGGGAAGGCCCTTCACT",
+      "target_sequence": "AGTGAAGGGCCTTCCCTTCTGCTCAGGGAACCAGTCCTTC",
+      "arm_3prime": "GAAGGACTGGTTCCCTGAGC",
+      "arm_5prime": "AGAAGGGAAGGCCCTTCACT",
+      "position": 23920,
+      "genomic_start": 98875451,
+      "genomic_end": 98875491,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 75.20549993061815,
+      "tm_3": 58.195624695967865,
+      "tm_5": 59.77909426436224,
+      "tm_diff": 1.5834695683943778,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 58.195624695967865,
+      "tm_5prime": 59.77909426436224,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TAGAGGAAAGAAGGACTGGTTCCCTGAGCAGAAGGGAAGG",
+      "target_sequence": "CCTTCCCTTCTGCTCAGGGAACCAGTCCTTCTTTCCTCTA",
+      "arm_3prime": "TAGAGGAAAGAAGGACTGGT",
+      "arm_5prime": "TCCCTGAGCAGAAGGGAAGG",
+      "position": 23929,
+      "genomic_start": 98875460,
+      "genomic_end": 98875500,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 76.4844934664253,
+      "tm_3": 57.37661398504093,
+      "tm_5": 63.00502693004489,
+      "tm_diff": 5.628412945003959,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 57.37661398504093,
+      "tm_5prime": 63.00502693004489,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGAGTTCAGTAGAGGAAAGAAGGACTGGTTCCCTGAGCAG",
+      "target_sequence": "CTGCTCAGGGAACCAGTCCTTCTTTCCTCTACTGAACTCC",
+      "arm_3prime": "GGAGTTCAGTAGAGGAAAGA",
+      "arm_5prime": "AGGACTGGTTCCCTGAGCAG",
+      "position": 23938,
+      "genomic_start": 98875469,
+      "genomic_end": 98875509,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 71.8268055147226,
+      "tm_3": 50.693238054445146,
+      "tm_5": 58.3849150330949,
+      "tm_diff": 7.6916769786497525,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 50.693238054445146,
+      "tm_5prime": 58.3849150330949,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCCGGTGGAGGAGTTCAGTAGAGGAAAGAAGGACTGGTTC",
+      "target_sequence": "GAACCAGTCCTTCTTTCCTCTACTGAACTCCTCCACCGGC",
+      "arm_3prime": "GCCGGTGGAGGAGTTCAGTA",
+      "arm_5prime": "GAGGAAAGAAGGACTGGTTC",
+      "position": 23947,
+      "genomic_start": 98875478,
+      "genomic_end": 98875518,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 70.87392869526604,
+      "tm_3": 56.438630821392906,
+      "tm_5": 55.40073091286712,
+      "tm_diff": 1.0378999085257874,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 56.438630821392906,
+      "tm_5prime": 55.40073091286712,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TAGCCCCCAGTGCTCGCCGGTGGAGGAGTTCAGTAGAGGA",
+      "target_sequence": "TCCTCTACTGAACTCCTCCACCGGCGAGCACTGGGGGCTA",
+      "arm_3prime": "TAGCCCCCAGTGCTCGCCGG",
+      "arm_5prime": "TGGAGGAGTTCAGTAGAGGA",
+      "position": 23962,
+      "genomic_start": 98875493,
+      "genomic_end": 98875533,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 74.02490917989286,
+      "tm_3": 63.30946976966749,
+      "tm_5": 55.131801901274116,
+      "tm_diff": 8.177667868393371,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 63.30946976966749,
+      "tm_5prime": 55.131801901274116,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AAAGCTCTCTAGCCCCCAGTGCTCGCCGGTGGAGGAGTTC",
+      "target_sequence": "GAACTCCTCCACCGGCGAGCACTGGGGGCTAGAGAGCTTT",
+      "arm_3prime": "AAAGCTCTCTAGCCCCCAGT",
+      "arm_5prime": "GCTCGCCGGTGGAGGAGTTC",
+      "position": 23971,
+      "genomic_start": 98875502,
+      "genomic_end": 98875542,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 72.7673142314822,
+      "tm_3": 55.22997830678031,
+      "tm_5": 60.2405078212376,
+      "tm_diff": 5.010529514457289,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 55.22997830678031,
+      "tm_5prime": 60.2405078212376,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGTTGAAAAAGAACCGCCCGTGCCGTGCCTGCCGCTTTAG",
+      "target_sequence": "CTAAAGCGGCAGGCACGGCACGGGCGGTTCTTTTTCAACC",
+      "arm_3prime": "GGTTGAAAAAGAACCGCCCG",
+      "arm_5prime": "TGCCGTGCCTGCCGCTTTAG",
+      "position": 24151,
+      "genomic_start": 98875682,
+      "genomic_end": 98875722,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 70.18829676148368,
+      "tm_3": 53.795491685340664,
+      "tm_5": 55.17075130587227,
+      "tm_diff": 1.375259620531608,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 53.795491685340664,
+      "tm_5prime": 55.17075130587227,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAGCTCGGTCAGCTCTCTGCCTGTCCGTTGCTTGGCAGCA",
+      "target_sequence": "TGCTGCCAAGCAACGGACAGGCAGAGAGCTGACCGAGCTC",
+      "arm_3prime": "GAGCTCGGTCAGCTCTCTGC",
+      "arm_5prime": "CTGTCCGTTGCTTGGCAGCA",
+      "position": 24322,
+      "genomic_start": 98875853,
+      "genomic_end": 98875893,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 69.8135650122407,
+      "tm_3": 56.96932472784232,
+      "tm_5": 51.93304680055189,
+      "tm_diff": 5.036277927290428,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 56.96932472784232,
+      "tm_5prime": 51.93304680055189,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGAGCCAGCAGACAGCACTAAGAAAAGAGCTCGGTCAGCT",
+      "target_sequence": "AGCTGACCGAGCTCTTTTCTTAGTGCTGTCTGCTGGCTCC",
+      "arm_3prime": "GGAGCCAGCAGACAGCACTA",
+      "arm_5prime": "AGAAAAGAGCTCGGTCAGCT",
+      "position": 24348,
+      "genomic_start": 98875879,
+      "genomic_end": 98875919,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 75.00204962087292,
+      "tm_3": 61.84551761314856,
+      "tm_5": 54.91494349649355,
+      "tm_diff": 6.930574116655009,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 61.84551761314856,
+      "tm_5prime": 54.91494349649355,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGTAGAACTTCGGAGCCAGCAGACAGCACTAAGAAAAGAG",
+      "target_sequence": "CTCTTTTCTTAGTGCTGTCTGCTGGCTCCGAAGTTCTACC",
+      "arm_3prime": "GGTAGAACTTCGGAGCCAGC",
+      "arm_5prime": "AGACAGCACTAAGAAAAGAG",
+      "position": 24359,
+      "genomic_start": 98875890,
+      "genomic_end": 98875930,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 72.69204163752113,
+      "tm_3": 57.635782740037484,
+      "tm_5": 51.38424802528698,
+      "tm_diff": 6.251534714750505,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 57.635782740037484,
+      "tm_5prime": 51.38424802528698,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAAGCAGTTCTCTGCTCTGGTAGAACTTCGGAGCCAGCAG",
+      "target_sequence": "CTGCTGGCTCCGAAGTTCTACCAGAGCAGAGAACTGCTTC",
+      "arm_3prime": "GAAGCAGTTCTCTGCTCTGG",
+      "arm_5prime": "TAGAACTTCGGAGCCAGCAG",
+      "position": 24377,
+      "genomic_start": 98875908,
+      "genomic_end": 98875948,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 70.08684163316303,
+      "tm_3": 50.8075984441125,
+      "tm_5": 55.2493442566099,
+      "tm_diff": 4.441745812497402,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 50.8075984441125,
+      "tm_5prime": 55.2493442566099,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGCCGAAGAGAGCCACTGCGCGGAGAGCTGATGGATTCGT",
+      "target_sequence": "ACGAATCCATCAGCTCTCCGCGCAGTGGCTCTCTTCGGCT",
+      "arm_3prime": "AGCCGAAGAGAGCCACTGCG",
+      "arm_5prime": "CGGAGAGCTGATGGATTCGT",
+      "position": 24502,
+      "genomic_start": 98876033,
+      "genomic_end": 98876073,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 71.93619983582585,
+      "tm_3": 62.264350146969775,
+      "tm_5": 52.866003429581895,
+      "tm_diff": 9.39834671738788,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 62.264350146969775,
+      "tm_5prime": 52.866003429581895,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TCCCACCAGAGCCGAAGAGAGCCACTGCGCGGAGAGCTGA",
+      "target_sequence": "TCAGCTCTCCGCGCAGTGGCTCTCTTCGGCTCTGGTGGGA",
+      "arm_3prime": "TCCCACCAGAGCCGAAGAGA",
+      "arm_5prime": "GCCACTGCGCGGAGAGCTGA",
+      "position": 24511,
+      "genomic_start": 98876042,
+      "genomic_end": 98876082,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 78.23531386742923,
+      "tm_3": 59.899538897877335,
+      "tm_5": 64.70627677260086,
+      "tm_diff": 4.806737874723524,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 59.899538897877335,
+      "tm_5prime": 64.70627677260086,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CAAGGAGTGTCCCACCAGAGCCGAAGAGAGCCACTGCGCG",
+      "target_sequence": "CGCGCAGTGGCTCTCTTCGGCTCTGGTGGGACACTCCTTG",
+      "arm_3prime": "CAAGGAGTGTCCCACCAGAG",
+      "arm_5prime": "CCGAAGAGAGCCACTGCGCG",
+      "position": 24520,
+      "genomic_start": 98876051,
+      "genomic_end": 98876091,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 75.92025295289943,
+      "tm_3": 56.102728961910145,
+      "tm_5": 60.886274997300916,
+      "tm_diff": 4.783546035390771,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 56.102728961910145,
+      "tm_5prime": 60.886274997300916,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAGCTGTCTCAAGGAGTGTCCCACCAGAGCCGAAGAGAGC",
+      "target_sequence": "GCTCTCTTCGGCTCTGGTGGGACACTCCTTGAGACAGCTC",
+      "arm_3prime": "GAGCTGTCTCAAGGAGTGTC",
+      "arm_5prime": "CCACCAGAGCCGAAGAGAGC",
+      "position": 24529,
+      "genomic_start": 98876060,
+      "genomic_end": 98876100,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 73.31614951882023,
+      "tm_3": 52.48577995498613,
+      "tm_5": 62.095712196274235,
+      "tm_diff": 9.609932241288107,
+      "free_energy": 0.0,
+      "strategy": "isoform_specific",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 52.48577995498613,
+      "tm_5prime": 62.095712196274235,
+      "thermal_filter_passed": true
+    }
+  ]
+}

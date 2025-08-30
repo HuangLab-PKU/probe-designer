@@ -1,200 +1,380 @@
-# probe_designer
+# Probe Designer
 
-This program is intended to design padlock probes for **spatial transcriptome** or **multiplex RNA FISH**. When input with gene list you are interested in, the program will search for the corresponding mRNA sequence for the gene and, with some strategy, search for binding sites of specific length you assign.
+A comprehensive tool for designing padlock probes for **spatial transcriptomics** and **multiplex RNA FISH**. The program searches for optimal binding sites on mRNA sequences using multiple strategies and databases (Ensembl, NCBI).
 
-## Quickstart
-*Because the package for RNA 2nd structure detection is linux only, this code is recommanded to run on **linux**, **mac os** or **windows subsystem for linux**.*
+## Features
 
-### Step 1: create the environment
+- **Multiple Search Strategies**: Consensus, isoform-specific, and brute force approaches
+- **Multi-Database Support**: Ensembl and NCBI databases with automatic fallback
+- **Advanced Filtering**: Thermodynamic and BLAST-based specificity filtering
+- **YAML Configuration**: Human-readable configuration files with detailed documentation
+- **Pipeline Automation**: Multi-database runs with automatic result merging
+- **Real-time Progress**: Live progress tracking and detailed logging
 
-Clone the repo to your app/repo dir:
+## Quick Start
+
+### 1. Environment Setup
+
 ```bash
-git clone --depth 1 https://github.com/tangmc0210/probe_designer
-```
+# Clone the repository
+git clone --depth 1 https://github.com/HuangLab-PKU/probe-designer probe_designer
+cd probe_designer
 
-Create the environment using conda:
-```bash
+# Create conda environment
 conda env create --file environment.yml
+conda activate probe_design
 ```
 
-### Step 2: prepare your gene list
-Create a directory for you task, like `exmple_dataset`. Prepare a .xlsx file including column "gene_name" which include target genes as `data/gene_list.xlsx`.
+### 2. Prepare Gene List
 
-| gene_name | ... |
-| --------- | --- |
-| CD3D      | ... |
-| CD4       | ... |
-| CD8A      | ... |
-| ...       | ... |
-
-
-### Step 3: select binding sites 
-Run `binding_search_ensmbl.ipynb` step by step. You need to adjust the workpath, the organism type and you may also revise the gene_list loading part based on your input file content. Note that because the NCBIWWW Blast is not stable when uploading big files, you may need to blast the fasta on [NCBI BLAST webpage](https://blast.ncbi.nlm.nih.gov/Blast.cgi) using the file generated in your result path: `results/datetime/total_bds_candidate_blast.fasta`, download the results in `XML` format and put it as `results/datetime/blast_results`.
-
-### Step 4: check not found genes
-
-In this step, the program identifies genes from the provided list that were not found in the binding site search results. It reads the gene names from `marker_gene_list.xlsx`, merges the results from `probes_wanted.xlsx` files, and standardizes the gene names for comparison. The program then filters for any genes that do not appear in the results and records them in `to_search.txt` for further review. This ensures that any unanalyzed genes are documented for follow-up.
-
-### Step 5: iterate until getting all marker genes
-Using binding_searcher files of ensembl or NCBI to get to search genes, you can loosen the conditions or manual select proper genes in ncbi web database. As an example, you can go to [ncbi webpage](https://www.ncbi.nlm.nih.gov/) and search in 'nucleotide' database like: `Apod, mouse, mRNA`. And record the corresponding entry's GI in `binding_searcher_NCBI.ipynb` file tree.
-
-
-> ## Quick start with `main.py` 
-> ***To develop***
-> 
-> ``` 
-> workdir = '~/probe_designer/dataset'
-> ```
-> 
-> ### Run with interactive command window
->
-> Run code in proper environment:
-> 
-> ```powershell
-> python main.py
-> ```
-> 
-> And prepare files following commands.
-
-## Binding site search strategy
-
-The binding site search strategy has been improved by optimizing the search for binding positions that are maximally distant from each other. The program scans every possible point along the mRNA sequence and selects binding positions based on specific criteria, enhancing the accuracy of the search process.
-
-The selection of binding sites follows two sets of rules: pre-BLAST rules, which filter sequences before conducting the BLAST search, and post-BLAST rules, which refine the selection based on sequence specificity after BLAST analysis. Pre-BLAST rules include criteria such as G content and melting temperature, while post-BLAST rules ensure the binding sites are specific to the target gene in the relevant organisms.
-
-## Detailed description of ensenbl pipeline
-### File Tree
+Create a text file with one gene name per line:
 ```bash
-RUN_ID
-└──results
-   └──20240910_134726_ensembl
-     │   sequence_of_all.json
-     │   shortest_isoforms.json
-     │   bds_candidate_num.json
-     │   total_bds_candidate.fasta
-     │   total_bds_candidate_blast.fasta
-     │   blast_results.xml    # manual
-     │   probes_candidates.xlsx
-     │   probes_wanted.xlsx
-     │
-     └───bds_candidate
-            *.fasta
+# data/example_genes.txt
+Actb
+Tuba1a
 ```
-### Get Gene Information from Ensembl Dataset
 
-The program starts by retrieving gene information from the Ensembl database based on a provided list of gene names. It utilizes the Ensembl API to gather relevant sequences, ensuring the sequences correspond to the specified organism. Note that gene names may require formatting adjustments depending on the species (e.g., uppercase for human genes).
+### 3. Run Pipeline
 
-This step generates the file `results/datetime/sequence_of_all.json`, which contains all retrieved sequences for further analysis.
-
-### Download mRNA Sequences
-
-Using the gene information obtained, the program fetches the mRNA sequences from Ensembl. If any retrieval attempts fail, the program retries up to three times to ensure robustness. This approach allows for the collection of the shortest isoform for each gene, optimizing the binding site search process.
-
-This step produces the file `results/datetime/shortest_isoforms.json`, which lists the shortest isoforms for all genes of interest.
-
-### Binding Site Searcher
-
-As outlined in the **Binding Site Search Strategy**, the binding site search is optimized by locating binding positions that are maximally distant from each other. The program scans the mRNA sequences and identifies potential binding sites based on specific parameters such as binding site length and G content.
-
-This section significantly improves hybridization performance and results in multiple FASTA files saved in `results/datetime/bds_candidate/*.fasta`. The main output file, `total_bds_candidate.fasta`, is prepared for subsequent BLAST analysis, and a summary of valid sequences is saved in `results/datetime/bds_candidate_num.json`.
-
-### BLAST and Decoding of Results
-
-After obtaining the candidate binding sites, you can perform a BLAST search on `total_bds_candidate_blast.fasta` to produce `results/datetime/blast_results.xml`. This file contains the alignment results for further interpretation. You may choose to run a local BLAST or utilize the NCBI BLAST web service for this task.
-
-1. **Tip:** The web BLAST has a limit of about 1200 sequences per submission; consider splitting your input if you have many target genes.
-2. **Local BLAST Setup:** For local BLAST, refer to [Download BLAST Software and Databases](https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html).
-
-### Select Wanted Binding Sites by Specific Rules
-
-The program employs a two-tiered selection process to identify desired binding sites: pre-BLAST rules and post-BLAST rules. Pre-BLAST rules are applied before the BLAST analysis to filter out unsuitable sequences, while post-BLAST rules refine the selection based on alignment results.
-
-#### Current Pre-BLAST Rules:
-1. G content is between 40% and 70%.
-2. Consecutive Gs do not exceed 4.
-3. Melting temperature (Tm) of both arms of binding sites is between 45–65 °C.
-4. Maximum free energy of RNA secondary structure is above -10 kcal/mol.
-5. The sequence type must be mRNA and coding sequence (as determined by the GenBank file).
-
-#### Current Post-BLAST Rules:
-1. Binding site sequences must be specific to the target gene in relevant organisms (determined by BLAST results).
-2. Binding site sequences should be positioned upstream or downstream of the target gene.
-
-### Merge the Results
-
-Run `merge.ipynb` to consolidate the results obtained from the above steps. This notebook compiles the data into an Excel file detailing the selected binding sites for each gene, along with a record of any missing genes in the pipeline, saved as `results/_tosearch.txt`.
-
-
-## Detailed description of NCBI pipeline
-### File Tree
+#### Single Strategy Run
 ```bash
-RUN_ID
-└──results
-   └───20240910_140515_NCBI
-      │   gene_name_list.txt    # manual
-      │   gene_id_list.txt      # manual
-      │   gene_seq_in_file.gb
-      │   bds_candidate_num.json
-      │   total_bds_candidate.fasta
-      │   total_bds_candidate_blast.fasta
-      │   blast_results.xml     # manual
-      │   probes_candidates.xlsx
-      │   probes_wanted.xlsx
-      │
-      └───bds_candidate
-               SOX10_bds_candidate.fasta
+# Consensus strategy (recommended for most cases)
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id my_project \
+    --strategy consensus \
+    --databases ensembl
+
+# Isoform-specific strategy
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id my_project \
+    --strategy specific \
+    --databases ensembl
+
+# Brute force strategy
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id my_project \
+    --strategy bruteforce \
+    --databases ensembl
 ```
-### Get gene_id from ncbi dataset
 
-Given the gene name list, the program search for target sequence using entrez provided by ncbi. However, the search results are usually mismatched so I recommand to search on website and choose target GI for next step analysis.
+#### Multi-Database Run
+```bash
+# Run with both Ensembl and NCBI, automatically merge results
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id my_project \
+    --strategy consensus \
+    --databases ensembl ncbi
+```
 
-This step returns file `results/datetime/gene_id_list.txt`.
+### 4. Check Results
 
-### Get genbank file of each mRNA from ncbi dataset
+Results are organized in `results/{project_id}/`:
+- `{database}_results/`: Individual database results
+- `merged_results.xlsx`: Combined results from all databases
+- `missing_genes.txt`: Genes without successful probe design
 
-The program downloads rna seq from ncbi according to GI number given in tmp file "1_id_list.txt". So prepare the id_list file yourself by searching on web if you find it awful using auto search in previous step.
+## Configuration
 
-This step returns file `results/datetime/gene_seq_in_file.gb`
+The system uses YAML configuration files with detailed parameter documentation:
 
-### Binding site searcher
+### Main Configuration Files
+- `configs/config_consensus.yaml`: Consensus strategy (recommended)
+- `configs/config_specific.yaml`: Isoform-specific strategy
+- `configs/config_bruteforce.yaml`: Brute force strategy
+- `configs/config_template.yaml`: Template with all options documented
 
-As mentioned in **Binding site search strategy**, current search stratagy is bruteforce. The program will begin in the middle of a mRNA sequence and extend with a step length(length of mRNA sequence divided by binding site length) to both side.
+### Key Configuration Sections
 
-This part is most likely to be improved if you want to get better hybriding performance.
+#### Database Settings
+```yaml
+database:
+  database_type: "ensembl"  # ensembl, ncbi
+  max_retries: 3            # API retry attempts
+  organism: "mouse"         # mouse, human, rat, zebrafish
+```
 
-This step returns a series of .fasta file as `results/datetime/bds_candidate/*.fasta` where `total_bds_candidates.fasta` is to blast. And it returns a `results/datetime/tmp/pre_binding_num.json` file which shows valid seq got from box searcher.
+#### Search Parameters
+```yaml
+search:
+  search_strategy: "isoform_consensus"  # consensus, specific, bruteforce
+  binding_site_length: 40              # Probe length
+  max_binding_sites: 30                # Max sites per gene
+  window_size: 50                      # Search window
+  step_size: 1                         # Search step
+```
 
-### Blast and decoding of blast_results
+#### Filtering Criteria
+```yaml
+filter:
+  min_g_content: 0.3                   # Min G content (0-1)
+  max_g_content: 0.7                   # Max G content (0-1)
+  max_consecutive_g: 3                 # Max consecutive Gs
+  min_tm: 60.0                         # Min melting temperature (°C)
+  max_tm: 80.0                         # Max melting temperature (°C)
+  max_tm_diff: 5.0                     # Max Tm difference between arms
+  min_free_energy: -5.0                # Min RNA structure free energy
+  check_rna_structure: true            # Enable RNA structure check
+  require_specificity: true            # Enable BLAST specificity check
+  final_probes_per_gene: 3             # Final probes to select per gene
+```
 
-You can perform local blast or web blast on `total_bds_candidate_blast.fasta` to get `results/datetime/blast_results.xml` file for decoding. You will need to build your local blast if you need to perform blast in this code. Otherwise, you can get blast results by uploading the file to blast web and download the blast results as `results/datetime/blast_results.xml`.
+#### BLAST Settings
+```yaml
+blast:
+  blast_type: "local"                  # local, online
+  database: "refseq_rna"               # BLAST database
+  hitlist_size: 100                    # Number of hits to return
+  evalue: 1.0e-5                       # E-value threshold
+  species: ["Mus musculus"]            # Target species for specificity
+```
 
-1. Tip1: web blast length is limited to about 1200 sequences once, so split the gene name list if target gene number is too large.
-2. How to build local blast: [Download BLAST Software and Databases](https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html)
+## Search Strategies
 
-### Select wanted binding site by specific rules
+### 1. Consensus Strategy (`isoform_consensus`)
+- **Purpose**: Find binding sites common to multiple isoforms
+- **Best for**: Genes with multiple splice variants
+- **Output**: Probes that bind to maximum number of isoforms per gene
 
-Current rules are divided into two kinds: pre_blast rules and post_blast rules. Pre_blast rules work before blast the potential binding site sequences and can often exempt most of sequences while post_blast rules work after blast and are intended to get sequence specifity information.
+### 2. Isoform-Specific Strategy (`isoform_specific`)
+- **Purpose**: Find binding sites unique to individual isoforms
+- **Best for**: Distinguishing between closely related isoforms
+- **Output**: Probes specific to individual transcript variants
 
-Current before-blast rules:
+### 3. Brute Force Strategy (`brute_force`)
+- **Purpose**: Exhaustive search across entire transcript
+- **Best for**: Genes with complex structure or when other strategies fail
+- **Output**: All possible binding sites meeting criteria
 
-1. G percentage is between 40% and 70%;
-2. G is not consecutive up to 5 or more;
-3. Tm of both arms of bds are between 45-65 °C;
-4. Max free energy of RNA 2nd structure is above -10 kcal/mol; 
-5. Sequence type is mRNA and coding sequence (judge by genbank file);
+## Pipeline Logic
 
-Current post-blast rules:
+The system implements a sophisticated multi-database pipeline:
 
-1. Binding site sequence is specific to this gene in interested organisms (judge by blast results);
-2. Binding site sequence is plus/minus to target gene;
+1. **Primary Run**: Execute with primary database (usually Ensembl)
+2. **Missing Gene Check**: Identify genes without successful probe design
+3. **Secondary Run**: Run with alternative database (NCBI) for missing genes
+4. **Result Merging**: Combine results from all databases
+5. **Final Check**: Report any remaining missing genes
 
-### Merge the results got from above
+### Example Workflow
+```bash
+# Step 1: Run with Ensembl
+python scripts/run_pipeline.py \
+    --genes-file genes.txt \
+    --project-id project_001 \
+    --strategy consensus \
+    --databases ensembl
 
-run `merge.ipynb` to merge results got above and return a xlsx file of wanted binding sites for each gene. And return the missing genes in the pipeline. `results/_tosearch.txt`.
+# Step 2: Check missing genes
+cat results/project_001/missing_genes.txt
 
-## Perspective and plans
+# Step 3: Run with NCBI for missing genes
+python scripts/run_pipeline.py \
+    --genes-file results/project_001/missing_genes.txt \
+    --project-id project_001_ncbi \
+    --strategy consensus \
+    --databases ncbi
 
-### Improve the searching strategy
-- [x] RNA 2nd structure detection. 2024.6 done.
-- [x] Most far away bds: The searching stategy is optimized by searching every possible points and select the binding positions most far away. 2023.6 done.
+# Step 4: Merge all results
+python test/merge_results.py \
+    --results-dir results/ \
+    --output final_results.xlsx
+```
+
+## Filtering System
+
+### Pre-BLAST Filters (Thermodynamic)
+- **G Content**: 30-70% G nucleotides
+- **Consecutive Gs**: Maximum 3 consecutive G nucleotides
+- **Melting Temperature**: 60-80°C for both arms
+- **Tm Difference**: Maximum 5°C difference between 3' and 5' arms
+- **RNA Structure**: Minimum free energy > -5 kcal/mol
+- **Secondary Structure**: RNA folding analysis (optional)
+
+### Post-BLAST Filters (Specificity)
+- **Organism Specificity**: BLAST hits only to target organisms
+- **Gene Specificity**: No alignments to non-target genes
+- **Complementarity**: Probe must be complementary to target
+- **Alignment Count**: Controlled by hitlist_size parameter
+
+## Output Files
+
+### Main Results
+- `probes_wanted.xlsx`: Final selected probes with all parameters
+- `probes_candidates.xlsx`: All candidate probes before final selection
+- `binding_sites_stats.json`: Statistical summary of binding sites
+- `blast_results.xml`: BLAST analysis results
+- `config_used.yaml`: Configuration file used for this run
+
+### Sequence Files
+- `total_binding_sites.fasta`: All candidate binding sites
+- `blast_input.fasta`: Sequences submitted to BLAST
+- `filtered_binding_sites.fasta`: Sequences passing all filters
+
+### Logging and Debug
+- `binding_sites.json`: Detailed binding site information
+- `filtering_stats.json`: Filtering statistics
+- `missing_genes.txt`: Genes without successful probe design
+
+## Example Results
+
+### Consensus Strategy Example
+```bash
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id demo_consensus \
+    --strategy consensus \
+    --databases ensembl
+```
+
+**Output Summary**:
+- Original sites: 60
+- After pre-BLAST filter: 60
+- After specificity filter: 11
+- Final probes: 6 (3 per gene)
+
+### Specific Strategy Example
+```bash
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id demo_specific \
+    --strategy specific \
+    --databases ensembl
+```
+
+**Output Summary**:
+- Original sites: 150
+- After pre-BLAST filter: 150
+- After specificity filter: 0 (strict specificity)
+
+### Brute Force Strategy Example
+```bash
+python scripts/run_pipeline.py \
+    --genes-file data/example_genes.txt \
+    --project-id demo_bruteforce \
+    --strategy bruteforce \
+    --databases ensembl
+```
+
+**Output Summary**:
+- Original sites: 200
+- After pre-BLAST filter: 200
+- After specificity filter: 52
+- Final probes: 6 (3 per gene)
+
+## Advanced Usage
+
+### Custom Configuration
+```bash
+# Use custom configuration file
+python scripts/run_pipeline.py \
+    --genes-file genes.txt \
+    --project-id custom_run \
+    --strategy consensus \
+    --config my_config.yaml
+```
+
+### BLAST Species Specification
+```bash
+# Specify target species for BLAST
+python scripts/run_pipeline.py \
+    --genes-file genes.txt \
+    --project-id species_specific \
+    --strategy consensus \
+    --blast-species "Mus musculus" "Homo sapiens"
+```
+
+### Skip Result Merging
+```bash
+# Run without automatic merging
+python scripts/run_pipeline.py \
+    --genes-file genes.txt \
+    --project-id no_merge \
+    --strategy consensus \
+    --databases ensembl ncbi \
+    --skip-merge
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **BLAST Command Not Found**
+   - Install BLAST+ locally or use online BLAST
+   - Set `blast_type: "online"` in configuration
+
+2. **Ensembl API Timeouts**
+   - Increase `max_retries` in database configuration
+   - Check network connectivity
+
+3. **No Sequences Retrieved**
+   - Verify gene names match database conventions
+   - Check organism setting matches gene list
+
+4. **Low Specificity Results**
+   - Adjust `hitlist_size` and `evalue` parameters
+   - Review target species list
+
+### Performance Optimization
+
+1. **Local BLAST Setup**
+   ```bash
+   # Download BLAST+ and databases
+   # Set blast_type: "local" in configuration
+   ```
+
+2. **Parallel Processing**
+   - Use multiple databases simultaneously
+   - Adjust `concurrency` parameter for online BLAST
+
+3. **Memory Management**
+   - Reduce `max_binding_sites` for large gene lists
+   - Use smaller `window_size` for memory-constrained systems
+
+## Dependencies
+
+- **Python**: 3.8+
+- **Biopython**: Sequence analysis and BLAST
+- **Pandas**: Data manipulation
+- **PyYAML**: Configuration file parsing
+- **Requests**: API communication
+- **tqdm**: Progress tracking
+
+## Testing
+
+Run the test suite to verify installation:
+```bash
+python test/test_basic_pipeline.py
+```
+
+This will test:
+- YAML configuration loading
+- Basic pipeline functionality
+- Result merging
+- Error handling
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Citation
+
+If you use this tool in your research, please cite:
+```
+Probe Designer: A comprehensive tool for padlock probe design in spatial transcriptomics
+[Your Name et al.]
+[Journal/Conference]
+[Year]
+```
 

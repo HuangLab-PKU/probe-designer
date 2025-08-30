@@ -28,6 +28,47 @@ class DatabaseInterface:
         Entrez.email = "1418767067@qq.com"
         Entrez.api_key = '010eacb785458478918b0cb14bea9f9df609'
     
+    def ensembl_genome_accessor(self, species: str = None, coord_system_version: str = None):
+        """Create Ensembl REST API genome accessor function."""
+        if species is None:
+            species = self.config.organism
+        if coord_system_version is None:
+            coord_system_version = self.config.coord_system_version
+        
+        def fetch(seq_region_name: str, start: int, end: int) -> str:
+            chrom = str(seq_region_name).replace("chr", "")
+            ext = f"/sequence/region/{species}/{chrom}:{start}..{end}:1?coord_system_version={coord_system_version}"
+            try:
+                response = requests.get(self.server + ext, headers=self.headers)
+                response.raise_for_status()
+                return response.json().get('seq', '')
+            except Exception as e:
+                print(f"Failed to fetch genome sequence from Ensembl: {e}")
+                return ''
+        
+        return fetch
+    
+    def local_genome_accessor(self, genome_fasta_path: str):
+        """Create local FASTA genome accessor function using pyfaidx."""
+        try:
+            from pyfaidx import Fasta
+            genome = Fasta(genome_fasta_path)
+            
+            def fetch(seq_region_name: str, start: int, end: int) -> str:
+                chrom = str(seq_region_name)
+                if chrom not in genome:
+                    raise KeyError(f"Chromosome {chrom} not found in FASTA file")
+                seq = genome[chrom][start-1:end]  # pyfaidx uses 0-based coordinates
+                return str(seq)
+            
+            return fetch
+        except ImportError:
+            print("pyfaidx not available, falling back to Ensembl")
+            return None
+        except Exception as e:
+            print(f"Failed to load local genome: {e}")
+            return None
+    
     def get_gene_sequences(self, gene_list: List[str]) -> Dict[str, Any]:
         """Retrieve sequences for a list of genes."""
         if self.config.database_type == "ensembl":
@@ -45,29 +86,36 @@ class DatabaseInterface:
         for gene in tqdm(gene_list, desc="Fetch Ensembl sequences"):
             sequences_of_all[gene] = {}
             trial = 0
-            
             while trial < self.config.max_retries:
                 try:
-                    # lookup gene
+                    # Lookup gene metadata
                     gene_data = self._ensembl_lookup_gene(gene)
                     if not gene_data:
                         error_messages[gene].append(f"Gene not found: {gene}")
                         break
                     
-                    # list transcripts
+                    # List transcripts for gene
                     transcripts = self._ensembl_get_transcripts(gene_data["id"])
                     if not transcripts:
                         error_messages[gene].append(f"No transcripts for: {gene}")
                         break
                     
-                    # choose shortest transcript and fetch sequence + coordinates
-                    shortest_transcript = min(transcripts, key=lambda x: x.get('length', float('inf')))
-                    tx_info = self._ensembl_get_transcript_info(shortest_transcript['id'])
+                    # Choose transcript purely by actual sequence length
+                    best = None
+                    best_len = -1
+                    for cand in transcripts:
+                        tx_info = self._ensembl_get_transcript_info(cand['id'])
+                        if tx_info and tx_info.get('seq'):
+                            seq_len = len(tx_info['seq'])
+                            if seq_len > best_len:
+                                best = (cand['id'], tx_info)
+                                best_len = seq_len
                     
-                    if tx_info and tx_info.get('seq'):
+                    if best is not None:
+                        tx_id, tx_info = best
                         sequences_of_all[gene] = {
                             'gene_id': gene_data['id'],
-                            'transcript_id': shortest_transcript['id'],
+                            'transcript_id': tx_id,
                             'sequence': tx_info['seq'],
                             'length': len(tx_info['seq']),
                             'source': 'ensembl',
@@ -77,12 +125,19 @@ class DatabaseInterface:
                             'strand': tx_info.get('strand')
                         }
                         break
-                    
+                    else:
+                        # No transcript returned sequence this round, retry
+                        error_messages[gene].append("No transcript returned sequence; retrying")
+                        trial += 1
+                        if trial < self.config.max_retries:
+                            time.sleep(0.5)
+                        continue
                 except Exception as e:
                     error_messages[gene].append(f"Attempt {trial + 1} failed: {str(e)}")
                     trial += 1
                     if trial < self.config.max_retries:
                         time.sleep(1)
+            # if no sequence after retries, sequences_of_all[gene] stays empty and errors captured
         
         return {
             'sequences': sequences_of_all,
@@ -93,7 +148,7 @@ class DatabaseInterface:
         """Lookup gene metadata by symbol."""
         lookup_ext = f"/lookup/symbol/{self.config.organism}/{gene_symbol}?"
         try:
-            response = requests.get(self.server + lookup_ext, headers=self.headers)
+            response = requests.get(self.server + lookup_ext, headers=self.headers, timeout=10)
             if response.ok:
                 return response.json()
             else:
@@ -105,7 +160,7 @@ class DatabaseInterface:
         """List transcripts for the gene."""
         overlap_ext = f"/overlap/id/{gene_id}?feature=transcript"
         try:
-            response = requests.get(self.server + overlap_ext, headers=self.headers)
+            response = requests.get(self.server + overlap_ext, headers=self.headers, timeout=10)
             if response.ok:
                 return response.json()
             else:
@@ -117,7 +172,7 @@ class DatabaseInterface:
         """Fetch transcript sequence."""
         lookup_ext = f"/lookup/id/{transcript_id}?expand=1"
         try:
-            response = requests.get(self.server + lookup_ext, headers=self.headers)
+            response = requests.get(self.server + lookup_ext, headers=self.headers, timeout=10)
             if response.ok:
                 data = response.json()
                 return data.get('seq', None)
@@ -127,21 +182,30 @@ class DatabaseInterface:
             return None
     
     def _ensembl_get_transcript_info(self, transcript_id: str) -> Optional[Dict[str, Any]]:
-        """Fetch transcript detailed info including genomic coordinates and strand."""
-        lookup_ext = f"/lookup/id/{transcript_id}?expand=1"
+        """Fetch transcript CDS sequence and metadata (coordinates, strand)."""
         try:
-            response = requests.get(self.server + lookup_ext, headers=self.headers)
-            if response.ok:
-                data = response.json()
-                return {
-                    'seq': data.get('seq', ''),
-                    'seq_region_name': data.get('seq_region_name'),
-                    'start': data.get('start'),
-                    'end': data.get('end'),
-                    'strand': data.get('strand'),
-                }
-            else:
+            # Metadata
+            lookup_ext = f"/lookup/id/{transcript_id}?expand=1"
+            meta_resp = requests.get(self.server + lookup_ext, headers=self.headers, timeout=10)
+            if not meta_resp.ok:
                 return None
+            meta = meta_resp.json()
+
+            # CDS sequence explicitly
+            seq_ext = f"/sequence/id/{transcript_id}?type=cds"
+            seq_resp = requests.get(self.server + seq_ext, headers=self.headers, timeout=10)
+            if not seq_resp.ok:
+                return None
+            seq_data = seq_resp.json()
+            seq = seq_data.get('seq', '')
+
+            return {
+                'seq': seq,
+                'seq_region_name': meta.get('seq_region_name'),
+                'start': meta.get('start'),
+                'end': meta.get('end'),
+                'strand': meta.get('strand'),
+            }
         except Exception:
             return None
     
@@ -369,7 +433,8 @@ class DatabaseInterface:
         if not transcripts:
             return []
         detailed_transcripts = []
-        for transcript in tqdm(transcripts, desc=f"Fetch {gene_symbol} transcript details"):
+        print(f"Fetching {len(transcripts)} transcript details for {gene_symbol}...")
+        for transcript in transcripts:
             try:
                 lookup_ext = f"/lookup/id/{transcript['id']}?expand=1"
                 response = requests.get(self.server + lookup_ext, headers=self.headers)
@@ -381,7 +446,11 @@ class DatabaseInterface:
                         'biotype': tx_data.get('biotype', ''),
                         'seq': tx_data.get('seq', ''),
                         'length': len(tx_data.get('seq', '')),
-                        'exons': tx_data.get('Exon', [])
+                        'exons': tx_data.get('Exon', []),
+                        'seq_region_name': tx_data.get('seq_region_name'),
+                        'start': tx_data.get('start'),
+                        'end': tx_data.get('end'),
+                        'strand': tx_data.get('strand')
                     }
                     detailed_transcripts.append(detailed_transcript)
             except Exception as e:

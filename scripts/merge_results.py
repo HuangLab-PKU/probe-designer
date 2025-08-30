@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-结果合并脚本
-合并多个结果目录中的探针设计结果
+Results merging script
+Merge probe design results from multiple result directories
 
-使用方法:
+Usage:
     python merge_results.py --results-dir results/ --gene-list gene_list.xlsx --output merged_results.xlsx
 """
 
@@ -13,7 +13,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-# 添加src目录到Python路径
+# Add src directory to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from utils import (
@@ -23,85 +23,85 @@ from utils import (
 
 
 def main():
-    """主函数"""
+    """Main function"""
     parser = argparse.ArgumentParser(
-        description="合并探针设计结果",
+        description="Merge probe design results",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例用法:
+Example usage:
   python merge_results.py --results-dir results/ --gene-list genes.xlsx --output merged.xlsx
   python merge_results.py --results-dir results/ --organism mouse --output merged.xlsx
         """
     )
     
     parser.add_argument("--results-dir", "-r", required=True,
-                       help="结果目录路径")
+                       help="Results directory path")
     parser.add_argument("--gene-list", "-g",
-                       help="原始基因列表文件")
+                       help="Original gene list file")
     parser.add_argument("--organism", "-o", 
                        choices=["mouse", "human"], default="mouse",
-                       help="物种名称 (默认: mouse)")
+                       help="Species name (default: mouse)")
     parser.add_argument("--output", "-out", required=True,
-                       help="输出文件路径")
+                       help="Output file path")
     parser.add_argument("--missing-output",
-                       help="缺失基因输出文件路径")
+                       help="Missing genes output file path")
     
     args = parser.parse_args()
     
     try:
-        # 检查结果目录
+        # Check results directory
         if not os.path.exists(args.results_dir):
-            print(f"错误: 结果目录不存在: {args.results_dir}")
+            print(f"Error: Results directory does not exist: {args.results_dir}")
             sys.exit(1)
         
-        # 合并结果
-        print(f"正在合并结果目录: {args.results_dir}")
+        # Merge results
+        print(f"Merging results directory: {args.results_dir}")
         merged_df = merge_results_from_directories(args.results_dir, args.output)
         
-        print(f"成功合并 {len(merged_df)} 个探针")
-        print(f"结果保存到: {args.output}")
+        print(f"Successfully merged {len(merged_df)} probes")
+        print(f"Results saved to: {args.output}")
         
-        # 如果提供了基因列表，检查缺失的基因
+        # If gene list is provided, check for missing genes
         if args.gene_list:
-            print(f"检查缺失基因: {args.gene_list}")
+            print(f"Checking missing genes: {args.gene_list}")
             
-            # 加载原始基因列表
+            # Load original gene list
             gene_list = load_gene_list(args.gene_list)
             
-            # 格式化基因名称
+            # Format gene names
             formatted_genes = []
             for gene in gene_list:
                 formatted_gene = format_gene_name(gene, args.organism)
                 formatted_genes.append(formatted_gene)
             
-            # 查找缺失的基因
+            # Find missing genes
             missing_genes = find_missing_genes(formatted_genes, merged_df)
             
             if missing_genes:
-                print(f"发现 {len(missing_genes)} 个缺失基因:")
+                print(f"Found {len(missing_genes)} missing genes:")
                 for gene in missing_genes:
                     print(f"  - {gene}")
                 
-                # 保存缺失基因列表
+                # Save missing genes list
                 missing_output = args.missing_output or "missing_genes.txt"
                 save_missing_genes(missing_genes, missing_output)
-                print(f"缺失基因列表保存到: {missing_output}")
+                print(f"Missing genes list saved to: {missing_output}")
             else:
-                print("所有基因都成功设计了探针！")
+                print("All genes successfully designed probes!")
         
-        # 显示统计信息
-        print(f"\n统计信息:")
-        print(f"  总探针数量: {len(merged_df)}")
-        print(f"  涉及基因数量: {merged_df['gene_name'].nunique()}")
-        print(f"  平均每个基因探针数: {len(merged_df) / merged_df['gene_name'].nunique():.1f}")
+        # Display statistics
+        print(f"\nStatistics:")
+        print(f"  Total probes: {len(merged_df)}")
+        print(f"  Genes involved: {merged_df['gene_name'].nunique()}")
+        print(f"  Average probes per gene: {len(merged_df) / merged_df['gene_name'].nunique():.1f}")
         
         if 'g_content' in merged_df.columns:
-            print(f"  平均G含量: {merged_df['g_content'].mean():.2f}")
+            print(f"  Average G content: {merged_df['g_content'].mean():.2f}")
         if 'tm' in merged_df.columns:
-            print(f"  平均熔解温度: {merged_df['tm'].mean():.1f} °C")
+            print(f"  Average melting temperature: {merged_df['tm'].mean():.1f} °C")
         
     except Exception as e:
-        print(f"错误: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
 
 

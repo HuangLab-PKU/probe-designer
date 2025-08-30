@@ -1,15 +1,61 @@
 """
-Utility functions module
-Common helper utilities used across the project.
+Utility functions for the probe design system.
 """
 
 import os
-import time
 import json
-import pandas as pd
+import time
+import random
+import string
+from typing import Dict, List, Any, Optional
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import re
+import pandas as pd
+from tqdm import tqdm
+
+# Global progress bar manager to avoid conflicts
+class ProgressManager:
+    """Manage progress bars to avoid conflicts and duplicate displays."""
+    
+    def __init__(self):
+        self.current_position = 0
+        self.active_bars = {}
+    
+    def create_bar(self, desc: str, total: int = None, leave: bool = True, position: int = None) -> tqdm:
+        """Create a progress bar with proper positioning."""
+        if position is None:
+            position = self.current_position
+            self.current_position += 1
+        
+        bar = tqdm(
+            total=total,
+            desc=desc,
+            leave=leave,
+            position=position,
+            ncols=80,
+            bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]'
+        )
+        
+        if not leave:
+            self.active_bars[position] = bar
+        
+        return bar
+    
+    def close_bar(self, position: int):
+        """Close a specific progress bar."""
+        if position in self.active_bars:
+            self.active_bars[position].close()
+            del self.active_bars[position]
+
+# Global instance
+progress_manager = ProgressManager()
+
+def create_progress_bar(desc: str, total: int = None, leave: bool = True, position: int = None) -> tqdm:
+    """Create a progress bar using the global manager."""
+    return progress_manager.create_bar(desc, total, leave, position)
+
+def close_progress_bar(position: int):
+    """Close a progress bar using the global manager."""
+    progress_manager.close_bar(position)
 
 
 def create_output_directory(base_dir: str, create_timestamp: bool = True) -> str:
@@ -94,7 +140,11 @@ def merge_results_from_directories(results_dir: str, output_file: str) -> pd.Dat
         probes_file = os.path.join(dir_path, "probes_wanted.xlsx")
         if os.path.exists(probes_file):
             try:
-                df = pd.read_excel(probes_file, index_col=0)
+                # Read without forcing an index so that 'gene_name' remains a column
+                df = pd.read_excel(probes_file)
+                # If previous files saved with 'gene_name' as index, bring it back as a column
+                if 'gene_name' not in df.columns and getattr(df.index, 'name', None) == 'gene_name':
+                    df = df.reset_index()
                 all_results.append(df)
             except Exception as e:
                 print(f"Failed to read {probes_file}: {e}")

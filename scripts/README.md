@@ -1,219 +1,212 @@
-# Automated DNA Probe Design Software
+# DNA Probe Design Scripts
 
-This directory contains the main executable scripts for the automated DNA probe design software.
+This directory contains the main scripts for DNA probe design with support for multiple databases and automated pipeline workflows.
 
-## Files
+## Available Scripts
 
-- `main.py` - Main entry point for probe design workflow
-- `merge_results.py` - Utility script for merging results from multiple runs
-- `test_probe_designer.py` - Test script for validating components
+### `run_pipeline.py` (NEW - Recommended)
+Multi-database probe design pipeline that runs probe design with multiple databases and merges results.
 
-## Usage
+**Usage:**
+```bash
+# Run consensus strategy with Ensembl only
+python run_pipeline.py --genes-file genes.txt --project-id project_001 --strategy consensus
 
-### Main Script (`main.py`)
+# Run specific strategy with both databases
+python run_pipeline.py --genes-file genes.txt --project-id project_002 --strategy specific --databases ensembl ncbi
 
-The main script orchestrates the complete probe design workflow:
+# Run bruteforce strategy with custom config
+python run_pipeline.py --genes-file genes.txt --project-id project_003 --strategy bruteforce --databases ensembl ncbi --config my_config.yaml
+```
+
+**Parameters:**
+- `--genes-file`: Path to gene list file
+- `--project-id`: Project identifier for organizing results
+- `--strategy`: Probe design strategy (consensus, specific, bruteforce)
+- `--databases`: Databases to use (ensembl, ncbi)
+- `--config`: Custom configuration file (YAML or JSON)
+- `--blast-species`: Target species for BLAST search
+- `--organism`: Target organism (mouse, human, rat, zebrafish)
+- `--skip-merge`: Skip result merging
+
+### `find_consensus_probes.py`
+Finds consensus binding sites (probes that bind to maximum number of isoforms per gene) using Ensembl and IsoformConsensusStrategy.
+
+**Usage:**
+```bash
+python find_consensus_probes.py --genes_file genes.txt --config configs/config_consensus.yaml
+```
+
+### `find_specific_probes.py`
+Finds isoform-specific binding sites per gene using Ensembl and IsoformSpecificStrategy.
+
+**Usage:**
+```bash
+python find_specific_probes.py --genes_file genes.txt --config configs/config_specific.yaml
+```
+
+### `find_probes.py`
+Finds binding sites using brute force strategy (works with both Ensembl and NCBI databases).
+
+**Usage:**
+```bash
+python find_probes.py --genes_file genes.txt --config configs/config_bruteforce.yaml --database ensembl
+```
+
+### `probe_stitcher.py`
+Assembles probes into panels with barcodes and primers.
+
+**Usage:**
+```bash
+python probe_stitcher.py --input filtered_binding_sites.xlsx --output probe_panel.xlsx
+```
+
+## Pipeline Logic
+
+The new pipeline supports the following workflow:
+
+1. **Single Database Run**: Run probe design with one database (Ensembl or NCBI)
+2. **Multi-Database Run**: Run probe design with multiple databases sequentially
+3. **Result Merging**: Automatically merge results from multiple databases
+4. **Missing Gene Check**: Identify genes that don't have probes designed
+5. **Project Organization**: Organize results by project ID with separate directories
+
+### Pipeline Features
+
+- **Automatic Database Selection**: Choose which databases to use for each run
+- **Strategy Support**: Support for consensus, specific, and bruteforce strategies
+- **Result Merging**: Automatic merging of results from multiple databases
+- **Missing Gene Detection**: Identify genes that need additional probe design
+- **Project Management**: Organize results by project with clear directory structure
+- **Configuration Flexibility**: Support for both YAML and JSON configuration files
+
+### Example Workflow
 
 ```bash
-# Basic usage with gene list file
-python main.py gene_list.xlsx
+# Step 1: Run with Ensembl database
+python run_pipeline.py --genes-file genes.txt --project-id my_project --strategy consensus --databases ensembl
 
-# Use custom configuration
-python main.py gene_list.xlsx --config my_config.json
+# Step 2: Check for missing genes and run with NCBI if needed
+python run_pipeline.py --genes-file missing_genes.txt --project-id my_project_ncbi --strategy bruteforce --databases ncbi
 
-# Create configuration template
-python main.py --create-config template.json
-
-# Check dependencies
-python main.py --check-deps
-
-# Show help
-python main.py --help
+# Step 3: Merge all results
+python test/merge_results.py --results-dir results/ --gene-list genes.txt --output final_results.xlsx
 ```
-
-#### Parameters
-
-- `gene_list_file` - Path to gene list file (.xlsx, .csv, or .txt)
-- `--config, -c` - Path to configuration JSON file
-- `--create-config` - Create a configuration template file
-- `--check-deps` - Check if all required dependencies are installed
-- `--version` - Show version information
-
-#### Input Format
-
-The gene list file should contain a column named "gene_name" with gene identifiers:
-
-**Excel (.xlsx):**
-| gene_name |
-|-----------|
-| Gene1     |
-| Gene2     |
-| Gene3     |
-
-**CSV (.csv):**
-```csv
-gene_name
-Gene1
-Gene2
-Gene3
-```
-
-**Text (.txt):**
-```
-Gene1
-Gene2
-Gene3
-```
-
-#### Output
-
-The script generates the following output files in a timestamped directory:
-
-- `gene_name_list_tosearch.txt` - Processed gene list
-- `blast_results.xml` - BLAST analysis results
-- `filtered_binding_sites.xlsx` - Filtered binding sites
-- `filtered_binding_sites.json` - Filtered binding sites (JSON format)
-- `filtering_stats.json` - Filtering statistics
-- `{panel_type}_probes.xlsx` - Final probe sequences
-- `{panel_type}_probes.fasta` - Probe sequences in FASTA format
-- `{panel_type}_probes.json` - Probe data in JSON format
-- `{panel_type}_stats.json` - Probe statistics
-- `statistics.json` - Overall workflow statistics
-- `probe_design.log` - Execution log
-
-### Merge Results Script (`merge_results.py`)
-
-Utility script for merging results from multiple probe design runs:
-
-```bash
-python merge_results.py results_directory output_file.xlsx
-```
-
-#### Parameters
-
-- `results_directory` - Directory containing subdirectories with results
-- `output_file` - Output file path for merged results
-
-#### Usage
-
-This script searches for `probes_wanted.xlsx` files in subdirectories under the specified results directory and merges them into a single file, removing duplicates and sorting by gene name and position.
 
 ## Configuration
 
-### Configuration File Format
+### YAML Configuration (NEW)
 
-The software uses JSON configuration files with the following structure:
+The software now supports YAML configuration files with better readability and comments:
 
-```json
-{
-  "database": {
-    "organism": "mouse",
-    "database_type": "ensembl",
-    "coord_system_version": "GRCh38",
-    "max_retries": 3
-  },
-  "search": {
-    "binding_site_length": 40,
-    "max_binding_sites": 30,
-    "search_strategy": "exon_junction",
-    "step_size": null
-  },
-  "filter": {
-    "min_g_content": 0.4,
-    "max_g_content": 0.7,
-    "max_consecutive_g": 4,
-    "min_tm": 45.0,
-    "max_tm": 65.0,
-    "min_free_energy": -10.0,
-    "max_alignments": 5,
-    "require_specificity": true,
-    "target_organisms": ["Mus musculus", "Homo sapiens"]
-  },
-  "probe": {
-    "panel_type": "PRISM",
-    "barcode_file": null,
-    "primer_left": null,
-    "primer_right": null
-  },
-  "blast": {
-    "blast_type": "local",
-    "database": "refseq_rna",
-    "task": "megablast",
-    "evalue": 1e-5
-  },
-  "output": {
-    "output_dir": "results",
-    "create_timestamp": true,
-    "save_intermediate": true,
-    "file_formats": ["xlsx", "fasta", "json"]
-  }
-}
+```yaml
+# Configuration for finding consensus binding sites
+database:
+  database_type: "ensembl"
+  api_key: "your_ncbi_api_key_here"
+  email: "your_email@example.com"
+
+search:
+  search_strategy: "isoform_consensus"
+  binding_site_length: 40
+  max_binding_sites: 30
+
+filter:
+  min_g_content: 0.3
+  max_g_content: 0.7
+  min_tm: 60.0
+  max_tm: 80.0
+  target_organisms: ["Mus musculus", "Homo sapiens"]
+
+blast:
+  blast_type: "local"
+  database: "nt"
+  species: ["Mus musculus"]
+
+output:
+  output_dir: "results"
+  save_fasta: true
+  save_json: true
+  save_excel: true
+
+species: "mouse"
 ```
+
+### Configuration Files
+
+- `configs/config_template.yaml` - Template configuration with detailed comments
+- `configs/config_consensus.yaml` - Configuration for consensus probe design
+- `configs/config_specific.yaml` - Configuration for specific probe design
+- `configs/config_bruteforce.yaml` - Configuration for brute force search
 
 ### Parameter Descriptions
 
 #### Database Configuration
-- `organism` - Target organism (mouse, human)
-- `database_type` - Database type (ensembl, ncbi)
-- `coord_system_version` - Genome assembly version
-- `max_retries` - Maximum retry attempts for API calls
+- `database_type`: Database type (ensembl, ncbi)
+- `api_key`: NCBI API key for database access
+- `email`: Email for API requests
 
 #### Search Configuration
-- `binding_site_length` - Length of binding sites to search for
-- `max_binding_sites` - Maximum number of binding sites per gene
-- `search_strategy` - Search strategy (exon_junction, brute_force, isoform_specific)
-- `step_size` - Step size for brute force search (null for exon junction)
+- `search_strategy`: Search strategy (brute_force, exon_junction, isoform_specific, isoform_consensus)
+- `binding_site_length`: Length of binding sites in base pairs
+- `max_binding_sites`: Maximum binding sites per gene
 
 #### Filter Configuration
-- `min_g_content` - Minimum G content threshold
-- `max_g_content` - Maximum G content threshold
-- `max_consecutive_g` - Maximum consecutive G nucleotides
-- `min_tm` - Minimum melting temperature
-- `max_tm` - Maximum melting temperature
-- `min_free_energy` - Minimum RNA secondary structure free energy
-- `max_alignments` - Maximum BLAST alignments allowed
-- `require_specificity` - Whether to require target organism specificity
-- `target_organisms` - List of target organisms for specificity check
-
-#### Probe Configuration
-- `panel_type` - Panel type (PRISM, SPRINTseq, custom)
-- `barcode_file` - Path to barcode file (null for defaults)
-- `primer_left` - Left primer sequence (null for defaults)
-- `primer_right` - Right primer sequence (null for defaults)
+- `min_g_content` / `max_g_content`: G content limits (0.0-1.0)
+- `max_consecutive_g`: Maximum consecutive G nucleotides
+- `min_tm` / `max_tm`: Melting temperature limits (°C)
+- `max_tm_diff`: Maximum temperature difference between 3' and 5' arms
+- `target_organisms`: Target organisms for specificity
 
 #### BLAST Configuration
-- `blast_type` - BLAST type (local, online)
-- `database` - BLAST database name
-- `task` - BLAST task type
-- `evalue` - E-value threshold
+- `blast_type`: BLAST type (local, online)
+- `database`: BLAST database (nt, refseq_rna, nr)
+- `species`: Target species for BLAST search
 
 #### Output Configuration
-- `output_dir` - Base output directory
-- `create_timestamp` - Whether to create timestamped subdirectories
-- `save_intermediate` - Whether to save intermediate results
-- `file_formats` - Output file formats
+- `output_dir`: Output directory path
+- `save_fasta`: Save FASTA format files
+- `save_json`: Save JSON format files
+- `save_excel`: Save Excel format files
 
 ## Search Strategies
 
-### Exon Junction Strategy
-Searches for binding sites at exon-exon boundaries, which are often more specific and less prone to off-target binding.
+### Consensus Strategy (`isoform_consensus`)
+Finds probes that bind to the maximum number of isoforms per gene, maximizing coverage.
 
-### Brute Force Strategy
-Scans the entire sequence with a sliding window to find all potential binding sites.
+### Specific Strategy (`isoform_specific`)
+Finds probes unique to individual isoforms for isoform-specific targeting.
 
-### Isoform Specific Strategy
-Identifies unique regions across different isoforms to ensure probe specificity.
+### Brute Force Strategy (`brute_force`)
+Scans the entire sequence with comprehensive filtering and optimization.
 
-## Panel Types
+### Exon Junction Strategy (`exon_junction`)
+Searches for binding sites at exon-exon boundaries for higher specificity.
 
-### PRISM
-Assembles probes with the format: right arm + BARCODE + left arm
+## Output Structure
 
-### SPRINTseq
-Assembles probes with the format: binding site + composite barcode (primer + barcode + primer + barcode)
+### Project Directory Structure
+```
+results/
+├── project_001/
+│   ├── ensembl_results/
+│   │   ├── binding_sites.json
+│   │   ├── filtered_binding_sites.xlsx
+│   │   └── filtering_stats.json
+│   ├── ncbi_results/
+│   │   ├── binding_sites.json
+│   │   ├── filtered_binding_sites.xlsx
+│   │   └── filtering_stats.json
+│   ├── merged_results.xlsx
+│   └── missing_genes.txt
+```
 
-### Custom
-Uses raw binding sequences without additional components.
+### Output Files
+- `binding_sites.json`: Raw binding sites data
+- `filtered_binding_sites.xlsx`: Filtered binding sites in Excel format
+- `filtering_stats.json`: Filtering statistics
+- `merged_results.xlsx`: Merged results from multiple databases
+- `missing_genes.txt`: Genes that need additional probe design
 
 ## Dependencies
 
@@ -223,38 +216,40 @@ Required Python packages:
 - biopython
 - requests
 - tqdm
-
-Optional packages:
-- RNAfold (for RNA secondary structure analysis)
+- pyyaml
 
 Install dependencies:
 ```bash
-pip install pandas numpy biopython requests tqdm
+pip install pandas numpy biopython requests tqdm pyyaml
+```
+
+## Testing
+
+Run the test suite to validate the pipeline:
+
+```bash
+python test/test_pipeline.py
 ```
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Missing dependencies**
-   - Run `python main.py --check-deps` to check installed packages
-   - Install missing packages with pip
+1. **Configuration Loading**
+   - Ensure YAML files are properly formatted
+   - Check file paths and permissions
 
-2. **BLAST errors**
-   - For local BLAST: Ensure BLAST+ is installed and database is available
-   - For online BLAST: Check internet connection and NCBI service status
+2. **Database Access**
+   - Verify API keys and email addresses
+   - Check internet connection for online databases
 
-3. **API rate limits**
-   - Increase `max_retries` in database configuration
-   - Add delays between requests if needed
+3. **BLAST Analysis**
+   - For local BLAST: Ensure BLAST+ is installed
+   - For online BLAST: Check NCBI service status
 
-4. **Memory issues**
-   - Reduce `max_binding_sites` in search configuration
+4. **Memory Issues**
+   - Reduce `max_binding_sites` in configuration
    - Process genes in smaller batches
-
-### Log Files
-
-Check the `probe_design.log` file in the output directory for detailed execution information and error messages.
 
 ### Support
 
