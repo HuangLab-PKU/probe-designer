@@ -10,6 +10,13 @@ This guide will help you set up the probe design environment on your system.
 - **Memory**: At least 8GB RAM (16GB recommended for large datasets)
 - **Storage**: At least 5GB free space
 
+### Platform-Specific Notes
+⚠️ **Important**: RNA structure prediction using ViennaRNA is only available on **Linux** and **macOS** systems. Windows users have the following options:
+
+1. **Use WSL (Windows Subsystem for Linux)**: Recommended for Windows users
+2. **Use Docker**: Run the analysis in a Linux container
+3. **Disable RNA structure prediction**: Modify configuration to skip RNA structure checks
+
 ### Required Software
 - **Conda** or **Miniconda**: For environment management
 - **Git**: For version control
@@ -20,32 +27,49 @@ This guide will help you set up the probe design environment on your system.
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd probe_design
+git clone <repository-url> probe_designer
+cd probe_designer
 ```
 
-### 2. Create Conda Environment
+### 2. Create Environment
 
+#### Option A: Using Conda (Recommended)
 ```bash
-# Create environment with Python 3.9
-conda create -n probe_design python=3.9
+# Create environment from environment.yml
+conda env create -f code/environment.yml
 
 # Activate environment
 conda activate probe_design
 ```
 
-### 3. Install Dependencies
+#### Option B: Using pip
+```bash
+# Create virtual environment
+python -m venv probe_design_env
+
+# Activate environment
+# On Windows:
+probe_design_env\Scripts\activate
+# On Linux/macOS:
+source probe_design_env/bin/activate
+
+# Install dependencies
+pip install -r code/requirements.txt
+```
+
+### 3. Install RNA Structure Prediction (Linux/macOS only)
+
+If you need RNA structure prediction on Linux/macOS:
 
 ```bash
-# Navigate to code directory
-cd code
+# Using conda
+conda install -c bioconda viennarna
 
-# Install required packages
-pip install -r requirements.txt
-
-# Install development dependencies (optional)
-pip install -r requirements-dev.txt
+# Or using pip (if available)
+pip install viennarna
 ```
+
+**Note**: Windows users should use WSL or Docker for RNA structure prediction.
 
 ### 4. Verify Installation
 
@@ -122,7 +146,17 @@ ls -la /path/to/genome.fa
 python -c "from pyfaidx import Fasta; f = Fasta('/path/to/genome.fa'); print('Genome accessible')"
 ```
 
-#### 4. Memory Issues
+#### 4. RNA Structure Prediction Issues
+```bash
+# Windows users: Use WSL or Docker
+# Check if ViennaRNA is available
+python -c "import viennarna; print('ViennaRNA available')"
+
+# If ViennaRNA not available, disable RNA structure checks in config
+# Set check_rna_structure: false in your configuration file
+```
+
+#### 5. Memory Issues
 ```bash
 # For large datasets, consider:
 # - Reducing batch size

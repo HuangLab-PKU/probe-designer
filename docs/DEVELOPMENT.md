@@ -125,6 +125,13 @@ tests/
 - Conda or virtual environment
 - Git
 
+### Platform Considerations
+⚠️ **Important**: RNA structure prediction using ViennaRNA is only available on **Linux** and **macOS** systems. Windows developers should:
+
+1. **Use WSL**: Recommended for Windows development
+2. **Use Docker**: For containerized development
+3. **Disable RNA structure features**: For testing without RNA structure prediction
+
 ### Setup Steps
 
 ```bash
@@ -132,12 +139,18 @@ tests/
 git clone <repository-url>
 cd probe_design
 
-# Create conda environment
-conda create -n probe_design python=3.9
+# Create conda environment (recommended)
+conda env create -f code/environment.yml
 conda activate probe_design
 
-# Install dependencies
-pip install -r requirements.txt
+# Or create virtual environment with pip
+python -m venv probe_design_env
+source probe_design_env/bin/activate  # Linux/macOS
+# probe_design_env\Scripts\activate   # Windows
+pip install -r code/requirements.txt
+
+# For RNA structure prediction (Linux/macOS only)
+conda install -c bioconda viennarna
 
 # Install development dependencies
 pip install -r requirements-dev.txt
