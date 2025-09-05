@@ -13,7 +13,11 @@ from Bio.SeqRecord import SeqRecord
 from tqdm import tqdm
 from math import ceil
 
-from .config import DatabaseConfig
+try:
+    from .config import DatabaseConfig
+except ImportError:
+    # Fallback for when running as standalone
+    from config import DatabaseConfig
 
 
 class DatabaseInterface:
@@ -470,6 +474,32 @@ class DatabaseInterface:
         import json
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(sequences, f, indent=2, ensure_ascii=False)
+    
+    def get_strand_by_symbol(self, gene_symbol: str, species: str = None) -> Optional[int]:
+        """通过基因符号查询链信息"""
+        if species is None:
+            species = self.config.organism
+        
+        if self.config.database_type == "ensembl":
+            return self._get_ensembl_strand_by_symbol(gene_symbol, species)
+        else:
+            # For NCBI, we would need to implement similar functionality
+            # For now, return None to indicate not supported
+            return None
+    
+    def _get_ensembl_strand_by_symbol(self, gene_symbol: str, species: str) -> Optional[int]:
+        """通过Ensembl API查询基因的链信息"""
+        ext = f"/lookup/symbol/{species}/{gene_symbol}"
+        try:
+            response = requests.get(self.server + ext, headers=self.headers, timeout=10)
+            if response.ok: 
+                return response.json().get('strand')
+            else:
+                print(f"Warning: {gene_symbol} not found (HTTP {response.status_code})")
+                return None
+        except Exception as e:
+            print(f"Error for {gene_symbol}: {e}")
+            return None
 
 
 class SequenceProcessor:

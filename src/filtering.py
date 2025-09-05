@@ -12,7 +12,11 @@ from Bio.SeqUtils import MeltingTemp as mt
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from .config import FilterConfig, BlastConfig
+try:
+    from .config import FilterConfig, BlastConfig
+except ImportError:
+    # Fallback for when running as standalone
+    from config import FilterConfig, BlastConfig
 
 
 class SequenceFilter:
@@ -105,9 +109,9 @@ class SequenceFilter:
             tm = 0.0
             result['tm'] = tm
         
-        # 4. Check melting temperature range for full sequence
-        if not (min_tm <= tm <= max_tm):
-            result['failed_checks'].append('tm_range')
+        # 4. Check melting temperature range for full sequence (DISABLED - only check arm Tm)
+        # if not (min_tm <= tm <= max_tm):
+        #     result['failed_checks'].append('tm_range')
         
         # 5. Calculate melting temperature for 3' and 5' arms
         try:
