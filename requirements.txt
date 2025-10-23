@@ -14,10 +14,9 @@ jupyter>=1.0.0
 ipykernel>=6.15.0
 ipython>=8.0.0
 
-# RNA structure prediction (Linux/Mac only)
-# Note: ViennaRNA is only available on Linux/Mac systems
-# Windows users will need to use WSL or Docker for RNA structure prediction
-# viennarna>=2.3.0  # Uncomment for Linux/Mac systems
+# RNA structure prediction
+# ViennaRNA is now available on Windows, Linux, and macOS
+ViennaRNA>=2.7.0
 
 # Optional: Enhanced performance
 # bottleneck>=1.3.0

@@ -11,11 +11,11 @@ This guide will help you set up the probe design environment on your system.
 - **Storage**: At least 5GB free space
 
 ### Platform-Specific Notes
-⚠️ **Important**: RNA structure prediction using ViennaRNA is only available on **Linux** and **macOS** systems. Windows users have the following options:
+✅ **Good News**: ViennaRNA is now available on **Windows**, **Linux**, and **macOS** systems!
 
-1. **Use WSL (Windows Subsystem for Linux)**: Recommended for Windows users
-2. **Use Docker**: Run the analysis in a Linux container
-3. **Disable RNA structure prediction**: Modify configuration to skip RNA structure checks
+- **Windows**: ViennaRNA 2.7.0+ is available via pip
+- **Linux/macOS**: ViennaRNA is available via conda or pip
+- **All platforms**: RNA structure prediction is fully supported
 
 ### Required Software
 - **Conda** or **Miniconda**: For environment management
@@ -57,25 +57,14 @@ source probe_design_env/bin/activate
 pip install -r code/requirements.txt
 ```
 
-### 3. Install RNA Structure Prediction (Linux/macOS only)
-
-If you need RNA structure prediction on Linux/macOS:
-
-```bash
-# Using conda
-conda install -c bioconda viennarna
-
-# Or using pip (if available)
-pip install viennarna
-```
-
-**Note**: Windows users should use WSL or Docker for RNA structure prediction.
-
-### 4. Verify Installation
+### 3. Verify Installation
 
 ```bash
 # Test basic functionality
 python -c "import src.mutation_probe; print('Installation successful!')"
+
+# Test ViennaRNA installation
+python -c "import RNA; print('ViennaRNA version:', RNA.__version__)"
 
 # Run a simple test
 python local/probe_design_BZ09_TNBC_mut.py --help
@@ -148,11 +137,16 @@ python -c "from pyfaidx import Fasta; f = Fasta('/path/to/genome.fa'); print('Ge
 
 #### 4. RNA Structure Prediction Issues
 ```bash
-# Windows users: Use WSL or Docker
 # Check if ViennaRNA is available
-python -c "import viennarna; print('ViennaRNA available')"
+python -c "import RNA; print('ViennaRNA version:', RNA.__version__)"
 
-# If ViennaRNA not available, disable RNA structure checks in config
+# Test RNA structure prediction
+python -c "import RNA; structure, mfe = RNA.fold('GGGGAAAACCCC'); print(f'Structure: {structure}, MFE: {mfe}')"
+
+# If ViennaRNA not available, install it
+pip install ViennaRNA
+
+# If still having issues, disable RNA structure checks in config
 # Set check_rna_structure: false in your configuration file
 ```
 

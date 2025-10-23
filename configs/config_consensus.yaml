@@ -16,9 +16,9 @@ search:
 filter:
   min_g_content: 0.3
   max_g_content: 0.7
-  max_consecutive_g: 3
+  max_consecutive_g: 5
   min_tm: 50.0
-  max_tm: 80.0
+  max_tm: 70.0
   max_tm_diff: 10.0
   min_free_energy: -10.0
   check_rna_structure: true
@@ -38,9 +38,9 @@ blast:
   filter: "none"
   format_type: "XML"
   service: "plain"
-  batch_size: 100
+  batch_size: 20
   concurrency: 3
-  species: ["Mus musculus"]
+  species: ["Homo sapiens"]
 
 output:
   output_dir: "results"
@@ -51,4 +51,4 @@ output:
 genome:
   use_local_first: true
 
-species: "mouse"
+species: "human"

@@ -248,6 +248,66 @@ class ConfigManager:
         else:
             return gene_name
     
+    def save_config(self, output_file: str):
+        """Save current configuration to YAML file."""
+        config_data = {
+            'database': {
+                'organism': self.database.organism,
+                'database_type': self.database.database_type,
+                'coord_system_version': self.database.coord_system_version,
+                'max_retries': self.database.max_retries
+            },
+            'search': {
+                'search_strategy': self.search.search_strategy,
+                'binding_site_length': self.search.binding_site_length,
+                'max_binding_sites': self.search.max_binding_sites,
+                'window_size': getattr(self.search, 'window_size', 50),
+                'step_size': self.search.step_size
+            },
+            'filter': {
+                'min_g_content': self.filter.min_g_content,
+                'max_g_content': self.filter.max_g_content,
+                'max_consecutive_g': self.filter.max_consecutive_g,
+                'min_tm': self.filter.min_tm,
+                'max_tm': self.filter.max_tm,
+                'max_tm_diff': self.filter.max_tm_diff,
+                'min_free_energy': self.filter.min_free_energy,
+                'check_rna_structure': self.filter.check_rna_structure,
+                'require_specificity': self.filter.require_specificity,
+                'final_probes_per_gene': getattr(self.filter, 'final_probes_per_gene', 3)
+            },
+            'blast': {
+                'blast_type': self.blast.blast_type,
+                'database': self.blast.database,
+                'task': self.blast.task,
+                'evalue': self.blast.evalue,
+                'hitlist_size': self.blast.hitlist_size,
+                'alignments': self.blast.alignments,
+                'descriptions': self.blast.descriptions,
+                'megablast': self.blast.megablast,
+                'short_query': self.blast.short_query,
+                'filter': self.blast.filter,
+                'format_type': self.blast.format_type,
+                'service': self.blast.service,
+                'batch_size': self.blast.batch_size,
+                'concurrency': self.blast.concurrency,
+                'species': self.blast.species
+            },
+            'output': {
+                'output_dir': self.output.output_dir,
+                'save_fasta': getattr(self.output, 'save_fasta', True),
+                'save_json': getattr(self.output, 'save_json', True),
+                'save_excel': getattr(self.output, 'save_excel', True)
+            },
+            'genome': {
+                'use_local_first': self.genome.use_local_first
+            },
+            'species': self.database.organism
+        }
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            yaml.dump(config_data, f, default_flow_style=False, allow_unicode=True)
+    
     def validate_config(self) -> List[str]:
         """Validate configuration values and return error list."""
         errors = []

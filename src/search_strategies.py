@@ -5,9 +5,9 @@ Implement different methods to search binding sites on sequences.
 
 import os
 import json
-import random
+import random  # noqa: F401 (reserved for future stochastic strategies)
 from typing import List, Dict, Any, Tuple, Optional
-from tqdm import tqdm
+from tqdm import tqdm  # noqa: F401 (progress bars may be enabled later)
 
 from .config import SearchConfig, FilterConfig
 from .filtering import SequenceFilter
@@ -266,28 +266,25 @@ class IsoformSpecificStrategy(SearchStrategy):
         if not self.awareness:
             return BruteForceStrategy(self.search_config, self.filter_config).search_binding_sites(sequence, gene_name)
         
-        genome_seq = self.awareness.get_genome_seq()
+        _ = self.awareness.get_genome_seq()
         bds_len = self.search_config.binding_site_length
         all_probes: List[Dict[str, Any]] = []
         
+        # Use IsoformAwareness utility to build spliced sequence
+
         for isoform in self.isoforms:
-            isoform_probes = []
             iso_start = isoform['start']
             iso_end = isoform['end']
             strand = isoform.get('strand', 1)
             current_pos = iso_start
             while current_pos + bds_len <= iso_end:
-                end_pos = self.awareness.find_end_position(current_pos, bds_len)
+                end_pos = self.awareness.find_end_position(current_pos, bds_len, isoform)
                 if end_pos > iso_end:
                     break
                 regions = self.awareness.get_overlapping_regions(current_pos, end_pos)
                 target_isoforms = self.awareness.isoforms_intersection(regions)
                 if len(target_isoforms) == 1 and target_isoforms[0] == isoform.get('external_name', isoform.get('id')):
-                    ls = current_pos - self.awareness.global_start
-                    le = end_pos - self.awareness.global_start
-                    target_seq = genome_seq[ls:le]
-                    if strand == -1:
-                        target_seq = self._reverse_complement(target_seq)
+                    target_seq, segments = self.awareness.build_spliced_seq(isoform.get('exons', []), current_pos, end_pos, strand)
                     
                     # Get reverse complement for probe design (DNA probe binding to RNA target)
                     probe_seq = self._reverse_complement(target_seq)
@@ -312,9 +309,10 @@ class IsoformSpecificStrategy(SearchStrategy):
                             'target_sequence': target_seq,  # Store original target sequence
                             'arm_3prime': thermal_result['arm_3prime'],
                             'arm_5prime': thermal_result['arm_5prime'],
-                            'position': current_pos - iso_start,
-                            'genomic_start': current_pos if strand == 1 else end_pos - bds_len,
-                            'genomic_end': current_pos + bds_len if strand == 1 else end_pos,
+                        'position': current_pos - iso_start,
+                        'genomic_start': current_pos if strand == 1 else end_pos - bds_len,
+                        'genomic_end': current_pos + bds_len if strand == 1 else end_pos,
+                        'segments': segments,
                             'length': bds_len,
                             'g_content': thermal_result['g_content'],
                             'tm': thermal_result['tm'],
@@ -353,7 +351,7 @@ class IsoformConsensusStrategy(SearchStrategy):
         if not self.awareness:
             return BruteForceStrategy(self.search_config, self.filter_config).search_binding_sites(sequence, gene_name)
         
-        genome_seq = self.awareness.get_genome_seq()
+        _ = self.awareness.get_genome_seq()
         bds_len = self.search_config.binding_site_length
         candidates: List[Dict[str, Any]] = []
         seen_positions = set()  # Track seen genomic positions to avoid duplicates
@@ -370,12 +368,10 @@ class IsoformConsensusStrategy(SearchStrategy):
                 regions = self.awareness.get_overlapping_regions(current_pos, end_pos)
                 covered = set(self.awareness.isoforms_union(regions))
                 if not covered:
-                    current_pos += 1; continue
-                ls = current_pos - self.awareness.global_start
-                le = end_pos - self.awareness.global_start
-                target_seq = genome_seq[ls:le]
-                if strand == -1:
-                    target_seq = self._reverse_complement(target_seq)
+                    current_pos += 1
+                    continue
+                # Use awareness builder for spliced sequence across potential multiple exons
+                target_seq, segments = self.awareness.build_spliced_seq(isoform.get('exons', []), current_pos, end_pos, strand)
                 
                 # Get reverse complement for probe design (DNA probe binding to RNA target)
                 probe_seq = self._reverse_complement(target_seq)
@@ -394,7 +390,8 @@ class IsoformConsensusStrategy(SearchStrategy):
                 )
                 
                 if not thermal_result['passed']:
-                    current_pos += 1; continue
+                    current_pos += 1
+                    continue
                 
                 # Calculate genomic position
                 genomic_start = current_pos if strand == 1 else end_pos - bds_len
@@ -402,7 +399,8 @@ class IsoformConsensusStrategy(SearchStrategy):
                 
                 # Skip if we've already seen this genomic position
                 if (genomic_start, genomic_end) in seen_positions:
-                    current_pos += 1; continue
+                    current_pos += 1
+                    continue
                 
                 seen_positions.add((genomic_start, genomic_end))
                 
@@ -415,6 +413,7 @@ class IsoformConsensusStrategy(SearchStrategy):
                     'position': current_pos - iso_start,
                     'genomic_start': genomic_start,
                     'genomic_end': genomic_end,
+                    'segments': segments,
                     'length': bds_len,
                     'g_content': thermal_result['g_content'],
                     'tm': thermal_result['tm'],
@@ -468,14 +467,12 @@ class BindingSiteSearcher:
     
     def search_all_genes(self, sequences: Dict[str, Any], isoforms: Optional[Dict] = None) -> Dict[str, List[Dict[str, Any]]]:
         results = {}
-        
-        print(f"Searching binding sites for {len(sequences)} genes...")
-        for gene_name, gene_data in sequences.items():
+        total_genes = len(sequences)
+        if total_genes > 1:
+            print(f"Searching binding sites for {total_genes} genes...")
+        for idx, (gene_name, gene_data) in enumerate(sequences.items(), start=1):
             if 'sequence' not in gene_data:
                 continue
-            
-            print(f"Processing gene: {gene_name}")
-            
             # Get sequence directly
             sequence = gene_data['sequence']
             
@@ -506,7 +503,10 @@ class BindingSiteSearcher:
             # Search binding sites
             binding_sites = strategy.search_binding_sites(sequence, gene_name)
             results[gene_name] = binding_sites
-            print(f"Found {len(binding_sites)} binding sites for {gene_name}")
+            if total_genes > 1:
+                print(f"[{idx}/{total_genes}] {gene_name} -> {len(binding_sites)} sites")
+            else:
+                print(f"{gene_name} -> {len(binding_sites)} sites")
         
         return results
     
@@ -578,18 +578,95 @@ class IsoformAwareness:
         if self._genome_seq_cache is None:
             self._genome_seq_cache = self.genome_accessor(self.seq_region_name, self.global_start, self.global_end)
         return self._genome_seq_cache
-    
-    def find_end_position(self, start_pos: int, length: int) -> int:
-        exon_splices = list(self.exon_splice_counts.keys())
+
+    def build_spliced_seq(self, exons: List[Dict[str, int]], start_pos: int, end_pos: int, strand: int) -> Tuple[str, List[Tuple[int, int]]]:
+        """Return spliced sequence across exons intersecting [start_pos, end_pos) and the genomic segments list.
+        Coordinates are genomic (same system as isoform start/end), inclusive of start and exclusive of end.
+        This method ensures the returned sequence has the correct length by traversing exons properly.
+        """
+        genome_seq = self.get_genome_seq()
+        segments: List[Tuple[int, int]] = []
+        seq_parts: List[str] = []
+        
+        # Calculate the target length
+        target_length = end_pos - start_pos
+        
+        # Sort exons by start position
+        sorted_exons = sorted(exons, key=lambda x: x['start'])
+        
         current_pos = start_pos
-        remaining_length = length
-        for splice_start, splice_end in exon_splices:
-            if splice_start <= current_pos < splice_end:
-                avail = splice_end - current_pos
-                if remaining_length <= avail:
-                    return current_pos + remaining_length
-                remaining_length -= avail
-                current_pos = splice_end
+        remaining_length = target_length
+        
+        for exon in sorted_exons:
+            if remaining_length <= 0:
+                break
+                
+            # Skip exons that are completely before current position
+            if exon['end'] <= current_pos:
+                continue
+                
+            # If current position is in an intron before this exon, jump to exon start
+            if exon['start'] > current_pos:
+                current_pos = exon['start']
+                
+            # Calculate how much of this exon we can use
+            exon_start = max(current_pos, exon['start'])
+            exon_end = min(current_pos + remaining_length, exon['end'])
+            
+            if exon_start < exon_end:
+                # Add this segment
+                segments.append((exon_start, exon_end))
+                ls = exon_start - self.global_start
+                le = exon_end - self.global_start
+                seq_parts.append(genome_seq[ls:le])
+                
+                # Update remaining length and current position
+                used_length = exon_end - exon_start
+                remaining_length -= used_length
+                current_pos = exon_end
+                
+                # If we've used up all remaining length, we're done
+                if remaining_length <= 0:
+                    break
+        
+        seq = ''.join(seq_parts)
+        if strand == -1:
+            # Reverse complement for negative strand
+            comp = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
+            seq = ''.join(comp.get(b, 'N') for b in reversed(seq))
+        return seq, segments
+    
+    def find_end_position(self, start_pos: int, length: int, isoform: Optional[Dict[str, Any]] = None) -> int:
+        """Find genomic end position after traversing 'length' bases along exonic regions starting at 'start_pos'.
+        If 'isoform' is provided, constrain traversal to that isoform's exons only; otherwise, use union of exons.
+        """
+        segments = []
+        if isoform is not None:
+            # Build non-overlapping exon segments for the given isoform
+            exons = sorted(isoform.get('exons', []), key=lambda x: x['start'])
+            segments = [(e['start'], e['end']) for e in exons]
+        else:
+            # Use union splice segments available in awareness
+            segments = sorted(list(self.exon_splice_counts.keys()), key=lambda x: x[0])
+
+        current_pos = start_pos
+        remain = length
+        for seg_start, seg_end in segments:
+            if seg_end <= current_pos:
+                continue
+            # If current_pos is in an intron before this exon, jump to exon start
+            if seg_start > current_pos:
+                current_pos = seg_start
+            # Now consume within exon segment
+            avail = max(0, seg_end - current_pos)
+            if avail <= 0:
+                continue
+            if remain <= avail:
+                return current_pos + remain
+            remain -= avail
+            current_pos = seg_end
+
+        # Fallback: if exons exhausted, return naive end (start_pos + length)
         return start_pos + length
     
     def get_overlapping_regions(self, start_pos: int, end_pos: int) -> List[Tuple[int, int]]:
