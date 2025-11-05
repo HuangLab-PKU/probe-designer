@@ -1130,7 +1130,7 @@ class SequenceFilter:
                 with open(isoform_info_file, 'r', encoding='utf-8') as f:
                     isoform_data = json.load(f)
                     for isoform in isoform_data:
-                        if isoform.get('id') == isoform_id or isoform.get('external_name') == isoform_id:
+                        if isoform.get('id') == isoform_id or isoform.get('display_name') == isoform_id:
                             return isoform.get('strand')
         except Exception as e:
             print(f"Warning: Could not get strand for isoform {isoform_id}: {e}")

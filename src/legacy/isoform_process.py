@@ -66,7 +66,7 @@ def find_unique_introns(transcripts):
         unique = [j for j in introns if intron_counts[j] == 1]
         unique_introns.append({
             'transcript_id': transcript['id'], 
-            'external_name': transcript['external_name'], 
+            'display_name': transcript['display_name'], 
             'intron': unique,
             })
     return unique_introns
@@ -80,7 +80,7 @@ def find_unique_exons(transcripts):
         unique = [j for j in exons if exon_counts[j] == 1]
         unique_exons.append({
             'transcript_id': transcript['id'], 
-            'external_name': transcript['external_name'], 
+            'display_name': transcript['display_name'], 
             'exon_splices': unique,
             })
     return unique_exons
@@ -92,7 +92,7 @@ def find_overlap_exons(transcripts):
     for transcript in transcripts_return:
         overlap_exons.append({
             'transcript_id': transcript['id'], 
-            'external_name': transcript['external_name'], 
+            'display_name': transcript['display_name'], 
             'exon_splices_count': transcript['exon_splices_count'],
             })
     return overlap_exons
@@ -129,7 +129,7 @@ def plp_bds_specific_regions(transcripts_raw, genome, pos_search_kwargs):
     
     # 主处理逻辑
     for transcript in transcripts:
-        # print(transcript['external_name'])
+        # print(transcript['display_name'])
         transcript_id = transcript['id']
         regions = []
         transcript_probes = []
@@ -153,7 +153,7 @@ def plp_bds_specific_regions(transcripts_raw, genome, pos_search_kwargs):
             elif transcript['strand'] == -1: rna_seq = seq_minus(combined_seq)
             else: raise ValueError("Invalid strand value")
             # 设计探针
-            pos_info = position_search(rna_seq, gene=transcript['external_name'], **pos_search_kwargs)
+            pos_info = position_search(rna_seq, gene=transcript['display_name'], **pos_search_kwargs)
             for plp_probe in pos_info:
                 if transcript['strand'] == 1: plp_probe['pos'] = global_start + plp_probe['pos']  
                 elif transcript['strand'] == -1: global_start + len(rna_seq) - plp_probe['pos'] - pos_search_kwargs['BDS_len']
@@ -177,7 +177,7 @@ def plp_bds_specific_regions(transcripts_raw, genome, pos_search_kwargs):
                 if transcript['strand'] == -1: rna_seq = seq_minus(combined_seq)
                 else: rna_seq = combined_seq
                 # 设计探针
-                pos_info = position_search(rna_seq, gene=transcript['external_name'], **pos_search_kwargs)
+                pos_info = position_search(rna_seq, gene=transcript['display_name'], **pos_search_kwargs)
                 for plp_probe in pos_info:
                     # transform relative pos to global pos
                     if transcript['strand'] == 1: plp_probe['pos'] = global_start + plp_probe['pos']  
@@ -203,7 +203,7 @@ def find_exon_splice_counts(transcripts_raw):
     split_points = sorted({point for tx in transcripts for exon in tx['exons'] for point in (exon['start'], exon['end'])})
     # 存储每个转录本的exons
     for transcript in transcripts:
-        transcript_name = transcript['external_name']
+        transcript_name = transcript['display_name']
         if not 'exons' in transcript: continue
         exons = transcript['exons']
         sorted_exons = sorted(exons, key=lambda x: x['start'])
@@ -351,7 +351,7 @@ def plp_isoform(transcripts_raw, genome, plp_params):
             for j in range(len(exon_splices_1)-num+1):
                 exon_splice = tuple([exon_splices_1[j+k] for k in range(num)])
                 transcript[f'exon_splices_{num}'].append(exon_splice)
-                exon_splice_counts[num].setdefault(exon_splice, []).append(transcript['external_name'])
+                exon_splice_counts[num].setdefault(exon_splice, []).append(transcript['display_name'])
 
     # summary of all the transcripts
     for transcript in transcripts:
@@ -384,7 +384,7 @@ def plp_isoform(transcripts_raw, genome, plp_params):
             elif exon_overlap_num > 1: 
                 target_isoforms = transcript[f'exon_splices_{exon_overlap_num}'][tlr_region]
             else:
-                print(transcript['external_name'])
+                print(transcript['display_name'])
                 print(start, tlr_start, mid_point, tlr_end, end)
                 print(tlr_region)
                 print(exon_splices_tmp)

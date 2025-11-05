@@ -55,7 +55,7 @@ def setup_logging_and_copy_config(config_file: str, output_dir: str):
 
 
 def build_isoforms_map(db: DatabaseInterface, gene: str) -> List[Dict]:
-    txs = db.get_isoform_sequences(gene)
+    txs = db.get_isoform_info(gene)
     isoforms = []
     for tx in txs:
         exons = tx.get('exons', [])
@@ -67,7 +67,7 @@ def build_isoforms_map(db: DatabaseInterface, gene: str) -> List[Dict]:
             continue
         isoforms.append({
             'id': tx.get('id'),
-            'external_name': tx.get('external_name') or tx.get('id'),
+            'display_name': tx.get('display_name') or tx.get('id'),
             'exons': [{'start': e['start'], 'end': e['end']} for e in exons if 'start' in e and 'end' in e],
             'start': min(starts),
             'end': max(ends),

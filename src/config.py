@@ -131,9 +131,12 @@ class ConfigManager:
         self._load_species_config()
         
         # load main configuration
-        if config_file and os.path.exists(config_file):
-            self.load_config(config_file)
-        
+        if config_file:
+            if os.path.exists(config_file):
+                self.load_config(config_file)
+            else:
+                print(f"Configuration file not found: {config_file}, using default config")
+
         # apply species-specific settings
         if species:
             self.set_species(species)
@@ -146,6 +149,7 @@ class ConfigManager:
                 species_data = json.load(f)
                 self._species_data = species_data
         else:
+            print("No species configuration file found")
             self._species_data = {"species": {}, "default_species": "mouse"}
     
     def set_species(self, species_name: str):

@@ -283,7 +283,7 @@ class IsoformSpecificStrategy(SearchStrategy):
                     break
                 regions = self.awareness.get_overlapping_regions(current_pos, end_pos)
                 target_isoforms = self.awareness.isoforms_intersection(regions)
-                if len(target_isoforms) == 1 and target_isoforms[0] == isoform.get('external_name', isoform.get('id')):
+                if len(target_isoforms) == 1 and target_isoforms[0] == isoform.get('display_name', isoform.get('id')):
                     target_seq, segments = self.awareness.build_spliced_seq(isoform.get('exons', []), current_pos, end_pos, strand)
                     
                     # Get reverse complement for probe design (DNA probe binding to RNA target)
@@ -324,7 +324,7 @@ class IsoformSpecificStrategy(SearchStrategy):
                             'target_isoforms': target_isoforms,
                             'isoform_overlap_num': len(target_isoforms),
                             'isoform_id': isoform.get('id'),
-                            'isoform_name': isoform.get('external_name', isoform.get('id')),
+                            'isoform_name': isoform.get('display_name', isoform.get('id')),
                             'overlapping_regions': regions
                         })
                 current_pos += 1
@@ -425,7 +425,7 @@ class IsoformConsensusStrategy(SearchStrategy):
                     'target_isoforms': sorted(list(covered)),
                     'isoform_overlap_num': len(covered),
                     'isoform_id': isoform.get('id'),
-                    'isoform_name': isoform.get('external_name', isoform.get('id')),
+                    'isoform_name': isoform.get('display_name', isoform.get('id')),
                     'overlapping_regions': regions
                 })
                 current_pos += 1
@@ -548,7 +548,7 @@ def build_exon_splice_counts(isoforms: List[Dict]) -> Dict[Tuple[int, int], List
 
     exon_splice_counts: Dict[Tuple[int, int], List[str]] = {}
     for iso in isoforms:
-        iso_name = iso.get('external_name', iso.get('id'))
+        iso_name = iso.get('display_name', iso.get('id'))
         exons = sorted(iso.get('exons', []), key=lambda x: x['start'])
         for exon in exons:
             exon_start, exon_end = exon['start'], exon['end']

@@ -70,7 +70,7 @@ def setup_logging_and_copy_config(config_file: str, output_dir: str, cfg=None):
 
 def build_isoforms_map(db: DatabaseInterface, gene: str) -> List[Dict]:
     # Use Ensembl isoform details
-    txs = db.get_isoform_sequences(gene)
+    txs = db.get_isoform_info(gene)
     isoforms = []
     for tx in txs:
         exons = tx.get('exons', [])
@@ -82,13 +82,12 @@ def build_isoforms_map(db: DatabaseInterface, gene: str) -> List[Dict]:
             continue
         isoforms.append({
             'id': tx.get('id'),
-            'external_name': tx.get('external_name') or tx.get('id'),
+            'display_name': tx.get('display_name'),
             'exons': [{'start': e['start'], 'end': e['end']} for e in exons if 'start' in e and 'end' in e],
             'start': min(starts),
             'end': max(ends),
-            'strand': tx.get('strand', 1),
-            'seq_region_name': tx.get('seq_region_name', '1'),
-            'seq': tx.get('seq', '')
+            'strand': tx.get['strand'],
+            'seq_region_name': tx['seq_region_name'],
         })
     return isoforms
 
@@ -130,9 +129,20 @@ def main():
 
     # Prepare genome accessor - prefer local, fallback to Ensembl
     accessor = None
-    if cfg.genome.use_local_first and cfg.genome.genome_fasta_path and os.path.exists(cfg.genome.genome_fasta_path):
-        print(f"Using local genome: {cfg.genome.genome_fasta_path}")
-        accessor = db.local_genome_accessor(cfg.genome.genome_fasta_path)
+    if getattr(cfg.genome, 'use_local_first', False):
+        fasta_path = getattr(cfg.genome, 'genome_fasta_path', None)
+        if not fasta_path:
+            logging.warning("use_local_first is True but genome_fasta_path is not set; falling back to Ensembl")
+        elif not os.path.exists(fasta_path):
+            logging.warning(f"use_local_first is True but FASTA not found at: {fasta_path}; falling back to Ensembl")
+        else:
+            logging.info(f"Attempting to use local genome FASTA: {fasta_path}")
+            accessor = db.local_genome_accessor(fasta_path)
+            if accessor is None:
+                logging.warning(
+                    "Local genome FASTA selected but could not be initialized (see previous message). "
+                    "Falling back to Ensembl. Hints: ensure file is readable, pyfaidx installed, and .fai index present."
+                )
     
     if accessor is None:
         print("Using Ensembl genome accessor")
@@ -201,13 +211,13 @@ def main():
         else:
             # Search for binding sites for this gene
             if g not in sequences:
+                print(f"Warning: No sequence found for gene {g}")
                 continue
             searcher = BindingSiteSearcher(cfg.search, cfg.filter, genome_accessor=accessor)
             gene_sequences = {g: sequences[g]}
             gene_isoforms = {g: isoforms_map[g]}
             gene_binding_sites = searcher.search_all_genes(gene_sequences, isoforms=gene_isoforms)
             gene_sites = gene_binding_sites.get(g, [])
-            
             # Save to cache (one file per gene)
             with open(binding_site_file, 'w', encoding='utf-8') as f:
                 json.dump(gene_sites, f, indent=2, ensure_ascii=False)
