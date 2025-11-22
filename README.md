@@ -81,12 +81,6 @@ Results are saved in `results/{project_id}/`:
 - `binding_sites_stats.json`: Statistical summary
 - `missing_genes.txt`: Genes without successful probe design
 
-## 🧪 Testing
-
-```bash
-python test/test_basic_pipeline.py
-```
-
 ## 📄 License
 
 This project is licensed under the MIT License.

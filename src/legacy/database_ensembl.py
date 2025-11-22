@@ -37,7 +37,7 @@ def ensembl_transcripts(gene_symbol="BRCA1", species='human'):
 #     with tqdm(total=len(transcripts), desc=f"Fetching {gene_symbol} transcripts", **tqdm_args) as pbar:
 #         for transcript in transcripts:
 #             transcript_id = transcript['id']
-#             transcript['exons'] = []          
+#             transcript['Exon'] = []          
 #             try:
 #                 # 获取精确外显子信息（单API调用）
 #                 lookup_ext = f"/lookup/id/{transcript_id}?expand=1"
@@ -45,7 +45,7 @@ def ensembl_transcripts(gene_symbol="BRCA1", species='human'):
                 
 #                 # 按链方向排序外显子
 #                 exons = sorted(tx_data.get('Exon', []), key=lambda x: x['start'])
-#                 transcript['exons'] = exons
+#                 transcript['Exon'] = exons
             
 #             except Exception as e: print(f"Error processing {transcript_id}: {str(e)}")
 #             pbar.update(1)

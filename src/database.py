@@ -6,18 +6,16 @@ Provides access to Ensembl and NCBI for sequence retrieval.
 import os
 import time
 import requests
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Callable
 from Bio import SeqIO, Entrez
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from tqdm import tqdm
 from math import ceil
 
-try:
-    from .config import DatabaseConfig
-except ImportError:
-    # Fallback for when running as standalone
-    from config import DatabaseConfig
+# Import config from the correct location
+try: from .config import DatabaseConfig, GenomeConfig
+except ImportError: from config import DatabaseConfig, GenomeConfig
 
 
 class DatabaseInterface:
@@ -73,12 +71,73 @@ class DatabaseInterface:
             print(f"Failed to load local genome: {e}")
             return None
     
+    def initialize_genome_accessor(self, genome_config: GenomeConfig) -> Callable:
+        """
+        Initialize genome accessor with fallback chain.
+        
+        Tries each accessor type in priority order (from genome_config.accessor_priority),
+        returns the first successful one.
+        
+        Args:
+            genome_config: GenomeConfig instance with accessor_priority and genome_fasta_path
+            
+        Returns:
+            Genome accessor function (callable that takes seq_region_name, start, end)
+            
+        Raises:
+            RuntimeError: If all accessors fail to initialize
+        """
+        accessor = None
+        accessor_priority = getattr(genome_config, 'accessor_priority', ['local', 'ensembl'])
+        accessor_used = None
+        failed_accessors = []
+        
+        for accessor_type in accessor_priority:
+            if accessor_type == 'local':
+                fasta_path = getattr(genome_config, 'genome_fasta_path', None)
+                if not fasta_path:
+                    failed_accessors.append("local (genome_fasta_path not set)")
+                    continue
+                if not os.path.exists(fasta_path):
+                    failed_accessors.append(f"local (file not found: {fasta_path})")
+                    continue
+                
+                accessor = self.local_genome_accessor(fasta_path)
+                if accessor:
+                    accessor_used = f"local: {fasta_path}"
+                    break
+                else:
+                    failed_accessors.append(f"local (initialization failed: {fasta_path})")
+            
+            elif accessor_type == 'ensembl':
+                accessor = self.ensembl_genome_accessor()
+                if accessor:
+                    accessor_used = f"ensembl (species: {self.config.organism})"
+                    break
+                else:
+                    failed_accessors.append("ensembl (initialization failed)")
+        
+        if accessor is None:
+            error_msg = f"All genome accessors failed:\n  " + "\n  ".join(failed_accessors)
+            print(f"ERROR: {error_msg}")
+            raise RuntimeError(error_msg)
+        
+        if failed_accessors:
+            print(f"Warning: Failed accessors: {'; '.join(failed_accessors)}")
+        print(f"Using genome accessor: {accessor_used}")
+        
+        return accessor
+    
     def get_isoform_info(self, gene_symbol: str) -> List[Dict]:
         """Retrieve detailed isoform information for a gene (Ensembl only)."""    
         if self.config.database_type == "ensembl":
-            gene_info = self._ensembl_get_tx_info(gene_symbol)
-            transcripts = gene_info.get('Transcript', [])
-            return transcripts
+            try:
+                gene_info = self._ensembl_get_tx_info(gene_symbol)
+                transcripts = gene_info['Transcript']
+                return transcripts
+            except Exception as e:
+                print(f"Failed to get isoform info for gene {gene_symbol}: {e}")
+                return []
         else:
             raise NotImplementedError("Isoform analysis supported for Ensembl only")
 

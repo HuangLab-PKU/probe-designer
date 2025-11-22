@@ -27,6 +27,7 @@ class SearchConfig:
     max_binding_sites: int = 30  # max sites per gene
     search_strategy: str = "exon_junction"  # exon_junction, brute_force, isoform_specific
     step_size: Optional[int] = None  # step size for brute_force
+    genes_file: Optional[str] = None  # path to gene list file (can be overridden by command line)
 
 
 @dataclass
@@ -51,10 +52,7 @@ class FilterConfig:
 @dataclass
 class ProbeConfig:
     """Probe assembly configuration."""
-    panel_type: str = "PRISM"  # PRISM, SPRINTseq, custom
-    barcode_file: Optional[str] = None  # barcode Excel file path
-    primer_left: Optional[str] = None  # left primer sequence
-    primer_right: Optional[str] = None  # right primer sequence
+    backbone_file: Optional[str] = None  # Backbone Excel file path (must contain 'No.' and 'Sequence' columns)
 
 
 @dataclass
@@ -84,7 +82,7 @@ class OutputConfig:
     output_dir: str = "results"  # output directory
     create_timestamp: bool = True  # create timestamped subdir
     save_intermediate: bool = True  # save intermediate files
-    file_formats: List[str] = None  # output formats
+    # file_formats: List[str] = None  # output formats
     save_fasta: bool = True
     save_json: bool = True
     save_excel: bool = True
@@ -94,17 +92,22 @@ class OutputConfig:
 class GenomeConfig:
     """Genome access configuration."""
     genome_fasta_path: Optional[str] = None  # path to local genome FASTA
-    use_local_first: bool = True  # prefer local over online access
+    accessor_priority: Optional[List[str]] = None  # priority list: ['local', 'ensembl'] or ['ensembl', 'local']
+    
+    def __post_init__(self):
+        """Set default priority if not specified."""
+        if self.accessor_priority is None:
+            self.accessor_priority = ['local', 'ensembl']
 
 
 @dataclass
 class SpeciesConfig:
     """Species-specific configuration."""
-    organism: str = "mouse"
-    coord_system_version: str = "GRCm39"
-    genome_fasta_path: str = ""
-    display_name: str = "Mus musculus"
-    taxonomy_id: int = 10090
+    organism: str
+    coord_system_version: str
+    genome_fasta_path: str
+    display_name: str
+    taxonomy_id: int
 
 
 class ConfigManager:
@@ -118,38 +121,66 @@ class ConfigManager:
         self.blast = BlastConfig()
         self.output = OutputConfig()
         self.genome = GenomeConfig()
-        self.species_config = SpeciesConfig()
+        self.species_config: Optional[SpeciesConfig] = None  # Will be set by set_species()
         
-        # defaults
-        if self.filter.target_organisms is None:
-            self.filter.target_organisms = ["Mus musculus", "Homo sapiens"]
-        
-        if self.output.file_formats is None:
-            self.output.file_formats = ["xlsx", "fasta", "json"]
+        # if self.output.file_formats is None:
+        #     self.output.file_formats = ["xlsx", "fasta", "json"]
         
         # load species configuration first
         self._load_species_config()
         
-        # load main configuration
-        if config_file:
-            if os.path.exists(config_file):
-                self.load_config(config_file)
-            else:
-                print(f"Configuration file not found: {config_file}, using default config")
-
         # apply species-specific settings
         if species:
             self.set_species(species)
+
+        # load main configuration
+        if config_file and os.path.exists(config_file):
+            # Load the main configuration first
+            self.load_config(config_file)
+            
+            # Check if species is specified in config file and apply it after load_config
+            # This ensures species-specific settings (like genome_fasta_path) take precedence
+            # over any settings that might have been loaded from the config file
+            config_data = None
+            with open(config_file, 'r') as f:
+                if config_file.endswith('.yaml') or config_file.endswith('.yml'):
+                    config_data = yaml.safe_load(f)
+                else:
+                    config_data = json.load(f)
+            
+            # If species is specified in config file but not as parameter, apply it
+            if config_data and 'species' in config_data and not species:
+                self.set_species(config_data['species'])
+        elif config_file:
+            print(f"Configuration file not found: {config_file}, using default config")
+
     
     def _load_species_config(self):
         """Load species configuration from species_config.json."""
-        species_config_path = os.path.join(os.path.dirname(__file__), '..', 'configs', 'species_config.json')
-        if os.path.exists(species_config_path):
+        # Try multiple possible locations for species_config.json
+        possible_paths = [
+            # In configs/ directory (code/configs/species_config.json)
+            os.path.join(os.path.dirname(__file__), '..', 'configs', 'species_config.json'),
+            # In local/configs/ directory (code/local/configs/species_config.json)
+            os.path.join(os.path.dirname(__file__), '..', 'local', 'configs', 'species_config.json'),
+            # Relative to current working directory
+            os.path.join('local', 'configs', 'species_config.json'),
+            os.path.join('configs', 'species_config.json'),
+        ]
+        
+        species_config_path = None
+        for path in possible_paths:
+            abs_path = os.path.abspath(path)
+            if os.path.exists(abs_path):
+                species_config_path = abs_path
+                break
+        
+        if species_config_path:
             with open(species_config_path, 'r', encoding='utf-8') as f:
                 species_data = json.load(f)
                 self._species_data = species_data
         else:
-            print("No species configuration file found")
+            print(f"No species configuration file found. Tried: {possible_paths}")
             self._species_data = {"species": {}, "default_species": "mouse"}
     
     def set_species(self, species_name: str):
@@ -164,6 +195,8 @@ class ConfigManager:
             self.genome.genome_fasta_path = species_info["genome_fasta_path"]
             
             print(f"Set species to: {species_info['display_name']} ({species_name})")
+            print(f"  - Organism: {self.database.organism}")
+            print(f"  - Genome FASTA: {self.genome.genome_fasta_path}")
         else:
             available_species = list(self._species_data["species"].keys())
             raise ValueError(f"Unknown species '{species_name}'. Available: {available_species}")
@@ -185,6 +218,8 @@ class ConfigManager:
                 config_data = json.load(f)
         
         # Update configurations with loaded data
+        # Note: database.organism may be overridden here, but species-specific settings
+        # (like genome_fasta_path) should be set via set_species() after load_config
         if 'database' in config_data:
             for key, value in config_data['database'].items():
                 if hasattr(self.database, key):
@@ -211,9 +246,7 @@ class ConfigManager:
                 current_species = getattr(self, 'species_config', None)
                 if current_species and hasattr(current_species, 'display_name'):
                     self.blast.species = [current_species.display_name]
-                else:
-                    # Default fallback
-                    self.blast.species = ["Mus musculus"]
+        
         
         if 'output' in config_data:
             for key, value in config_data['output'].items():
@@ -224,6 +257,13 @@ class ConfigManager:
             for key, value in config_data['genome'].items():
                 if hasattr(self.genome, key):
                     setattr(self.genome, key, value)
+        
+        # Handle species from config file (but don't override if already set via parameter)
+        # Note: species-specific settings like genome_fasta_path are handled by set_species()
+        if 'species' in config_data:
+            # Only set if not already set via constructor parameter
+            # This is handled in __init__ after load_config
+            pass
     
     def save_config(self, config_file: str):
         """Save configuration to JSON or YAML file."""
@@ -304,7 +344,8 @@ class ConfigManager:
                 'save_excel': getattr(self.output, 'save_excel', True)
             },
             'genome': {
-                'use_local_first': self.genome.use_local_first
+                'genome_fasta_path': self.genome.genome_fasta_path,
+                'accessor_priority': self.genome.accessor_priority
             },
             'species': self.database.organism
         }

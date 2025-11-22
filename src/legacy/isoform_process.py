@@ -10,11 +10,11 @@ def find_exon_counts(transcripts_raw):
     # 收集所有exon及其出现次数
     exon_counts = {}
     # split exons
-    split_points = sorted({point for tx in transcripts for exon in tx['exons'] for point in (exon['start'], exon['end'])})
+    split_points = sorted({point for tx in transcripts for exon in tx['Exon'] for point in (exon['start'], exon['end'])})
     # 存储每个转录本的exons
     for transcript in transcripts:
-        if not 'exons' in transcript: continue
-        exons = transcript['exons']
+        if not 'Exon' in transcript: continue
+        exons = transcript['Exon']
         sorted_exons = sorted(exons, key=lambda x: x['start'])
         exon_splices = []
         # 遍历相邻的exon对生成exon
@@ -39,8 +39,8 @@ def find_intron_counts(transcripts_raw):
     intron_counts = {}
     # 存储每个转录本的introns
     for transcript in transcripts:
-        if not 'exons' in transcript: continue
-        exons = transcript['exons']
+        if not 'Exon' in transcript: continue
+        exons = transcript['Exon']
         # 按rank升序排序
         sorted_exons = sorted(exons, key=lambda x: x['start'])
         introns = []
@@ -162,9 +162,9 @@ def plp_bds_specific_regions(transcripts_raw, genome, pos_search_kwargs):
 
         # 处理introns_count=1的内含子两侧拼接
         for intron_idx, (intron, count) in enumerate(transcript['introns_count'].items()):
-            if count == 1 and intron_idx < len(transcript['exons']) - 1:
-                prev_exon = transcript['exons'][intron_idx]
-                next_exon = transcript['exons'][intron_idx + 1]
+            if count == 1 and intron_idx < len(transcript['Exon']) - 1:
+                prev_exon = transcript['Exon'][intron_idx]
+                next_exon = transcript['Exon'][intron_idx + 1]
                 # 获取前exon末30bp在全局序列中的位置
                 prev_start = max(prev_exon['start'], prev_exon['end'] - 30)
                 prev_seq_start = get_local_pos(prev_start)
@@ -200,12 +200,12 @@ def find_exon_splice_counts(transcripts_raw):
     # 收集所有exon及其出现次数
     exon_splice_counts = {}
     # split exons
-    split_points = sorted({point for tx in transcripts for exon in tx['exons'] for point in (exon['start'], exon['end'])})
+    split_points = sorted({point for tx in transcripts for exon in tx['Exon'] for point in (exon['start'], exon['end'])})
     # 存储每个转录本的exons
     for transcript in transcripts:
         transcript_name = transcript['display_name']
-        if not 'exons' in transcript: continue
-        exons = transcript['exons']
+        if not 'Exon' in transcript: continue
+        exons = transcript['Exon']
         sorted_exons = sorted(exons, key=lambda x: x['start'])
         # 遍历相邻的exon对生成exon
         transcript[f'exon_splices_1'] = []
@@ -398,7 +398,7 @@ def plp_isoform(transcripts_raw, genome, plp_params):
             plp_info = {
                 'start': start,
                 'end': end,
-                'exons': merge_adjacent_intervals(exon_splices_tmp),
+                'Exon': merge_adjacent_intervals(exon_splices_tmp),
                 'target_seq': target_seq,
                 'target_isoforms': target_isoforms,
                 'exon_overlap_num': exon_overlap_num,

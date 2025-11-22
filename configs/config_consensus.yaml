@@ -12,6 +12,7 @@ search:
   max_binding_sites: 100
   window_size: 50
   step_size: 1
+  genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file)
 
 filter:
   min_g_content: 0.3
@@ -49,6 +50,6 @@ output:
   save_excel: true
 
 genome:
-  use_local_first: true
+  accessor_priority: ["local", "ensembl"]  # Priority order: "local" uses local FASTA file, "ensembl" uses Ensembl API
 
 species: "human"

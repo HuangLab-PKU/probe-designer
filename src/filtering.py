@@ -332,26 +332,27 @@ class SequenceFilter:
             self._run_online_blast_batched(binding_sites, results_dir, target_organisms)
             return results_dir
     
-    def _generate_query_id(self, gene_name: str, site_index: int, position: int, g_content: float) -> str:
+    def _generate_query_id(self, site: Dict[str, Any]) -> str:
         """Generate a consistent query ID for BLAST operations.
         
         Args:
-            gene_name: Name of the gene
-            site_index: 0-based index of the site within the gene
-            position: Position of the binding site
-            g_content: GC content of the sequence
+            site: Dictionary containing binding site information with 'gene_name', 'st', 'en', 'g_content' fields
             
         Returns:
-            Query ID in format: gene_name_index|pos=position|g_content=content
+            Query ID in format: gene_name|st=start|en=end|g_content=content
         """
-        return f"{gene_name}_{site_index+1}|pos={position}|g_content={g_content:.2f}"
+        gene_name = site['gene_name']
+        st = site['st']
+        en = site['en']
+        g_content = site['g_content']
+        return f"{gene_name}|st={st}|en={en}|g_content={g_content:.2f}"
     
     def _prepare_blast_fasta(self, binding_sites: Dict[str, List[Dict[str, Any]]], fasta_file: str):
         """Write a FASTA file for BLAST from candidate binding sites."""
         with open(fasta_file, 'w') as f:
             for gene_name, sites in binding_sites.items():
-                for i, site in enumerate(sites):
-                    query_id = self._generate_query_id(gene_name, i, site['position'], site['g_content'])
+                for site in sites:
+                    query_id = self._generate_query_id(site)
                     f.write(f">{query_id}\n")
                     f.write(f"{site['sequence']}\n")
     
@@ -386,30 +387,47 @@ class SequenceFilter:
     def _add_sequence_to_binding_sites(self, binding_sites: Dict[str, List[Dict[str, Any]]], 
                                       header: str, sequence: str):
         """Add a sequence to binding_sites dictionary based on FASTA header."""
-        # Parse header: gene_name_index|pos=position|g_content=content
+        # Parse header: gene_name|st=start|en=end|g_content=content (new format)
+        # or gene_name_index|pos=position|g_content=content (old format for backward compatibility)
         parts = header.split('|')
         if len(parts) >= 1:
             gene_part = parts[0]
-            # Extract gene name and index
+            # Extract gene name (handle both new format without index and old format with index)
             if '_' in gene_part:
+                # Old format: gene_name_index
                 gene_name = '_'.join(gene_part.split('_')[:-1])
-                # index = int(gene_part.split('_')[-1]) - 1  # Convert to 0-based (not used)
             else:
+                # New format: gene_name
                 gene_name = gene_part
             
-            # Extract position and g_content from header
-            position = 0
-            g_content = 0.5
+            # Extract st, en, and g_content from header (required fields)
+            st = None
+            en = None
+            g_content = None
             for part in parts[1:]:
-                if part.startswith('pos='):
-                    position = int(part.split('=')[1])
+                if part.startswith('st='):
+                    st = int(part.split('=')[1])
+                elif part.startswith('en='):
+                    en = int(part.split('=')[1])
                 elif part.startswith('g_content='):
                     g_content = float(part.split('=')[1])
+                # Support old format for backward compatibility
+                elif part.startswith('pos='):
+                    st = int(part.split('=')[1])
+                    en = st + len(sequence) - 1  # Approximate end position
+            
+            # Validate required fields
+            if st is None or en is None:
+                raise ValueError(f"Missing required genomic position fields (st, en) in FASTA header: {header}")
+            if g_content is None:
+                raise ValueError(f"Missing required g_content field in FASTA header: {header}")
             
             # Create site dictionary
             site = {
+                'gene_name': gene_name,  # Add gene_name field
                 'sequence': sequence,
-                'position': position,
+                'st': st,
+                'en': en,
                 'g_content': g_content,
                 'arm_3prime': sequence[:len(sequence)//2],  # Approximate split
                 'arm_5prime': sequence[len(sequence)//2:],
@@ -533,10 +551,12 @@ class SequenceFilter:
         # Prepare all FASTA entries in-memory to preserve headers
         fasta_entries: List[str] = []
         for gene_name, sites in binding_sites.items():
-            for i, site in enumerate(sites):
-                header = f">{gene_name}_{i+1}|pos={site['position']}|g_content={site['g_content']:.2f}"
-                seq = site['sequence']
-                fasta_entries.append(f"{header}\n{seq}\n")
+            for site in sites:
+                # Ensure site has gene_name field (in case it was loaded from FASTA)
+                if 'gene_name' not in site:
+                    site['gene_name'] = gene_name
+                query_id = self._generate_query_id(site)
+                fasta_entries.append(f">{query_id}\n{site['sequence']}\n")
         
         if not fasta_entries:
             return
@@ -724,9 +744,9 @@ class SequenceFilter:
         # Specificity filtering
         for gene_name, sites in binding_sites.items():
             filtered_sites[gene_name] = []
-            for i, site in enumerate(sites):
+            for site in sites:
                 # Create the query ID using the same format as FASTA generation
-                query_id = self._generate_query_id(gene_name, i, site['position'], site['g_content'])
+                query_id = self._generate_query_id(site)
                 
                 if query_id in blast_data:
                     blast_info = blast_data[query_id]
@@ -840,8 +860,8 @@ class SequenceFilter:
                         gene_internal_index = site_info['gene_internal_index']
                         site = site_info['site']
                         
-                        # Create query ID using the standard function with gene-internal index
-                        query_id = self._generate_query_id(gene_name, gene_internal_index, site['position'], site['g_content'])
+                        # Create query ID using the standard function
+                        query_id = self._generate_query_id(site)
                         
                         if query_id in batch_blast_data:
                             blast_data[query_id] = batch_blast_data[query_id]
@@ -870,7 +890,7 @@ class SequenceFilter:
                         site = site_info['site']
                         
                         # Create query ID using the standard function
-                        query_id = self._generate_query_id(gene_name, gene_internal_index, site['position'], site['g_content'])
+                        query_id = self._generate_query_id(site)
                         
                         blast_data[query_id] = {
                             'alignments': [],
@@ -1021,9 +1041,14 @@ class SequenceFilter:
             non_target_gene_alignments = 0
             complementarity_found = False
             
+            # Get target organisms from filter config, fallback to blast config species
+            target_organisms = self.filter_config.target_organisms
+            if target_organisms is None:
+                target_organisms = self.blast_config.species or []
+            
             for alignment in blast_info['alignments']:
                 hit_def = alignment['hit_def'].lower()
-                is_target_organism = any(org.lower() in hit_def for org in self.filter_config.target_organisms)
+                is_target_organism = any(org.lower() in hit_def for org in target_organisms)
                 
                 if is_target_organism:
                     target_organism_alignments += 1
@@ -1075,30 +1100,23 @@ class SequenceFilter:
         all_sites = []
         for gene_name, sites in filtered_sites.items():
             for site in sites:
+                # Build site_data with ordered fields for better Excel readability
                 site_data = {
                     'gene_name': gene_name,
                     'sequence': site['sequence'],
-                    'position': site['position'],  # local position
+                    'arm3': site['arm_3prime'],
+                    'arm5': site['arm_5prime'],
+                    'tm3': site['tm_3'],
+                    'tm5': site['tm_5'],
+                    'target_seq': site['target_sequence'],
                     'g_content': site['g_content'],
                     'tm': site['tm'],
-                    'strategy': site['strategy']
+                    'strategy': site['strategy'],
+                    'st': site['st'],
+                    'en': site['en'],
                 }
                 
-                # Add genomic position information if available
-                if 'genomic_start' in site:
-                    site_data['genomic_start'] = site['genomic_start']
-                if 'genomic_end' in site:
-                    site_data['genomic_end'] = site['genomic_end']
-                
-                # Add strand information if available
-                if 'strand' in site:
-                    site_data['strand'] = site['strand']
-                elif 'isoform_id' in site:
-                    # Try to get strand from isoform info
-                    strand = self._get_strand_from_isoform(site['isoform_id'], gene_name, output_dir)
-                    if strand is not None:
-                        site_data['strand'] = strand
-                
+                # Add BLAST information if available
                 if 'blast_alignments' in site:
                     site_data['blast_evalue'] = site['blast_evalue']
                     site_data['blast_identity'] = site['blast_identity']

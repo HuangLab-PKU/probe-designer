@@ -22,12 +22,7 @@ from typing import List, Dict, Optional
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.config import ConfigManager
-
-
-def read_gene_list(path: str) -> List[str]:
-    """Read gene list from file."""
-    with open(path, 'r', encoding='utf-8') as f:
-        return [line.strip() for line in f if line.strip()]
+from src.utils import load_gene_list
 
 
 def run_probe_design(genes_file: str, config_file: str, output_dir: str, 
