@@ -1,0 +1,3462 @@
+{
+  "Actb": [
+    {
+      "gene_name": "Actb",
+      "sequence": "CAGGGACAGCACAGCCTGGATGGCTACGTACATGGCTGGG",
+      "target_sequence": "CCCAGCCATGTACGTAGCCATCCAGGCTGTGCTGTCCCTG",
+      "arm_3prime": "CAGGGACAGCACAGCCTGGA",
+      "arm_5prime": "TGGCTACGTACATGGCTGGG",
+      "position": 1605,
+      "genomic_start": 142890475,
+      "genomic_end": 142890515,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 79.95408914385638,
+      "tm_3": 65.09109190095086,
+      "tm_5": 60.67692647647425,
+      "tm_diff": 4.414165424476607,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000106216",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890460,
+          142890521
+        ]
+      ],
+      "tm_3prime": 65.09109190095086,
+      "tm_5prime": 60.67692647647425,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|1621900772|ref|XM_028755977.1|",
+          "hit_def": "PREDICTED: Grammomys surdaster actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2496802334|ref|XM_055598690.1|",
+          "hit_def": "PREDICTED: Psammomys obesus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318324516|ref|XM_051161096.1|",
+          "hit_def": "PREDICTED: Acomys russatus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2599531842|ref|XM_021652973.2|",
+          "hit_def": "PREDICTED: Meriones unguiculatus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1834330004|ref|XM_010642839.3|",
+          "hit_def": "PREDICTED: Fukomys damarensis actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1842134259|ref|XM_034489257.1|",
+          "hit_def": "PREDICTED: Arvicanthis niloticus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1768021860|ref|XM_031338599.1|",
+          "hit_def": "PREDICTED: Mastomys coucha actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679804727|ref|XR_002377323.2|",
+          "hit_def": "PREDICTED: Mus caroli actin, cytoplasmic 1-like (LOC110289106), misc_RNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1622158540|ref|XM_028705530.1|",
+          "hit_def": "PREDICTED: Podarcis muralis actin beta (ACTB), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1686415575|ref|XM_021187106.2|",
+          "hit_def": "PREDICTED: Mus pahari actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|686601670|ref|XM_009278853.1|",
+          "hit_def": "PREDICTED: Aptenodytes forsteri actin, cytoplasmic type 5 (LOC103898570), mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2775914279|ref|XM_066693678.1|",
+          "hit_def": "PREDICTED: Amia calva actin alpha 2, smooth muscle (acta2), mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679825433|ref|XM_021184860.2|",
+          "hit_def": "PREDICTED: Mus caroli leucine rich repeat containing 58 (Lrrc58), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|690458433|ref|XR_663867.1|",
+          "hit_def": "PREDICTED: Pygoscelis adeliae actin, clone 302-like (LOC103922017), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820959107|ref|XM_032887061.1|",
+          "hit_def": "PREDICTED: Rattus rattus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1842215822|ref|XR_004604541.1|",
+          "hit_def": "PREDICTED: Arvicanthis niloticus actin, cytoplasmic 1-like (LOC117694378), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820958145|ref|XR_004386002.1|",
+          "hit_def": "PREDICTED: Rattus rattus actin, cytoplasmic 2-like (LOC116885324), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|402744873|ref|NM_031144.3|",
+          "hit_def": "Rattus norvegicus actin, beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2311977667|ref|XM_050830351.1|",
+          "hit_def": "PREDICTED: Eriocheir sinensis actin, muscle-like (LOC126980437), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1691707626|ref|XM_008851372.3|",
+          "hit_def": "PREDICTED: Nannospalax galili actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|700409001|ref|XM_009958236.1|",
+          "hit_def": "PREDICTED: Leptosomus discolor actin, cytoplasmic type 5 (LOC104351999), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499757837|ref|XM_013300801.3|",
+          "hit_def": "PREDICTED: Falco peregrinus actin, cytoplasmic type 5 (LOC101924846), transcript variant X3, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929884717|ref|XM_037395726.1|",
+          "hit_def": "PREDICTED: Falco rusticolus actin, cytoplasmic type 5 (LOC119151611), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499759099|ref|XM_027802772.2|",
+          "hit_def": "PREDICTED: Falco cherrug actin, cytoplasmic type 5 (LOC102056825), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919434857|ref|XM_071637726.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic (LOC139726733), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2706775208|ref|XM_064157259.1|",
+          "hit_def": "PREDICTED: Pogoniulus pusillus actin, cytoplasmic type 5 (LOC135182803), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2705142601|ref|XM_063986517.1|",
+          "hit_def": "PREDICTED: Scylla paramamosain actin-like (LOC135090134), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2509890015|ref|XM_056345776.1|",
+          "hit_def": "PREDICTED: Falco biarmicus actin, cytoplasmic type 5 (LOC130152354), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2934975390|ref|XM_072320157.1|",
+          "hit_def": "PREDICTED: Diadema setosum actin CyI, cytoplasmic (LOC140240386), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|700408999|ref|XM_009958228.1|",
+          "hit_def": "PREDICTED: Leptosomus discolor actin, cytoplasmic type 5 (LOC104351999), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2706775210|ref|XM_064157260.1|",
+          "hit_def": "PREDICTED: Pogoniulus pusillus actin, cytoplasmic type 5 (LOC135182803), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919366387|ref|XM_071646208.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic-like (LOC139735447), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2922214715|ref|XM_065847894.2|",
+          "hit_def": "PREDICTED: Patagioenas fasciata actin, cytoplasmic type 5 (LOC136107074), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2934976307|ref|XM_072320660.1|",
+          "hit_def": "PREDICTED: Diadema setosum actin CyI, cytoplasmic-like (LOC140240882), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919366381|ref|XM_071646195.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic (LOC139735439), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|704230419|ref|XM_010147995.1|",
+          "hit_def": "PREDICTED: Eurypyga helias actin, cytoplasmic type 5 (LOC104505299), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499757834|ref|XM_027789525.2|",
+          "hit_def": "PREDICTED: Falco peregrinus actin, cytoplasmic type 5 (LOC101924846), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499757831|ref|XM_005239394.4|",
+          "hit_def": "PREDICTED: Falco peregrinus actin, cytoplasmic type 5 (LOC101924846), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2934976586|ref|XM_072320808.1|",
+          "hit_def": "PREDICTED: Diadema setosum actin CyI, cytoplasmic-like (LOC140241039), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2705142599|ref|XM_063986516.1|",
+          "hit_def": "PREDICTED: Scylla paramamosain actin-like (LOC135090134), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499759097|ref|XM_005437455.4|",
+          "hit_def": "PREDICTED: Falco cherrug actin, cytoplasmic type 5 (LOC102056825), transcript variant X1, mRNA >gi|2509890013|ref|XM_056345775.1| PREDICTED: Falco biarmicus actin, cytoplasmic type 5 (LOC130152354), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2473468694|ref|XM_054836606.1|",
+          "hit_def": "PREDICTED: Grus americana actin, cytoplasmic type 5 (LOC129210631), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919434850|ref|XM_071637725.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic-like (LOC139726731), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|704230416|ref|XM_010147988.1|",
+          "hit_def": "PREDICTED: Eurypyga helias actin, cytoplasmic type 5 (LOC104505299), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2077833361|ref|XM_032990420.2|",
+          "hit_def": "PREDICTED: Tyto alba actin, cytoplasmic type 5 (LOC104356423), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2473468696|ref|XM_054836607.1|",
+          "hit_def": "PREDICTED: Grus americana actin, cytoplasmic type 5 (LOC129210631), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929884719|ref|XM_037395727.1|",
+          "hit_def": "PREDICTED: Falco rusticolus actin, cytoplasmic type 5 (LOC119151611), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929884721|ref|XM_037395728.1|",
+          "hit_def": "PREDICTED: Falco rusticolus actin, cytoplasmic type 5 (LOC119151611), transcript variant X3, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2052820645|ref|XM_042085004.1|",
+          "hit_def": "PREDICTED: Alosa sapidissima actin, beta 2 (actb2), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2239080037|ref|XM_048245697.1|",
+          "hit_def": "PREDICTED: Alosa alosa actin, beta 2 (actb2), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2215925175|ref|XM_047365501.1|",
+          "hit_def": "PREDICTED: Girardinichthys multiradiatus actin, beta 1 (actb1), mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9487179487179487,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195735920|ref|XR_002378642.1|",
+          "hit_def": "PREDICTED: Mus caroli actin-85C-like (LOC110300892), misc_RNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9487179487179487,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1723830990|ref|XM_030390900.1|",
+          "hit_def": "PREDICTED: Drosophila navojoa actin (LOC115565697), partial mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9487179487179487,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2930319903|ref|XM_072168062.1|",
+          "hit_def": "PREDICTED: Amphiura filiformis actin, cytoplasmic-like (LOC140146274), transcript variant X2, mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9714285714285714,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2930319901|ref|XM_072168061.1|",
+          "hit_def": "PREDICTED: Amphiura filiformis actin, cytoplasmic-like (LOC140146274), transcript variant X1, mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9714285714285714,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2864093480|ref|XM_027364955.2|",
+          "hit_def": "PREDICTED: Penaeus vannamei actin, cytoplasmic A3a (LOC113813021), mRNA",
+          "evalue": 5.55741e-06,
+          "identity": 0.925,
+          "score": 31.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TTACCTGGTGGCGGGTGTGGACCGGCAACGAAGGAGCTGC",
+      "target_sequence": "GCAGCTCCTTCGTTGCCGGTCCACACCCGCCACCAGGTAA",
+      "arm_3prime": "TTACCTGGTGGCGGGTGTGG",
+      "arm_5prime": "ACCGGCAACGAAGGAGCTGC",
+      "position": 3533,
+      "genomic_start": 142892403,
+      "genomic_end": 142892443,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 77.16472222515142,
+      "tm_3": 60.6420788598881,
+      "tm_5": 65.21193108822513,
+      "tm_diff": 4.569852228337027,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892407,
+          142892427
+        ],
+        [
+          142892427,
+          142892449
+        ]
+      ],
+      "tm_3prime": 60.6420788598881,
+      "tm_5prime": 65.21193108822513,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 1.0,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9722222222222222,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 9.23395e-09,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGGCAACGAAGGAGCTGCAAAGAAGCTGTGCTCGCGGGTG",
+      "target_sequence": "CACCCGCGAGCACAGCTTCTTTGCAGCTCCTTCGTTGCCG",
+      "arm_3prime": "CGGCAACGAAGGAGCTGCAA",
+      "arm_5prime": "AGAAGCTGTGCTCGCGGGTG",
+      "position": 3555,
+      "genomic_start": 142892425,
+      "genomic_end": 142892465,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 76.70285723503247,
+      "tm_3": 60.18035692257075,
+      "tm_5": 60.30315413085657,
+      "tm_diff": 0.1227972082858173,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892407,
+          142892427
+        ],
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ]
+      ],
+      "tm_3prime": 60.18035692257075,
+      "tm_5prime": 60.30315413085657,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGC",
+      "target_sequence": "GCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTT",
+      "arm_3prime": "AAGCTGTGCTCGCGGGTGGA",
+      "arm_5prime": "CGCGACTCGACAGTGGCTGC",
+      "position": 3577,
+      "genomic_start": 142892447,
+      "genomic_end": 142892487,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 75.42116805469931,
+      "tm_3": 61.93234206627329,
+      "tm_5": 60.36999173836267,
+      "tm_diff": 1.5623503279106217,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 5,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 61.93234206627329,
+      "tm_5prime": 60.36999173836267,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCTCCAGGGAGGAAGAGGATGCGGCAGTGGCCATCTCCTG",
+      "target_sequence": "CAGGAGATGGCCACTGCCGCATCCTCTTCCTCCCTGGAGA",
+      "arm_3prime": "TCTCCAGGGAGGAAGAGGAT",
+      "arm_5prime": "GCGGCAGTGGCCATCTCCTG",
+      "position": 1319,
+      "genomic_start": 142890189,
+      "genomic_end": 142890229,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 76.22921534995635,
+      "tm_3": 61.3199099156451,
+      "tm_5": 60.555785990636934,
+      "tm_diff": 0.764123925008164,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 61.3199099156451,
+      "tm_5prime": 60.555785990636934,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1686415575|ref|XM_021187106.2|",
+          "hit_def": "PREDICTED: Mus pahari actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1214026065|ref|XR_002481838.1|",
+          "hit_def": "PREDICTED: Carlito syrichta actin, cytoplasmic 2-like (LOC103257964), misc_RNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2025755258|ref|XM_013120404.3|",
+          "hit_def": "PREDICTED: Mesocricetus auratus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|528078477|ref|NM_001281595.1|",
+          "hit_def": "Mesocricetus auratus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679804727|ref|XR_002377323.2|",
+          "hit_def": "PREDICTED: Mus caroli actin, cytoplasmic 1-like (LOC110289106), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195531794|ref|XM_021221525.1|",
+          "hit_def": "PREDICTED: Mus pahari actin, cytoplasmic 2-like (LOC110338240), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|402744873|ref|NM_031144.3|",
+          "hit_def": "Rattus norvegicus actin, beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195562674|ref|XR_002380135.1|",
+          "hit_def": "PREDICTED: Mus pahari actin, clone 302-like (LOC110313935), misc_RNA",
+          "evalue": 3.32112e-08,
+          "identity": 0.9736842105263158,
+          "score": 35.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1741415609|ref|XM_030774135.1|",
+          "hit_def": "PREDICTED: Chanos chanos actin alpha 2, smooth muscle (acta2), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.972972972972973,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGC",
+      "target_sequence": "GCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGA",
+      "arm_3prime": "TCGCGGGTGGACGCGACTCG",
+      "arm_5prime": "ACAGTGGCTGCGCGTTGCGC",
+      "position": 3586,
+      "genomic_start": 142892456,
+      "genomic_end": 142892496,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.16311956446032,
+      "tm_3": 62.48341833293193,
+      "tm_5": 60.887168750092656,
+      "tm_diff": 1.5962495828392775,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.48341833293193,
+      "tm_5prime": 60.887168750092656,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGGAAGGCTGGAAAAGAGCCTCAGGGCATCGGAACCGCT",
+      "target_sequence": "AGCGGTTCCGATGCCCTGAGGCTCTTTTCCAGCCTTCCTT",
+      "arm_3prime": "AAGGAAGGCTGGAAAAGAGC",
+      "arm_5prime": "CTCAGGGCATCGGAACCGCT",
+      "position": 1234,
+      "genomic_start": 142890104,
+      "genomic_end": 142890144,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 75.7402971241973,
+      "tm_3": 61.836411593840864,
+      "tm_5": 60.057183991340366,
+      "tm_diff": 1.779227602500498,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890099,
+          142890106
+        ],
+        [
+          142890106,
+          142890150
+        ]
+      ],
+      "tm_3prime": 61.836411593840864,
+      "tm_5prime": 60.057183991340366,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1868037026|ref|XM_007648665.4|",
+          "hit_def": "PREDICTED: Cricetulus griseus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195735920|ref|XR_002378642.1|",
+          "hit_def": "PREDICTED: Mus caroli actin-85C-like (LOC110300892), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2062762564|ref|XM_042270542.1|",
+          "hit_def": "PREDICTED: Peromyscus maniculatus bairdii actin, cytoplasmic 1-like (LOC102910240), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414815035|ref|XM_052754162.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929264588|ref|XM_028887383.2|",
+          "hit_def": "PREDICTED: Peromyscus leucopus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2062862645|ref|XM_006992672.3|",
+          "hit_def": "PREDICTED: Peromyscus maniculatus bairdii actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572409678|ref|XM_059249717.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|347360905|ref|NM_001244575.1|",
+          "hit_def": "Cricetulus griseus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572409682|ref|XM_059249718.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus actin beta (Actb), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908058346|ref|XM_036171847.1|",
+          "hit_def": "PREDICTED: Onychomys torridus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2080929410|ref|XM_043011805.1|",
+          "hit_def": "PREDICTED: Penaeus japonicus actin-like (LOC122250414), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1325304866|ref|XM_023478263.1|",
+          "hit_def": "PREDICTED: Eurytemora carolleeae actin, clone 403 (LOC111705646), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.972972972972973,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2073565894|ref|XM_019069375.2|",
+          "hit_def": "PREDICTED: Cyprinus carpio actin, cytoplasmic 1 (LOC109051881), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1686415575|ref|XM_021187106.2|",
+          "hit_def": "PREDICTED: Mus pahari actin beta (Actb), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1936000738|ref|XM_037946808.1|",
+          "hit_def": "PREDICTED: Penaeus monodon actin-like (LOC119597272), mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9473684210526315,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2220153832|ref|XM_047634798.1|",
+          "hit_def": "PREDICTED: Penaeus chinensis actin-like (LOC125040244), mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9473684210526315,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGG",
+      "target_sequence": "CCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCA",
+      "arm_3prime": "TGGACGCGACTCGACAGTGG",
+      "arm_5prime": "CTGCGCGTTGCGCCGCCGGG",
+      "position": 3593,
+      "genomic_start": 142892463,
+      "genomic_end": 142892503,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.54042537970957,
+      "tm_3": 60.24315556228959,
+      "tm_5": 63.37214717309547,
+      "tm_diff": 3.1289916108058833,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.24315556228959,
+      "tm_5prime": 63.37214717309547,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1621900772|ref|XM_028755977.1|",
+          "hit_def": "PREDICTED: Grammomys surdaster actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2052687510|ref|XM_038346673.2|",
+          "hit_def": "PREDICTED: Arvicola amphibius actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2496802334|ref|XM_055598690.1|",
+          "hit_def": "PREDICTED: Psammomys obesus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1868037026|ref|XM_007648665.4|",
+          "hit_def": "PREDICTED: Cricetulus griseus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2599531842|ref|XM_021652973.2|",
+          "hit_def": "PREDICTED: Meriones unguiculatus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820959107|ref|XM_032887061.1|",
+          "hit_def": "PREDICTED: Rattus rattus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038178677|ref|XM_041648143.1|",
+          "hit_def": "PREDICTED: Microtus oregoni actin, cytoplasmic 1 (LOC121445957), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246054802|ref|XM_048436835.1|",
+          "hit_def": "PREDICTED: Myodes glareolus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414815035|ref|XM_052754162.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2330821854|ref|XM_052167491.1|",
+          "hit_def": "PREDICTED: Apodemus sylvaticus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1842134259|ref|XM_034489257.1|",
+          "hit_def": "PREDICTED: Arvicanthis niloticus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929264588|ref|XM_028887383.2|",
+          "hit_def": "PREDICTED: Peromyscus leucopus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037316087|ref|XM_075974021.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572409682|ref|XM_059249718.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus actin beta (Actb), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908058346|ref|XM_036171847.1|",
+          "hit_def": "PREDICTED: Onychomys torridus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2025755258|ref|XM_013120404.3|",
+          "hit_def": "PREDICTED: Mesocricetus auratus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.9512195121951219,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318324516|ref|XM_051161096.1|",
+          "hit_def": "PREDICTED: Acomys russatus actin beta (Actb), mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 1.0,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    }
+  ],
+  "Tuba1a": [
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CTCAGGGTGGAAGAGCTGGCGGTAGGTGCCGGTGCGAACT",
+      "target_sequence": "AGTTCGCACCGGCACCTACCGCCAGCTCTTCCACCCTGAG",
+      "arm_3prime": "CTCAGGGTGGAAGAGCTGGC",
+      "arm_5prime": "GGTAGGTGCCGGTGCGAACT",
+      "position": 19156,
+      "genomic_start": 98849174,
+      "genomic_end": 98849214,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 77.68548645790673,
+      "tm_3": 63.97853988933679,
+      "tm_5": 60.85448783443309,
+      "tm_diff": 3.1240520549037,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98849069,
+          98849217
+        ]
+      ],
+      "tm_3prime": 63.97853988933679,
+      "tm_5prime": 60.85448783443309,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|2487295415|ref|XM_055126020.1|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|133892260|ref|NM_011653.2|",
+          "hit_def": "Mus musculus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2695771836|ref|XM_054442245.2|",
+          "hit_def": "PREDICTED: Pongo pygmaeus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2112842132|ref|XM_044229240.1|",
+          "hit_def": "PREDICTED: Neovison vison tubulin alpha-1C chain (LOC122892570), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2694571702|ref|XM_003778011.5|",
+          "hit_def": "PREDICTED: Pongo abelii tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487300366|ref|XM_055128105.1|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2112842160|ref|XM_044229252.1|",
+          "hit_def": "PREDICTED: Neovison vison tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820891754|ref|XM_032876875.1|",
+          "hit_def": "PREDICTED: Lontra canadensis tubulin alpha-1B chain (LOC116878989), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820891749|ref|XM_032876874.1|",
+          "hit_def": "PREDICTED: Lontra canadensis tubulin alpha-1C chain-like (LOC116878987), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2813706416|ref|XM_068970312.1|",
+          "hit_def": "PREDICTED: Capricornis sumatraensis tubulin alpha-1C chain-like (LOC138077915), mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2813709455|ref|XM_068972030.1|",
+          "hit_def": "PREDICTED: Capricornis sumatraensis tubulin alpha-1C chain (LOC138079169), transcript variant X1, mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1229139445|ref|XM_022226120.1|",
+          "hit_def": "PREDICTED: Acanthaster planci tubulin alpha chain-like (LOC110974465), mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2813709457|ref|XM_068972031.1|",
+          "hit_def": "PREDICTED: Capricornis sumatraensis tubulin alpha-1C chain (LOC138079169), transcript variant X2, mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487300368|ref|XM_055128106.1|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487352750|ref|XM_012933448.2|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha-1C chain-like (LOC101552730), mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487300370|ref|XM_004616710.2|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1c (TUBA1C), transcript variant X2, mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2586495764|ref|XM_059935840.1|",
+          "hit_def": "PREDICTED: Balaenoptera ricei tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2957695544|ref|XM_036992012.2|",
+          "hit_def": "PREDICTED: Manis javanica tubulin alpha-1C chain (LOC108393012), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528632323|ref|XM_057702088.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1C chain-like (LOC130832961), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2862858802|ref|XM_002714094.5|",
+          "hit_def": "PREDICTED: Oryctolagus cuniculus tubulin alpha-1B chain (LOC100348075), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563551|ref|XM_044756228.2|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2715613910|ref|XM_064377034.1|",
+          "hit_def": "PREDICTED: Aotus nancymaae tubulin alpha 1a (TUBA1A), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2625708278|ref|XM_061205943.1|",
+          "hit_def": "PREDICTED: Eubalaena glacialis tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2589175987|ref|XM_060112000.1|",
+          "hit_def": "PREDICTED: Mesoplodon densirostris tubulin alpha 1a (TUBA1A), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2646859033|ref|XM_062203723.1|",
+          "hit_def": "PREDICTED: Lepus europaeus tubulin alpha-1B chain (LOC133768827), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2309343844|ref|XM_050748368.1|",
+          "hit_def": "PREDICTED: Macaca thibetana thibetana tubulin alpha-1A chain (LOC126930835), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461791682|ref|XM_054252401.1|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha-1C chain-like (LOC118151632), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2954728838|ref|XM_008003125.3|",
+          "hit_def": "PREDICTED: Chlorocebus sabaeus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563553|ref|XM_044756225.2|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2868093657|ref|XM_001504174.6|",
+          "hit_def": "PREDICTED: Equus caballus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567542097|ref|XM_059185462.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1A chain (LOC131838805), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2280635801|ref|XM_004274368.3|",
+          "hit_def": "PREDICTED: Orcinus orca tubulin alpha-1A chain (LOC101289567), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2309343850|ref|XM_050748372.1|",
+          "hit_def": "PREDICTED: Macaca thibetana thibetana tubulin alpha-1A chain (LOC126930835), transcript variant X4, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2978582603|ref|XM_045366494.3|",
+          "hit_def": "PREDICTED: Macaca fascicularis tubulin alpha-1A chain (LOC101865772), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2873519840|ref|XM_070621179.1|",
+          "hit_def": "PREDICTED: Equus przewalskii tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2553026798|ref|XM_032143460.2|",
+          "hit_def": "PREDICTED: Hylobates moloch tubulin alpha-1C chain (LOC116461665), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2492157615|ref|XM_055337108.1|",
+          "hit_def": "PREDICTED: Nyctereutes procyonoides tubulin alpha-1B chain (LOC129517335), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487110242|ref|XM_055085643.1|",
+          "hit_def": "PREDICTED: Physeter macrocephalus tubulin alpha-1B chain (LOC102990900), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2715613909|ref|XM_021665928.2|",
+          "hit_def": "PREDICTED: Aotus nancymaae tubulin alpha 1a (TUBA1A), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2464083583|ref|XM_002823184.5|",
+          "hit_def": "PREDICTED: Pongo abelii tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2550587644|ref|XM_004446955.2|",
+          "hit_def": "PREDICTED: Dasypus novemcinctus tubulin alpha-1B chain (LOC101436325), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2979456632|ref|XM_020169435.2|",
+          "hit_def": "PREDICTED: Castor canadensis tubulin alpha-1B chain (LOC109690215), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2550587648|ref|XM_058307933.1|",
+          "hit_def": "PREDICTED: Dasypus novemcinctus tubulin alpha-1C chain (LOC101437740), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2280635797|ref|XM_049694913.1|",
+          "hit_def": "PREDICTED: Orcinus orca tubulin alpha 1b (TUBA1B), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2490721252|ref|XM_008951160.3|",
+          "hit_def": "PREDICTED: Pan paniscus tubulin alpha-1B chain (LOC103782837), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2586495770|ref|XM_059935843.1|",
+          "hit_def": "PREDICTED: Balaenoptera ricei tubulin alpha-1C chain (LOC132373169), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2806540770|ref|XM_068559804.1|",
+          "hit_def": "PREDICTED: Eschrichtius robustus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2806540719|ref|XM_068559778.1|",
+          "hit_def": "PREDICTED: Eschrichtius robustus tubulin alpha-1C chain (LOC137774661), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2558313799|ref|XM_058673772.1|",
+          "hit_def": "PREDICTED: Ochotona princeps tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528636308|ref|XM_057704247.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1C chain (LOC130834150), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2862841537|ref|XM_008256416.4|",
+          "hit_def": "PREDICTED: Oryctolagus cuniculus tubulin alpha-1C chain (LOC100357567), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2279986116|ref|XM_049783483.1|",
+          "hit_def": "PREDICTED: Suncus etruscus tubulin alpha-1B chain (LOC126022533), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2309343854|ref|XM_050748374.1|",
+          "hit_def": "PREDICTED: Macaca thibetana thibetana tubulin alpha-1A chain (LOC126930835), transcript variant X6, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2992018883|ref|XM_010964242.3|",
+          "hit_def": "PREDICTED: Camelus bactrianus tubulin alpha-1B chain (LOC105076201), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2873519842|ref|XM_008522082.2|",
+          "hit_def": "PREDICTED: Equus przewalskii tubulin alpha-1B chain (LOC103552226), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567542092|ref|XM_059185459.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1B chain (LOC131838804), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3027888973|ref|XM_075551751.1|",
+          "hit_def": "PREDICTED: Tenrec ecaudatus tubulin alpha-1B chain (LOC142450154), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947513664|ref|XM_072805630.1|",
+          "hit_def": "PREDICTED: Canis lupus baileyi tubulin alpha-1A chain (LOC140620980), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2905736438|ref|XM_004446956.5|",
+          "hit_def": "PREDICTED: Dasypus novemcinctus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947496962|ref|XM_072798040.1|",
+          "hit_def": "PREDICTED: Canis lupus baileyi tubulin alpha-1A chain (LOC140617137), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2586495767|ref|XM_059935842.1|",
+          "hit_def": "PREDICTED: Balaenoptera ricei tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563566|ref|XM_070494875.1|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1c (TUBA1C), transcript variant X8, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2526557266|ref|XM_007179295.3|",
+          "hit_def": "PREDICTED: Balaenoptera acutorostrata tubulin alpha 1c (TUBA1C), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2591594823|ref|XR_474966.3|",
+          "hit_def": "PREDICTED: Erinaceus europaeus tubulin alpha-1A chain-like (LOC103107478), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2517515275|ref|XM_026501960.4|",
+          "hit_def": "PREDICTED: Ursus arctos tubulin alpha-1C chain (LOC113257654), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528636304|ref|XM_057704245.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1B chain (LOC130834148), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2782077559|ref|XM_059080629.2|",
+          "hit_def": "PREDICTED: Kogia breviceps tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2272630178|ref|XM_035707193.2|",
+          "hit_def": "PREDICTED: Canis lupus dingo tubulin alpha-1C chain (LOC112678288), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2953072875|ref|XR_012062916.1|",
+          "hit_def": "PREDICTED: Vicugna pacos tubulin alpha-1C chain pseudogene (LOC102527946), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2506742550|ref|XM_056120306.1|",
+          "hit_def": "PREDICTED: Sorex fumeus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461847779|ref|XM_054238566.1|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha 1c (TUBA1C), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567484016|ref|XM_059154979.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1B chain-like (LOC131819705), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947375720|ref|XM_072743078.1|",
+          "hit_def": "PREDICTED: Vulpes vulpes tubulin alpha-1C chain (LOC140596018), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528724581|ref|XM_057718022.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1C chain-like (LOC130841712), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2694904718|ref|XM_004053076.5|",
+          "hit_def": "PREDICTED: Gorilla gorilla gorilla tubulin alpha-1B chain (LOC101148972), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2868093654|ref|XM_023643483.2|",
+          "hit_def": "PREDICTED: Equus caballus tubulin alpha-1B chain (LOC100059091), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2745926878|ref|XM_065886736.1|",
+          "hit_def": "PREDICTED: Phocoena phocoena tubulin alpha-1B chain (LOC136130418), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2280635799|ref|XM_049694914.1|",
+          "hit_def": "PREDICTED: Orcinus orca tubulin alpha 1b (TUBA1B), transcript variant X3, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2695771835|ref|XM_054442244.2|",
+          "hit_def": "PREDICTED: Pongo pygmaeus tubulin alpha-1B chain (LOC129009401), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2272630177|ref|XM_025477510.3|",
+          "hit_def": "PREDICTED: Canis lupus dingo tubulin alpha-1C chain (LOC112678288), transcript variant X1, mRNA >gi|2947496968|ref|XM_072798043.1| PREDICTED: Canis lupus baileyi tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2589175985|ref|XM_060111999.1|",
+          "hit_def": "PREDICTED: Mesoplodon densirostris tubulin alpha 1a (TUBA1A), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2782077555|ref|XM_059080649.2|",
+          "hit_def": "PREDICTED: Kogia breviceps tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2971718614|ref|XM_033866797.2|",
+          "hit_def": "PREDICTED: Tursiops truncatus tubulin alpha-1A chain (LOC117307516), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563568|ref|XM_070494876.1|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1c (TUBA1C), transcript variant X9, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567542094|ref|XM_059185461.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1B chain (LOC131838804), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2591629425|ref|XM_060195460.1|",
+          "hit_def": "PREDICTED: Erinaceus europaeus tubulin alpha-1A chain (LOC103118324), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2954728842|ref|XM_008003128.3|",
+          "hit_def": "PREDICTED: Chlorocebus sabaeus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461847778|ref|XM_009003725.3|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2589176403|ref|XM_060112221.1|",
+          "hit_def": "PREDICTED: Mesoplodon densirostris tubulin alpha-1B chain (LOC132498498), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2791843623|ref|XM_067696413.1|",
+          "hit_def": "PREDICTED: Pseudorca crassidens tubulin alpha-1A chain (LOC137201869), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563550|ref|XM_014850009.3|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461847781|ref|XM_054238567.1|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha 1c (TUBA1C), transcript variant X3, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2957695557|ref|XM_036992429.2|",
+          "hit_def": "PREDICTED: Manis javanica tubulin alpha-1B chain (LOC108383375), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2575422236|ref|XM_059403025.1|",
+          "hit_def": "PREDICTED: Mustela nigripes tubulin alpha-1B chain (LOC132019643), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2957695549|ref|XM_036992010.2|",
+          "hit_def": "PREDICTED: Manis javanica tubulin alpha-1A chain (LOC108393018), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487080230|ref|XM_028480346.2|",
+          "hit_def": "PREDICTED: Physeter macrocephalus tubulin alpha-1B chain-like (LOC112067146), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2862841527|ref|XM_002711101.5|",
+          "hit_def": "PREDICTED: Oryctolagus cuniculus tubulin alpha-1A chain (LOC100340483), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2898509219|ref|XM_011760218.2|",
+          "hit_def": "PREDICTED: Macaca nemestrina tubulin alpha-1A chain (LOC105492882), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2979456639|ref|XM_020169438.2|",
+          "hit_def": "PREDICTED: Castor canadensis tubulin alpha-1C chain (LOC109690218), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947249051|ref|XM_026000247.2|",
+          "hit_def": "PREDICTED: Vulpes vulpes tubulin alpha-1B chain (LOC112921105), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGCTGCTTCGCGGCTGCCGGGTGGATGGCGGAGGCGAGGA",
+      "target_sequence": "TCCTCGCCTCCGCCATCCACCCGGCAGCCGCGAAGCAGCA",
+      "arm_3prime": "TGCTGCTTCGCGGCTGCCGG",
+      "arm_5prime": "GTGGATGGCGGAGGCGAGGA",
+      "position": 21320,
+      "genomic_start": 98851338,
+      "genomic_end": 98851378,
+      "length": 40,
+      "g_content": 0.5,
+      "tm": 78.42442990142308,
+      "tm_3": 62.60109479851792,
+      "tm_5": 66.94129478105725,
+      "tm_diff": 4.340199982539332,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98851332,
+          98851432
+        ]
+      ],
+      "tm_3prime": 62.60109479851792,
+      "tm_5prime": 66.94129478105725,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|133892260|ref|NM_011653.2|",
+          "hit_def": "Mus musculus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|11560132|ref|NM_022298.1|",
+          "hit_def": "Rattus norvegicus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2678959669|ref|XM_063264206.1|",
+          "hit_def": "PREDICTED: Rattus norvegicus tubulin, alpha 1A (Tuba1a), transcript variant X2, mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2678959667|ref|XM_063264205.1|",
+          "hit_def": "PREDICTED: Rattus norvegicus tubulin, alpha 1A (Tuba1a), transcript variant X1, mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2678959671|ref|XM_063264207.1|",
+          "hit_def": "PREDICTED: Rattus norvegicus tubulin, alpha 1A (Tuba1a), transcript variant X3, mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679822885|ref|XM_029469526.1|",
+          "hit_def": "PREDICTED: Mus caroli tubulin alpha chain-like (LOC110310099), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820942552|ref|XR_004385906.1|",
+          "hit_def": "PREDICTED: Rattus rattus tubulin alpha-1A chain-like (LOC116884917), misc_RNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAGGTGAAGCCAGAGCCAGTTCCCCCGCCAAAGCTGTGGA",
+      "target_sequence": "TCCACAGCTTTGGCGGGGGAACTGGCTCTGGCTTCACCTC",
+      "arm_3prime": "GAGGTGAAGCCAGAGCCAGT",
+      "arm_5prime": "TCCCCCGCCAAAGCTGTGGA",
+      "position": 18801,
+      "genomic_start": 98848819,
+      "genomic_end": 98848859,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 77.31064081545213,
+      "tm_3": 60.669032370812545,
+      "tm_5": 60.95237584470431,
+      "tm_diff": 0.28334347389176173,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98848799,
+          98848895
+        ]
+      ],
+      "tm_3prime": 60.669032370812545,
+      "tm_5prime": 60.95237584470431,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|1195711413|ref|XM_021158042.1|",
+          "hit_def": "PREDICTED: Mus caroli solute carrier family 7 member 11 (Slc7a11), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            1
+          ]
+        },
+        {
+          "hit_id": "gi|133892260|ref|NM_011653.2|",
+          "hit_def": "Mus musculus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679822885|ref|XM_029469526.1|",
+          "hit_def": "PREDICTED: Mus caroli tubulin alpha chain-like (LOC110310099), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318323017|ref|XM_051160316.1|",
+          "hit_def": "PREDICTED: Acomys russatus tubulin alpha-1A chain (LOC127201635), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318323029|ref|XM_051160322.1|",
+          "hit_def": "PREDICTED: Acomys russatus tubulin alpha-1C chain (LOC127201641), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1949703383|ref|XM_038341571.1|",
+          "hit_def": "PREDICTED: Arvicola amphibius tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503957|ref|XM_057791599.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1C chain-like (LOC130888550), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1196728798|ref|XM_021259877.1|",
+          "hit_def": "PREDICTED: Heterocephalus glaber tubulin alpha-1C chain-like (LOC101726622), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908040836|ref|XM_036209039.1|",
+          "hit_def": "PREDICTED: Onychomys torridus tubulin alpha-1C chain (LOC118597453), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1949703385|ref|XM_038341572.1|",
+          "hit_def": "PREDICTED: Arvicola amphibius tubulin alpha-1C chain (LOC119822383), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2591628748|ref|XM_007518132.3|",
+          "hit_def": "PREDICTED: Erinaceus europaeus tubulin alpha-1C chain (LOC103109125), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287713752|ref|XM_050147816.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1B chain (LOC126505088), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371586|ref|XM_075960593.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha-1C chain-like (LOC142843350), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371588|ref|XM_075960594.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1c (Tuba1c), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414804154|ref|XM_052748887.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis tubulin alpha-1C chain (LOC128117064), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929266281|ref|XM_028891952.2|",
+          "hit_def": "PREDICTED: Peromyscus leucopus tubulin alpha 1b (Tuba1b), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287777118|ref|XM_050132631.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1C chain-like (LOC126495022), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038316017|ref|XM_041642647.1|",
+          "hit_def": "PREDICTED: Microtus oregoni tubulin alpha-1C chain (LOC121441457), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038316088|ref|XM_041642676.1|",
+          "hit_def": "PREDICTED: Microtus oregoni tubulin alpha 1b (Tuba1b), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908038648|ref|XM_036207857.1|",
+          "hit_def": "PREDICTED: Onychomys torridus tubulin alpha-1B chain (LOC118596873), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287768126|ref|XM_050127918.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1C chain-like (LOC126491932), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1196728800|ref|XM_004846639.3|",
+          "hit_def": "PREDICTED: Heterocephalus glaber tubulin alpha-1C chain-like (LOC101726622), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528496182|ref|XM_057787432.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1C chain (LOC130885721), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371584|ref|XM_075960591.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371582|ref|XM_075960590.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1b (Tuba1b), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2052710351|ref|XM_038341375.2|",
+          "hit_def": "PREDICTED: Arvicola amphibius tubulin alpha-1B chain (LOC119822305), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037321100|ref|XM_075945785.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha-1A chain-like (LOC142833905), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2330799599|ref|XM_052160787.1|",
+          "hit_def": "PREDICTED: Apodemus sylvaticus tubulin alpha 1c (Tuba1c), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287773662|ref|XM_050130846.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1A chain (LOC126493755), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503953|ref|XM_057791596.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287773660|ref|XM_050130844.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1A chain (LOC126493754), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287773735|ref|XM_050130885.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1C chain (LOC126493774), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246070407|ref|XM_048444646.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha-1A chain (LOC125407241), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246039941|ref|XM_048423192.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha-1C chain-like (LOC125393081), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371590|ref|XM_075960595.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1c (Tuba1c), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246070409|ref|XM_048444647.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha 1c (Tuba1c), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503949|ref|XM_057791594.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1B chain (LOC130888547), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1490757382|ref|XM_005344184.3|",
+          "hit_def": "PREDICTED: Microtus ochrogaster tubulin alpha-1 chain (LOC101985375), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503951|ref|XM_057791595.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1B chain (LOC130888547), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287770090|ref|XM_050128957.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1B chain-like (LOC126492507), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038316013|ref|XM_041642645.1|",
+          "hit_def": "PREDICTED: Microtus oregoni tubulin alpha-1A chain (LOC121441456), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414761692|ref|XM_052739418.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis tubulin alpha-1A chain-like (LOC128111143), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908040834|ref|XM_036209038.1|",
+          "hit_def": "PREDICTED: Onychomys torridus tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572399289|ref|XM_059247406.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus tubulin alpha 1c (Tuba1c), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1490792471|ref|XM_026782480.1|",
+          "hit_def": "PREDICTED: Microtus ochrogaster tubulin alpha-1C chain (LOC101998227), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414823156|ref|XM_052758305.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis tubulin alpha-1A chain (LOC128122669), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246099218|ref|XR_007236832.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha-1B chain-like (LOC125416277), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287717283|ref|XM_050149616.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1A chain-like (LOC126506235), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1196728801|ref|XM_021259878.1|",
+          "hit_def": "PREDICTED: Heterocephalus glaber tubulin alpha-1C chain-like (LOC101726622), transcript variant X3, mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.972972972972973,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    }
+  ]
+}

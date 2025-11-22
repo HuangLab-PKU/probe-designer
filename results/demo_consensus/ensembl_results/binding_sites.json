@@ -1,0 +1,5164 @@
+{
+  "Actb": [
+    {
+      "gene_name": "Actb",
+      "sequence": "AGCTGGCCAAAGAGAAGGGTTACCCGGGATACTGACCTGG",
+      "target_sequence": "CCAGGTCAGTATCCCGGGTAACCCTTCTCTTTGGCCAGCT",
+      "arm_3prime": "AGCTGGCCAAAGAGAAGGGT",
+      "arm_5prime": "TACCCGGGATACTGACCTGG",
+      "position": 2086,
+      "genomic_start": 142890956,
+      "genomic_end": 142890996,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 77.94375541474426,
+      "tm_3": 62.730855066334755,
+      "tm_5": 60.51106189859962,
+      "tm_diff": 2.2197931677351335,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000106216",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 7,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890992,
+          142891033
+        ],
+        [
+          142890905,
+          142890992
+        ]
+      ],
+      "tm_3prime": 62.730855066334755,
+      "tm_5prime": 60.51106189859962,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCCTGTGGTACGACCAGAGGCATACAGGGACAGCACAGCC",
+      "target_sequence": "GGCTGTGCTGTCCCTGTATGCCTCTGGTCGTACCACAGGC",
+      "arm_3prime": "GCCTGTGGTACGACCAGAGG",
+      "arm_5prime": "CATACAGGGACAGCACAGCC",
+      "position": 1581,
+      "genomic_start": 142890451,
+      "genomic_end": 142890491,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 76.29685406452796,
+      "tm_3": 60.4453146944752,
+      "tm_5": 60.942866589381595,
+      "tm_diff": 0.49755189490639395,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000106216",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890427,
+          142890460
+        ],
+        [
+          142890460,
+          142890521
+        ]
+      ],
+      "tm_3prime": 60.4453146944752,
+      "tm_5prime": 60.942866589381595,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "ACGACCAGAGGCATACAGGGACAGCACAGCCTGGATGGCT",
+      "target_sequence": "AGCCATCCAGGCTGTGCTGTCCCTGTATGCCTCTGGTCGT",
+      "arm_3prime": "ACGACCAGAGGCATACAGGG",
+      "arm_5prime": "ACAGCACAGCCTGGATGGCT",
+      "position": 1590,
+      "genomic_start": 142890460,
+      "genomic_end": 142890500,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 78.56621073679935,
+      "tm_3": 62.62779937854128,
+      "tm_5": 63.63216325605765,
+      "tm_diff": 1.0043638775163686,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000106216",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890460,
+          142890521
+        ]
+      ],
+      "tm_3prime": 62.62779937854128,
+      "tm_5prime": 63.63216325605765,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CAGGGACAGCACAGCCTGGATGGCTACGTACATGGCTGGG",
+      "target_sequence": "CCCAGCCATGTACGTAGCCATCCAGGCTGTGCTGTCCCTG",
+      "arm_3prime": "CAGGGACAGCACAGCCTGGA",
+      "arm_5prime": "TGGCTACGTACATGGCTGGG",
+      "position": 1605,
+      "genomic_start": 142890475,
+      "genomic_end": 142890515,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 79.95408914385638,
+      "tm_3": 65.09109190095086,
+      "tm_5": 60.67692647647425,
+      "tm_diff": 4.414165424476607,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000106216",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890460,
+          142890521
+        ]
+      ],
+      "tm_3prime": 65.09109190095086,
+      "tm_5prime": 60.67692647647425,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|1621900772|ref|XM_028755977.1|",
+          "hit_def": "PREDICTED: Grammomys surdaster actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2496802334|ref|XM_055598690.1|",
+          "hit_def": "PREDICTED: Psammomys obesus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318324516|ref|XM_051161096.1|",
+          "hit_def": "PREDICTED: Acomys russatus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2599531842|ref|XM_021652973.2|",
+          "hit_def": "PREDICTED: Meriones unguiculatus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1834330004|ref|XM_010642839.3|",
+          "hit_def": "PREDICTED: Fukomys damarensis actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1842134259|ref|XM_034489257.1|",
+          "hit_def": "PREDICTED: Arvicanthis niloticus actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1768021860|ref|XM_031338599.1|",
+          "hit_def": "PREDICTED: Mastomys coucha actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679804727|ref|XR_002377323.2|",
+          "hit_def": "PREDICTED: Mus caroli actin, cytoplasmic 1-like (LOC110289106), misc_RNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1622158540|ref|XM_028705530.1|",
+          "hit_def": "PREDICTED: Podarcis muralis actin beta (ACTB), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1686415575|ref|XM_021187106.2|",
+          "hit_def": "PREDICTED: Mus pahari actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|686601670|ref|XM_009278853.1|",
+          "hit_def": "PREDICTED: Aptenodytes forsteri actin, cytoplasmic type 5 (LOC103898570), mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2775914279|ref|XM_066693678.1|",
+          "hit_def": "PREDICTED: Amia calva actin alpha 2, smooth muscle (acta2), mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679825433|ref|XM_021184860.2|",
+          "hit_def": "PREDICTED: Mus caroli leucine rich repeat containing 58 (Lrrc58), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|690458433|ref|XR_663867.1|",
+          "hit_def": "PREDICTED: Pygoscelis adeliae actin, clone 302-like (LOC103922017), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820959107|ref|XM_032887061.1|",
+          "hit_def": "PREDICTED: Rattus rattus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1842215822|ref|XR_004604541.1|",
+          "hit_def": "PREDICTED: Arvicanthis niloticus actin, cytoplasmic 1-like (LOC117694378), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820958145|ref|XR_004386002.1|",
+          "hit_def": "PREDICTED: Rattus rattus actin, cytoplasmic 2-like (LOC116885324), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|402744873|ref|NM_031144.3|",
+          "hit_def": "Rattus norvegicus actin, beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2311977667|ref|XM_050830351.1|",
+          "hit_def": "PREDICTED: Eriocheir sinensis actin, muscle-like (LOC126980437), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1691707626|ref|XM_008851372.3|",
+          "hit_def": "PREDICTED: Nannospalax galili actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|700409001|ref|XM_009958236.1|",
+          "hit_def": "PREDICTED: Leptosomus discolor actin, cytoplasmic type 5 (LOC104351999), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499757837|ref|XM_013300801.3|",
+          "hit_def": "PREDICTED: Falco peregrinus actin, cytoplasmic type 5 (LOC101924846), transcript variant X3, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929884717|ref|XM_037395726.1|",
+          "hit_def": "PREDICTED: Falco rusticolus actin, cytoplasmic type 5 (LOC119151611), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499759099|ref|XM_027802772.2|",
+          "hit_def": "PREDICTED: Falco cherrug actin, cytoplasmic type 5 (LOC102056825), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919434857|ref|XM_071637726.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic (LOC139726733), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2706775208|ref|XM_064157259.1|",
+          "hit_def": "PREDICTED: Pogoniulus pusillus actin, cytoplasmic type 5 (LOC135182803), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2705142601|ref|XM_063986517.1|",
+          "hit_def": "PREDICTED: Scylla paramamosain actin-like (LOC135090134), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2509890015|ref|XM_056345776.1|",
+          "hit_def": "PREDICTED: Falco biarmicus actin, cytoplasmic type 5 (LOC130152354), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2934975390|ref|XM_072320157.1|",
+          "hit_def": "PREDICTED: Diadema setosum actin CyI, cytoplasmic (LOC140240386), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|700408999|ref|XM_009958228.1|",
+          "hit_def": "PREDICTED: Leptosomus discolor actin, cytoplasmic type 5 (LOC104351999), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2706775210|ref|XM_064157260.1|",
+          "hit_def": "PREDICTED: Pogoniulus pusillus actin, cytoplasmic type 5 (LOC135182803), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919366387|ref|XM_071646208.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic-like (LOC139735447), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2922214715|ref|XM_065847894.2|",
+          "hit_def": "PREDICTED: Patagioenas fasciata actin, cytoplasmic type 5 (LOC136107074), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2934976307|ref|XM_072320660.1|",
+          "hit_def": "PREDICTED: Diadema setosum actin CyI, cytoplasmic-like (LOC140240882), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919366381|ref|XM_071646195.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic (LOC139735439), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|704230419|ref|XM_010147995.1|",
+          "hit_def": "PREDICTED: Eurypyga helias actin, cytoplasmic type 5 (LOC104505299), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499757834|ref|XM_027789525.2|",
+          "hit_def": "PREDICTED: Falco peregrinus actin, cytoplasmic type 5 (LOC101924846), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499757831|ref|XM_005239394.4|",
+          "hit_def": "PREDICTED: Falco peregrinus actin, cytoplasmic type 5 (LOC101924846), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2934976586|ref|XM_072320808.1|",
+          "hit_def": "PREDICTED: Diadema setosum actin CyI, cytoplasmic-like (LOC140241039), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2705142599|ref|XM_063986516.1|",
+          "hit_def": "PREDICTED: Scylla paramamosain actin-like (LOC135090134), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2499759097|ref|XM_005437455.4|",
+          "hit_def": "PREDICTED: Falco cherrug actin, cytoplasmic type 5 (LOC102056825), transcript variant X1, mRNA >gi|2509890013|ref|XM_056345775.1| PREDICTED: Falco biarmicus actin, cytoplasmic type 5 (LOC130152354), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2473468694|ref|XM_054836606.1|",
+          "hit_def": "PREDICTED: Grus americana actin, cytoplasmic type 5 (LOC129210631), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2919434850|ref|XM_071637725.1|",
+          "hit_def": "PREDICTED: Diadema antillarum actin CyI, cytoplasmic-like (LOC139726731), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.975,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|704230416|ref|XM_010147988.1|",
+          "hit_def": "PREDICTED: Eurypyga helias actin, cytoplasmic type 5 (LOC104505299), transcript variant X1, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2077833361|ref|XM_032990420.2|",
+          "hit_def": "PREDICTED: Tyto alba actin, cytoplasmic type 5 (LOC104356423), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2473468696|ref|XM_054836607.1|",
+          "hit_def": "PREDICTED: Grus americana actin, cytoplasmic type 5 (LOC129210631), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929884719|ref|XM_037395727.1|",
+          "hit_def": "PREDICTED: Falco rusticolus actin, cytoplasmic type 5 (LOC119151611), transcript variant X2, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929884721|ref|XM_037395728.1|",
+          "hit_def": "PREDICTED: Falco rusticolus actin, cytoplasmic type 5 (LOC119151611), transcript variant X3, mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 0.9743589743589743,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2052820645|ref|XM_042085004.1|",
+          "hit_def": "PREDICTED: Alosa sapidissima actin, beta 2 (actb2), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2239080037|ref|XM_048245697.1|",
+          "hit_def": "PREDICTED: Alosa alosa actin, beta 2 (actb2), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2215925175|ref|XM_047365501.1|",
+          "hit_def": "PREDICTED: Girardinichthys multiradiatus actin, beta 1 (actb1), mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9487179487179487,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195735920|ref|XR_002378642.1|",
+          "hit_def": "PREDICTED: Mus caroli actin-85C-like (LOC110300892), misc_RNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9487179487179487,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1723830990|ref|XM_030390900.1|",
+          "hit_def": "PREDICTED: Drosophila navojoa actin (LOC115565697), partial mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9487179487179487,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2930319903|ref|XM_072168062.1|",
+          "hit_def": "PREDICTED: Amphiura filiformis actin, cytoplasmic-like (LOC140146274), transcript variant X2, mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9714285714285714,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2930319901|ref|XM_072168061.1|",
+          "hit_def": "PREDICTED: Amphiura filiformis actin, cytoplasmic-like (LOC140146274), transcript variant X1, mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9714285714285714,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2864093480|ref|XM_027364955.2|",
+          "hit_def": "PREDICTED: Penaeus vannamei actin, cytoplasmic A3a (LOC113813021), mRNA",
+          "evalue": 5.55741e-06,
+          "identity": 0.925,
+          "score": 31.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGGGCCCGGCGTCCCTGCTTACCTGGTGGCGGGTGTGGAC",
+      "target_sequence": "GTCCACACCCGCCACCAGGTAAGCAGGGACGCCGGGCCCA",
+      "arm_3prime": "TGGGCCCGGCGTCCCTGCTT",
+      "arm_5prime": "ACCTGGTGGCGGGTGTGGAC",
+      "position": 3515,
+      "genomic_start": 142892385,
+      "genomic_end": 142892425,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 79.55418122801547,
+      "tm_3": 64.20085783295764,
+      "tm_5": 66.85811131459667,
+      "tm_diff": 2.6572534816390316,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892407,
+          142892427
+        ]
+      ],
+      "tm_3prime": 64.20085783295764,
+      "tm_5prime": 66.85811131459667,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CCCTGCTTACCTGGTGGCGGGTGTGGACCGGCAACGAAGG",
+      "target_sequence": "CCTTCGTTGCCGGTCCACACCCGCCACCAGGTAAGCAGGG",
+      "arm_3prime": "CCCTGCTTACCTGGTGGCGG",
+      "arm_5prime": "GTGTGGACCGGCAACGAAGG",
+      "position": 3527,
+      "genomic_start": 142892397,
+      "genomic_end": 142892437,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 77.02585263532768,
+      "tm_3": 60.363831447670066,
+      "tm_5": 61.237242812050226,
+      "tm_diff": 0.8734113643801606,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892407,
+          142892427
+        ],
+        [
+          142892427,
+          142892449
+        ]
+      ],
+      "tm_3prime": 60.363831447670066,
+      "tm_5prime": 61.237242812050226,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TTACCTGGTGGCGGGTGTGGACCGGCAACGAAGGAGCTGC",
+      "target_sequence": "GCAGCTCCTTCGTTGCCGGTCCACACCCGCCACCAGGTAA",
+      "arm_3prime": "TTACCTGGTGGCGGGTGTGG",
+      "arm_5prime": "ACCGGCAACGAAGGAGCTGC",
+      "position": 3533,
+      "genomic_start": 142892403,
+      "genomic_end": 142892443,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 77.16472222515142,
+      "tm_3": 60.6420788598881,
+      "tm_5": 65.21193108822513,
+      "tm_diff": 4.569852228337027,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892407,
+          142892427
+        ],
+        [
+          142892427,
+          142892449
+        ]
+      ],
+      "tm_3prime": 60.6420788598881,
+      "tm_5prime": 65.21193108822513,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 9.23395e-09,
+          "identity": 1.0,
+          "score": 36.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 0.9722222222222222,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 9.23395e-09,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGGCAACGAAGGAGCTGCAAAGAAGCTGTGCTCGCGGGTG",
+      "target_sequence": "CACCCGCGAGCACAGCTTCTTTGCAGCTCCTTCGTTGCCG",
+      "arm_3prime": "CGGCAACGAAGGAGCTGCAA",
+      "arm_5prime": "AGAAGCTGTGCTCGCGGGTG",
+      "position": 3555,
+      "genomic_start": 142892425,
+      "genomic_end": 142892465,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 76.70285723503247,
+      "tm_3": 60.18035692257075,
+      "tm_5": 60.30315413085657,
+      "tm_diff": 0.1227972082858173,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000165629",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 6,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892407,
+          142892427
+        ],
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ]
+      ],
+      "tm_3prime": 60.18035692257075,
+      "tm_5prime": 60.30315413085657,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGCTGTGCTCGCGGGTGGACGCGACTCGACAGTGGCTGC",
+      "target_sequence": "GCAGCCACTGTCGAGTCGCGTCCACCCGCGAGCACAGCTT",
+      "arm_3prime": "AAGCTGTGCTCGCGGGTGGA",
+      "arm_5prime": "CGCGACTCGACAGTGGCTGC",
+      "position": 3577,
+      "genomic_start": 142892447,
+      "genomic_end": 142892487,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 75.42116805469931,
+      "tm_3": 61.93234206627329,
+      "tm_5": 60.36999173836267,
+      "tm_diff": 1.5623503279106217,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000164765",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 5,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892427,
+          142892449
+        ],
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 61.93234206627329,
+      "tm_5prime": 60.36999173836267,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCTCCAGGGAGGAAGAGGATGCGGCAGTGGCCATCTCCTG",
+      "target_sequence": "CAGGAGATGGCCACTGCCGCATCCTCTTCCTCCCTGGAGA",
+      "arm_3prime": "TCTCCAGGGAGGAAGAGGAT",
+      "arm_5prime": "GCGGCAGTGGCCATCTCCTG",
+      "position": 1319,
+      "genomic_start": 142890189,
+      "genomic_end": 142890229,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 76.22921534995635,
+      "tm_3": 61.3199099156451,
+      "tm_5": 60.555785990636934,
+      "tm_diff": 0.764123925008164,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 61.3199099156451,
+      "tm_5prime": 60.555785990636934,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1686415575|ref|XM_021187106.2|",
+          "hit_def": "PREDICTED: Mus pahari actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1214026065|ref|XR_002481838.1|",
+          "hit_def": "PREDICTED: Carlito syrichta actin, cytoplasmic 2-like (LOC103257964), misc_RNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2025755258|ref|XM_013120404.3|",
+          "hit_def": "PREDICTED: Mesocricetus auratus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|528078477|ref|NM_001281595.1|",
+          "hit_def": "Mesocricetus auratus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679804727|ref|XR_002377323.2|",
+          "hit_def": "PREDICTED: Mus caroli actin, cytoplasmic 1-like (LOC110289106), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195531794|ref|XM_021221525.1|",
+          "hit_def": "PREDICTED: Mus pahari actin, cytoplasmic 2-like (LOC110338240), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|402744873|ref|NM_031144.3|",
+          "hit_def": "Rattus norvegicus actin, beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195562674|ref|XR_002380135.1|",
+          "hit_def": "PREDICTED: Mus pahari actin, clone 302-like (LOC110313935), misc_RNA",
+          "evalue": 3.32112e-08,
+          "identity": 0.9736842105263158,
+          "score": 35.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1741415609|ref|XM_030774135.1|",
+          "hit_def": "PREDICTED: Chanos chanos actin alpha 2, smooth muscle (acta2), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.972972972972973,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCTGTCAGGTCCCGGCCAGCCAGGTCCAGACGCAGGATGG",
+      "target_sequence": "CCATCCTGCGTCTGGACCTGGCTGGCCGGGACCTGACAGA",
+      "arm_3prime": "TCTGTCAGGTCCCGGCCAGC",
+      "arm_5prime": "CAGGTCCAGACGCAGGATGG",
+      "position": 1471,
+      "genomic_start": 142890341,
+      "genomic_end": 142890381,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 75.61390466540513,
+      "tm_3": 61.30212057033458,
+      "tm_5": 60.30641576462597,
+      "tm_diff": 0.9957048057086126,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 61.30212057033458,
+      "tm_5prime": 60.30641576462597,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CAGGTCCCGGCCAGCCAGGTCCAGACGCAGGATGGCGTGA",
+      "target_sequence": "TCACGCCATCCTGCGTCTGGACCTGGCTGGCCGGGACCTG",
+      "arm_3prime": "CAGGTCCCGGCCAGCCAGGT",
+      "arm_5prime": "CCAGACGCAGGATGGCGTGA",
+      "position": 1476,
+      "genomic_start": 142890346,
+      "genomic_end": 142890386,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 78.742216472324,
+      "tm_3": 64.94496480463755,
+      "tm_5": 60.5572597869492,
+      "tm_diff": 4.387705017688347,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 64.94496480463755,
+      "tm_5prime": 60.5572597869492,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGGCCAGCCAGGTCCAGACGCAGGATGGCGTGAGGGAGAG",
+      "target_sequence": "CTCTCCCTCACGCCATCCTGCGTCTGGACCTGGCTGGCCG",
+      "arm_3prime": "CGGCCAGCCAGGTCCAGACG",
+      "arm_5prime": "CAGGATGGCGTGAGGGAGAG",
+      "position": 1483,
+      "genomic_start": 142890353,
+      "genomic_end": 142890393,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 79.57704457815453,
+      "tm_3": 63.25603464700703,
+      "tm_5": 63.01483616922866,
+      "tm_diff": 0.24119847777836867,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 63.25603464700703,
+      "tm_5prime": 63.01483616922866,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AGCCAGGTCCAGACGCAGGATGGCGTGAGGGAGAGCATAG",
+      "target_sequence": "CTATGCTCTCCCTCACGCCATCCTGCGTCTGGACCTGGCT",
+      "arm_3prime": "AGCCAGGTCCAGACGCAGGA",
+      "arm_5prime": "TGGCGTGAGGGAGAGCATAG",
+      "position": 1488,
+      "genomic_start": 142890358,
+      "genomic_end": 142890398,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 78.40011700739154,
+      "tm_3": 63.65383074894629,
+      "tm_5": 61.515976521889115,
+      "tm_diff": 2.1378542270571756,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 63.65383074894629,
+      "tm_5prime": 61.515976521889115,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGTCCAGACGCAGGATGGCGTGAGGGAGAGCATAGCCCTC",
+      "target_sequence": "GAGGGCTATGCTCTCCCTCACGCCATCCTGCGTCTGGACC",
+      "arm_3prime": "GGTCCAGACGCAGGATGGCG",
+      "arm_5prime": "TGAGGGAGAGCATAGCCCTC",
+      "position": 1493,
+      "genomic_start": 142890363,
+      "genomic_end": 142890403,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 77.38227655526896,
+      "tm_3": 62.755872901392934,
+      "tm_5": 62.108077942791624,
+      "tm_diff": 0.6477949586013096,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 62.755872901392934,
+      "tm_5prime": 62.108077942791624,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AGGGAGAGCATAGCCCTCGTAGATGGGCACAGTGTGGGTG",
+      "target_sequence": "CACCCACACTGTGCCCATCTACGAGGGCTATGCTCTCCCT",
+      "arm_3prime": "AGGGAGAGCATAGCCCTCGT",
+      "arm_5prime": "AGATGGGCACAGTGTGGGTG",
+      "position": 1515,
+      "genomic_start": 142890385,
+      "genomic_end": 142890425,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 76.49785855901922,
+      "tm_3": 60.571751225895866,
+      "tm_5": 61.18103162875906,
+      "tm_diff": 0.6092804028631917,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890150,
+          142890427
+        ]
+      ],
+      "tm_3prime": 60.571751225895866,
+      "tm_5prime": 61.18103162875906,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCGCGGGTGGACGCGACTCGACAGTGGCTGCGCGTTGCGC",
+      "target_sequence": "GCGCAACGCGCAGCCACTGTCGAGTCGCGTCCACCCGCGA",
+      "arm_3prime": "TCGCGGGTGGACGCGACTCG",
+      "arm_5prime": "ACAGTGGCTGCGCGTTGCGC",
+      "position": 3586,
+      "genomic_start": 142892456,
+      "genomic_end": 142892496,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.16311956446032,
+      "tm_3": 62.48341833293193,
+      "tm_5": 60.887168750092656,
+      "tm_diff": 1.5962495828392775,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 4,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892449,
+          142892457
+        ],
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 62.48341833293193,
+      "tm_5prime": 60.887168750092656,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "ACCCAAGAAGGAAGGCTGGAAAAGAGCCTCAGGGCATCGG",
+      "target_sequence": "CCGATGCCCTGAGGCTCTTTTCCAGCCTTCCTTCTTGGGT",
+      "arm_3prime": "ACCCAAGAAGGAAGGCTGGA",
+      "arm_5prime": "AAAGAGCCTCAGGGCATCGG",
+      "position": 1227,
+      "genomic_start": 142890097,
+      "genomic_end": 142890137,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 77.86801334097458,
+      "tm_3": 63.21415053922959,
+      "tm_5": 60.43168743858291,
+      "tm_diff": 2.7824631006466802,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890099,
+          142890106
+        ],
+        [
+          142890106,
+          142890150
+        ]
+      ],
+      "tm_3prime": 63.21415053922959,
+      "tm_5prime": 60.43168743858291,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "AAGGAAGGCTGGAAAAGAGCCTCAGGGCATCGGAACCGCT",
+      "target_sequence": "AGCGGTTCCGATGCCCTGAGGCTCTTTTCCAGCCTTCCTT",
+      "arm_3prime": "AAGGAAGGCTGGAAAAGAGC",
+      "arm_5prime": "CTCAGGGCATCGGAACCGCT",
+      "position": 1234,
+      "genomic_start": 142890104,
+      "genomic_end": 142890144,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 75.7402971241973,
+      "tm_3": 61.836411593840864,
+      "tm_5": 60.057183991340366,
+      "tm_diff": 1.779227602500498,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167721",
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890099,
+          142890106
+        ],
+        [
+          142890106,
+          142890150
+        ]
+      ],
+      "tm_3prime": 61.836411593840864,
+      "tm_5prime": 60.057183991340366,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1868037026|ref|XM_007648665.4|",
+          "hit_def": "PREDICTED: Cricetulus griseus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1195735920|ref|XR_002378642.1|",
+          "hit_def": "PREDICTED: Mus caroli actin-85C-like (LOC110300892), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2062762564|ref|XM_042270542.1|",
+          "hit_def": "PREDICTED: Peromyscus maniculatus bairdii actin, cytoplasmic 1-like (LOC102910240), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414815035|ref|XM_052754162.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929264588|ref|XM_028887383.2|",
+          "hit_def": "PREDICTED: Peromyscus leucopus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2062862645|ref|XM_006992672.3|",
+          "hit_def": "PREDICTED: Peromyscus maniculatus bairdii actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572409678|ref|XM_059249717.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|347360905|ref|NM_001244575.1|",
+          "hit_def": "Cricetulus griseus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572409682|ref|XM_059249718.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus actin beta (Actb), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908058346|ref|XM_036171847.1|",
+          "hit_def": "PREDICTED: Onychomys torridus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2080929410|ref|XM_043011805.1|",
+          "hit_def": "PREDICTED: Penaeus japonicus actin-like (LOC122250414), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1325304866|ref|XM_023478263.1|",
+          "hit_def": "PREDICTED: Eurytemora carolleeae actin, clone 403 (LOC111705646), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.972972972972973,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2073565894|ref|XM_019069375.2|",
+          "hit_def": "PREDICTED: Cyprinus carpio actin, cytoplasmic 1 (LOC109051881), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1686415575|ref|XM_021187106.2|",
+          "hit_def": "PREDICTED: Mus pahari actin beta (Actb), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1936000738|ref|XM_037946808.1|",
+          "hit_def": "PREDICTED: Penaeus monodon actin-like (LOC119597272), mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9473684210526315,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2220153832|ref|XM_047634798.1|",
+          "hit_def": "PREDICTED: Penaeus chinensis actin-like (LOC125040244), mRNA",
+          "evalue": 1.54517e-06,
+          "identity": 0.9473684210526315,
+          "score": 32.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGGACGCGACTCGACAGTGGCTGCGCGTTGCGCCGCCGGG",
+      "target_sequence": "CCCGGCGGCGCAACGCGCAGCCACTGTCGAGTCGCGTCCA",
+      "arm_3prime": "TGGACGCGACTCGACAGTGG",
+      "arm_5prime": "CTGCGCGTTGCGCCGCCGGG",
+      "position": 3593,
+      "genomic_start": 142892463,
+      "genomic_end": 142892503,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 75.54042537970957,
+      "tm_3": 60.24315556228959,
+      "tm_5": 63.37214717309547,
+      "tm_diff": 3.1289916108058833,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000163829",
+        "ENSMUST00000167386"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142892457,
+          142892477
+        ],
+        [
+          142892477,
+          142892480
+        ],
+        [
+          142892480,
+          142892509
+        ]
+      ],
+      "tm_3prime": 60.24315556228959,
+      "tm_5prime": 63.37214717309547,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|930945786|ref|NM_007393.5|",
+          "hit_def": "Mus musculus actin, beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679846026|ref|XM_021163894.2|",
+          "hit_def": "PREDICTED: Mus caroli actin beta (Actb), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1621900772|ref|XM_028755977.1|",
+          "hit_def": "PREDICTED: Grammomys surdaster actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2052687510|ref|XM_038346673.2|",
+          "hit_def": "PREDICTED: Arvicola amphibius actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2496802334|ref|XM_055598690.1|",
+          "hit_def": "PREDICTED: Psammomys obesus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1868037026|ref|XM_007648665.4|",
+          "hit_def": "PREDICTED: Cricetulus griseus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2599531842|ref|XM_021652973.2|",
+          "hit_def": "PREDICTED: Meriones unguiculatus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820959107|ref|XM_032887061.1|",
+          "hit_def": "PREDICTED: Rattus rattus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038178677|ref|XM_041648143.1|",
+          "hit_def": "PREDICTED: Microtus oregoni actin, cytoplasmic 1 (LOC121445957), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246054802|ref|XM_048436835.1|",
+          "hit_def": "PREDICTED: Myodes glareolus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414815035|ref|XM_052754162.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2330821854|ref|XM_052167491.1|",
+          "hit_def": "PREDICTED: Apodemus sylvaticus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1842134259|ref|XM_034489257.1|",
+          "hit_def": "PREDICTED: Arvicanthis niloticus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929264588|ref|XM_028887383.2|",
+          "hit_def": "PREDICTED: Peromyscus leucopus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037316087|ref|XM_075974021.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572409682|ref|XM_059249718.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus actin beta (Actb), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908058346|ref|XM_036171847.1|",
+          "hit_def": "PREDICTED: Onychomys torridus actin beta (Actb), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975609756097561,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2025755258|ref|XM_013120404.3|",
+          "hit_def": "PREDICTED: Mesocricetus auratus actin beta (Actb), transcript variant X1, mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.9512195121951219,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318324516|ref|XM_051161096.1|",
+          "hit_def": "PREDICTED: Acomys russatus actin beta (Actb), mRNA",
+          "evalue": 4.29614e-07,
+          "identity": 1.0,
+          "score": 33.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCTGGAAGGTGGACAGTGAGGCCAGGATGGAGCCACCGAT",
+      "target_sequence": "ATCGGTGGCTCCATCCTGGCCTCACTGTCCACCTTCCAGC",
+      "arm_3prime": "GCTGGAAGGTGGACAGTGAG",
+      "arm_5prime": "GCCAGGATGGAGCCACCGAT",
+      "position": 751,
+      "genomic_start": 142889621,
+      "genomic_end": 142889661,
+      "length": 40,
+      "g_content": 0.425,
+      "tm": 78.17416612578114,
+      "tm_3": 60.99120183284947,
+      "tm_5": 63.22315008665919,
+      "tm_diff": 2.231948253809719,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142889409,
+          142889696
+        ]
+      ],
+      "tm_3prime": 60.99120183284947,
+      "tm_5prime": 63.22315008665919,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GTGGACAGTGAGGCCAGGATGGAGCCACCGATCCACACAG",
+      "target_sequence": "CTGTGTGGATCGGTGGCTCCATCCTGGCCTCACTGTCCAC",
+      "arm_3prime": "GTGGACAGTGAGGCCAGGAT",
+      "arm_5prime": "GGAGCCACCGATCCACACAG",
+      "position": 759,
+      "genomic_start": 142889629,
+      "genomic_end": 142889669,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 78.32866440560684,
+      "tm_3": 61.65748919169852,
+      "tm_5": 60.11195754279521,
+      "tm_diff": 1.5455316489033066,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000100497",
+        "ENSMUST00000167721"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142889409,
+          142889696
+        ]
+      ],
+      "tm_3prime": 61.65748919169852,
+      "tm_5prime": 60.11195754279521,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TGAGAAAGGGCGTGGCTGAGAAGCTGGCCAAAGAGAAGGG",
+      "target_sequence": "CCCTTCTCTTTGGCCAGCTTCTCAGCCACGCCCTTTCTCA",
+      "arm_3prime": "TGAGAAAGGGCGTGGCTGAG",
+      "arm_5prime": "AAGCTGGCCAAAGAGAAGGG",
+      "position": 2065,
+      "genomic_start": 142890935,
+      "genomic_end": 142890975,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 77.9526248312821,
+      "tm_3": 62.29855506114353,
+      "tm_5": 62.5280711858008,
+      "tm_diff": 0.22951612465726612,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000164765",
+        "ENSMUST00000165629"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142890905,
+          142890992
+        ]
+      ],
+      "tm_3prime": 62.29855506114353,
+      "tm_5prime": 62.5280711858008,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGCTGCCGCCCTGCCCACTTCCGGCAAGCCGCGGGCTCGA",
+      "target_sequence": "TCGAGCCCGCGGCTTGCCGGAAGTGGGCAGGGCGGCAGCG",
+      "arm_3prime": "CGCTGCCGCCCTGCCCACTT",
+      "arm_5prime": "CCGGCAAGCCGCGGGCTCGA",
+      "position": 2630,
+      "genomic_start": 142891500,
+      "genomic_end": 142891540,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 79.22946446899743,
+      "tm_3": 61.3746821694632,
+      "tm_5": 66.08134806979649,
+      "tm_diff": 4.706665900333292,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 61.3746821694632,
+      "tm_5prime": 66.08134806979649,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GGGCGCGCGCCCAAGCTCAGGGGACAAAGGAAGCGCAGAC",
+      "target_sequence": "GTCTGCGCTTCCTTTGTCCCCTGAGCTTGGGCGCGCGCCC",
+      "arm_3prime": "GGGCGCGCGCCCAAGCTCAG",
+      "arm_5prime": "GGGACAAAGGAAGCGCAGAC",
+      "position": 2679,
+      "genomic_start": 142891549,
+      "genomic_end": 142891589,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 79.98407471460092,
+      "tm_3": 66.53028288422598,
+      "tm_5": 64.1814869921223,
+      "tm_diff": 2.3487958921036807,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000171419"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891447,
+          142891576
+        ]
+      ],
+      "tm_3prime": 66.53028288422598,
+      "tm_5prime": 64.1814869921223,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CCAAACGGGCGCAAGCTCCGCCTACACTGCGCCGACGGGC",
+      "target_sequence": "GCCCGTCGGCGCAGTGTAGGCGGAGCTTGCGCCCGTTTGG",
+      "arm_3prime": "CCAAACGGGCGCAAGCTCCG",
+      "arm_5prime": "CCTACACTGCGCCGACGGGC",
+      "position": 2798,
+      "genomic_start": 142891668,
+      "genomic_end": 142891708,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 78.2643595014369,
+      "tm_3": 61.07324649366791,
+      "tm_5": 64.88580382074719,
+      "tm_diff": 3.8125573270792756,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000106216"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891604,
+          142891692
+        ]
+      ],
+      "tm_3prime": 61.07324649366791,
+      "tm_5prime": 64.88580382074719,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CGGGCGCAAGCTCCGCCTACACTGCGCCGACGGGCGGCTT",
+      "target_sequence": "AAGCCGCCCGTCGGCGCAGTGTAGGCGGAGCTTGCGCCCG",
+      "arm_3prime": "CGGGCGCAAGCTCCGCCTAC",
+      "arm_5prime": "ACTGCGCCGACGGGCGGCTT",
+      "position": 2803,
+      "genomic_start": 142891673,
+      "genomic_end": 142891713,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 79.09260261507222,
+      "tm_3": 63.81551720176492,
+      "tm_5": 65.7073726012892,
+      "tm_diff": 1.8918553995242746,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000106216"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891604,
+          142891692
+        ]
+      ],
+      "tm_3prime": 63.81551720176492,
+      "tm_5prime": 65.7073726012892,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "GCAAGCTCCGCCTACACTGCGCCGACGGGCGGCTTGTGCG",
+      "target_sequence": "CGCACAAGCCGCCCGTCGGCGCAGTGTAGGCGGAGCTTGC",
+      "arm_3prime": "GCAAGCTCCGCCTACACTGC",
+      "arm_5prime": "GCCGACGGGCGGCTTGTGCG",
+      "position": 2808,
+      "genomic_start": 142891678,
+      "genomic_end": 142891718,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 78.41398756424712,
+      "tm_3": 60.04081925816212,
+      "tm_5": 64.36829980715919,
+      "tm_diff": 4.327480548997073,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000106216"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891604,
+          142891692
+        ]
+      ],
+      "tm_3prime": 60.04081925816212,
+      "tm_5prime": 64.36829980715919,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "TCCGCCTACACTGCGCCGACGGGCGGCTTGTGCGCGCGCG",
+      "target_sequence": "CGCGCGCGCACAAGCCGCCCGTCGGCGCAGTGTAGGCGGA",
+      "arm_3prime": "TCCGCCTACACTGCGCCGAC",
+      "arm_5prime": "GGGCGGCTTGTGCGCGCGCG",
+      "position": 2814,
+      "genomic_start": 142891684,
+      "genomic_end": 142891724,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 77.52198988482945,
+      "tm_3": 61.54322073206413,
+      "tm_5": 65.477713026924,
+      "tm_diff": 3.934492294859865,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000106216"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891604,
+          142891692
+        ]
+      ],
+      "tm_3prime": 61.54322073206413,
+      "tm_5prime": 65.477713026924,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Actb",
+      "sequence": "CTACACTGCGCCGACGGGCGGCTTGTGCGCGCGCGGGAGG",
+      "target_sequence": "CCTCCCGCGCGCGCACAAGCCGCCCGTCGGCGCAGTGTAG",
+      "arm_3prime": "CTACACTGCGCCGACGGGCG",
+      "arm_5prime": "GCTTGTGCGCGCGCGGGAGG",
+      "position": 2819,
+      "genomic_start": 142891689,
+      "genomic_end": 142891729,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 79.04415496826175,
+      "tm_3": 62.942276007483486,
+      "tm_5": 64.66502009672996,
+      "tm_diff": 1.7227440892464756,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000106216"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000100497",
+      "isoform_name": "ENSMUST00000100497",
+      "overlapping_regions": [
+        [
+          142891604,
+          142891692
+        ]
+      ],
+      "tm_3prime": 62.942276007483486,
+      "tm_5prime": 64.66502009672996,
+      "thermal_filter_passed": true
+    }
+  ],
+  "Tuba1a": [
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGATGAGCTGCTCAGGGTGGAAGAGCTGGCGGTAGGTGCC",
+      "target_sequence": "GGCACCTACCGCCAGCTCTTCCACCCTGAGCAGCTCATCA",
+      "arm_3prime": "TGATGAGCTGCTCAGGGTGG",
+      "arm_5prime": "AAGAGCTGGCGGTAGGTGCC",
+      "position": 19146,
+      "genomic_start": 98849164,
+      "genomic_end": 98849204,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 77.54723904205724,
+      "tm_3": 60.570614181530516,
+      "tm_5": 64.35412644851709,
+      "tm_diff": 3.783512266986577,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98849069,
+          98849217
+        ]
+      ],
+      "tm_3prime": 60.570614181530516,
+      "tm_5prime": 64.35412644851709,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CTCAGGGTGGAAGAGCTGGCGGTAGGTGCCGGTGCGAACT",
+      "target_sequence": "AGTTCGCACCGGCACCTACCGCCAGCTCTTCCACCCTGAG",
+      "arm_3prime": "CTCAGGGTGGAAGAGCTGGC",
+      "arm_5prime": "GGTAGGTGCCGGTGCGAACT",
+      "position": 19156,
+      "genomic_start": 98849174,
+      "genomic_end": 98849214,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 77.68548645790673,
+      "tm_3": 63.97853988933679,
+      "tm_5": 60.85448783443309,
+      "tm_diff": 3.1240520549037,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98849069,
+          98849217
+        ]
+      ],
+      "tm_3prime": 63.97853988933679,
+      "tm_5prime": 60.85448783443309,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|2487295415|ref|XM_055126020.1|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|133892260|ref|NM_011653.2|",
+          "hit_def": "Mus musculus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2695771836|ref|XM_054442245.2|",
+          "hit_def": "PREDICTED: Pongo pygmaeus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2112842132|ref|XM_044229240.1|",
+          "hit_def": "PREDICTED: Neovison vison tubulin alpha-1C chain (LOC122892570), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2694571702|ref|XM_003778011.5|",
+          "hit_def": "PREDICTED: Pongo abelii tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487300366|ref|XM_055128105.1|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2112842160|ref|XM_044229252.1|",
+          "hit_def": "PREDICTED: Neovison vison tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820891754|ref|XM_032876875.1|",
+          "hit_def": "PREDICTED: Lontra canadensis tubulin alpha-1B chain (LOC116878989), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820891749|ref|XM_032876874.1|",
+          "hit_def": "PREDICTED: Lontra canadensis tubulin alpha-1C chain-like (LOC116878987), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2813706416|ref|XM_068970312.1|",
+          "hit_def": "PREDICTED: Capricornis sumatraensis tubulin alpha-1C chain-like (LOC138077915), mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2813709455|ref|XM_068972030.1|",
+          "hit_def": "PREDICTED: Capricornis sumatraensis tubulin alpha-1C chain (LOC138079169), transcript variant X1, mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1229139445|ref|XM_022226120.1|",
+          "hit_def": "PREDICTED: Acanthaster planci tubulin alpha chain-like (LOC110974465), mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2813709457|ref|XM_068972031.1|",
+          "hit_def": "PREDICTED: Capricornis sumatraensis tubulin alpha-1C chain (LOC138079169), transcript variant X2, mRNA",
+          "evalue": 1.98471e-10,
+          "identity": 1.0,
+          "score": 39.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487300368|ref|XM_055128106.1|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487352750|ref|XM_012933448.2|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha-1C chain-like (LOC101552730), mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487300370|ref|XM_004616710.2|",
+          "hit_def": "PREDICTED: Sorex araneus tubulin alpha 1c (TUBA1C), transcript variant X2, mRNA",
+          "evalue": 7.13828e-10,
+          "identity": 1.0,
+          "score": 38.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2586495764|ref|XM_059935840.1|",
+          "hit_def": "PREDICTED: Balaenoptera ricei tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2957695544|ref|XM_036992012.2|",
+          "hit_def": "PREDICTED: Manis javanica tubulin alpha-1C chain (LOC108393012), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528632323|ref|XM_057702088.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1C chain-like (LOC130832961), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2862858802|ref|XM_002714094.5|",
+          "hit_def": "PREDICTED: Oryctolagus cuniculus tubulin alpha-1B chain (LOC100348075), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563551|ref|XM_044756228.2|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2715613910|ref|XM_064377034.1|",
+          "hit_def": "PREDICTED: Aotus nancymaae tubulin alpha 1a (TUBA1A), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2625708278|ref|XM_061205943.1|",
+          "hit_def": "PREDICTED: Eubalaena glacialis tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2589175987|ref|XM_060112000.1|",
+          "hit_def": "PREDICTED: Mesoplodon densirostris tubulin alpha 1a (TUBA1A), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2646859033|ref|XM_062203723.1|",
+          "hit_def": "PREDICTED: Lepus europaeus tubulin alpha-1B chain (LOC133768827), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2309343844|ref|XM_050748368.1|",
+          "hit_def": "PREDICTED: Macaca thibetana thibetana tubulin alpha-1A chain (LOC126930835), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461791682|ref|XM_054252401.1|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha-1C chain-like (LOC118151632), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2954728838|ref|XM_008003125.3|",
+          "hit_def": "PREDICTED: Chlorocebus sabaeus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563553|ref|XM_044756225.2|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2868093657|ref|XM_001504174.6|",
+          "hit_def": "PREDICTED: Equus caballus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567542097|ref|XM_059185462.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1A chain (LOC131838805), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2280635801|ref|XM_004274368.3|",
+          "hit_def": "PREDICTED: Orcinus orca tubulin alpha-1A chain (LOC101289567), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2309343850|ref|XM_050748372.1|",
+          "hit_def": "PREDICTED: Macaca thibetana thibetana tubulin alpha-1A chain (LOC126930835), transcript variant X4, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2978582603|ref|XM_045366494.3|",
+          "hit_def": "PREDICTED: Macaca fascicularis tubulin alpha-1A chain (LOC101865772), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2873519840|ref|XM_070621179.1|",
+          "hit_def": "PREDICTED: Equus przewalskii tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2553026798|ref|XM_032143460.2|",
+          "hit_def": "PREDICTED: Hylobates moloch tubulin alpha-1C chain (LOC116461665), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2492157615|ref|XM_055337108.1|",
+          "hit_def": "PREDICTED: Nyctereutes procyonoides tubulin alpha-1B chain (LOC129517335), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487110242|ref|XM_055085643.1|",
+          "hit_def": "PREDICTED: Physeter macrocephalus tubulin alpha-1B chain (LOC102990900), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2715613909|ref|XM_021665928.2|",
+          "hit_def": "PREDICTED: Aotus nancymaae tubulin alpha 1a (TUBA1A), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2464083583|ref|XM_002823184.5|",
+          "hit_def": "PREDICTED: Pongo abelii tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2550587644|ref|XM_004446955.2|",
+          "hit_def": "PREDICTED: Dasypus novemcinctus tubulin alpha-1B chain (LOC101436325), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2979456632|ref|XM_020169435.2|",
+          "hit_def": "PREDICTED: Castor canadensis tubulin alpha-1B chain (LOC109690215), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2550587648|ref|XM_058307933.1|",
+          "hit_def": "PREDICTED: Dasypus novemcinctus tubulin alpha-1C chain (LOC101437740), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2280635797|ref|XM_049694913.1|",
+          "hit_def": "PREDICTED: Orcinus orca tubulin alpha 1b (TUBA1B), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2490721252|ref|XM_008951160.3|",
+          "hit_def": "PREDICTED: Pan paniscus tubulin alpha-1B chain (LOC103782837), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2586495770|ref|XM_059935843.1|",
+          "hit_def": "PREDICTED: Balaenoptera ricei tubulin alpha-1C chain (LOC132373169), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2806540770|ref|XM_068559804.1|",
+          "hit_def": "PREDICTED: Eschrichtius robustus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2806540719|ref|XM_068559778.1|",
+          "hit_def": "PREDICTED: Eschrichtius robustus tubulin alpha-1C chain (LOC137774661), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2558313799|ref|XM_058673772.1|",
+          "hit_def": "PREDICTED: Ochotona princeps tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528636308|ref|XM_057704247.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1C chain (LOC130834150), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2862841537|ref|XM_008256416.4|",
+          "hit_def": "PREDICTED: Oryctolagus cuniculus tubulin alpha-1C chain (LOC100357567), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2279986116|ref|XM_049783483.1|",
+          "hit_def": "PREDICTED: Suncus etruscus tubulin alpha-1B chain (LOC126022533), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2309343854|ref|XM_050748374.1|",
+          "hit_def": "PREDICTED: Macaca thibetana thibetana tubulin alpha-1A chain (LOC126930835), transcript variant X6, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2992018883|ref|XM_010964242.3|",
+          "hit_def": "PREDICTED: Camelus bactrianus tubulin alpha-1B chain (LOC105076201), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2873519842|ref|XM_008522082.2|",
+          "hit_def": "PREDICTED: Equus przewalskii tubulin alpha-1B chain (LOC103552226), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567542092|ref|XM_059185459.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1B chain (LOC131838804), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3027888973|ref|XM_075551751.1|",
+          "hit_def": "PREDICTED: Tenrec ecaudatus tubulin alpha-1B chain (LOC142450154), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947513664|ref|XM_072805630.1|",
+          "hit_def": "PREDICTED: Canis lupus baileyi tubulin alpha-1A chain (LOC140620980), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2905736438|ref|XM_004446956.5|",
+          "hit_def": "PREDICTED: Dasypus novemcinctus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947496962|ref|XM_072798040.1|",
+          "hit_def": "PREDICTED: Canis lupus baileyi tubulin alpha-1A chain (LOC140617137), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2586495767|ref|XM_059935842.1|",
+          "hit_def": "PREDICTED: Balaenoptera ricei tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563566|ref|XM_070494875.1|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1c (TUBA1C), transcript variant X8, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2526557266|ref|XM_007179295.3|",
+          "hit_def": "PREDICTED: Balaenoptera acutorostrata tubulin alpha 1c (TUBA1C), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2591594823|ref|XR_474966.3|",
+          "hit_def": "PREDICTED: Erinaceus europaeus tubulin alpha-1A chain-like (LOC103107478), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2517515275|ref|XM_026501960.4|",
+          "hit_def": "PREDICTED: Ursus arctos tubulin alpha-1C chain (LOC113257654), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528636304|ref|XM_057704245.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1B chain (LOC130834148), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2782077559|ref|XM_059080629.2|",
+          "hit_def": "PREDICTED: Kogia breviceps tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2272630178|ref|XM_035707193.2|",
+          "hit_def": "PREDICTED: Canis lupus dingo tubulin alpha-1C chain (LOC112678288), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2953072875|ref|XR_012062916.1|",
+          "hit_def": "PREDICTED: Vicugna pacos tubulin alpha-1C chain pseudogene (LOC102527946), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2506742550|ref|XM_056120306.1|",
+          "hit_def": "PREDICTED: Sorex fumeus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461847779|ref|XM_054238566.1|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha 1c (TUBA1C), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567484016|ref|XM_059154979.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1B chain-like (LOC131819705), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947375720|ref|XM_072743078.1|",
+          "hit_def": "PREDICTED: Vulpes vulpes tubulin alpha-1C chain (LOC140596018), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528724581|ref|XM_057718022.1|",
+          "hit_def": "PREDICTED: Hippopotamus amphibius kiboko tubulin alpha-1C chain-like (LOC130841712), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2694904718|ref|XM_004053076.5|",
+          "hit_def": "PREDICTED: Gorilla gorilla gorilla tubulin alpha-1B chain (LOC101148972), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2868093654|ref|XM_023643483.2|",
+          "hit_def": "PREDICTED: Equus caballus tubulin alpha-1B chain (LOC100059091), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2745926878|ref|XM_065886736.1|",
+          "hit_def": "PREDICTED: Phocoena phocoena tubulin alpha-1B chain (LOC136130418), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2280635799|ref|XM_049694914.1|",
+          "hit_def": "PREDICTED: Orcinus orca tubulin alpha 1b (TUBA1B), transcript variant X3, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2695771835|ref|XM_054442244.2|",
+          "hit_def": "PREDICTED: Pongo pygmaeus tubulin alpha-1B chain (LOC129009401), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2272630177|ref|XM_025477510.3|",
+          "hit_def": "PREDICTED: Canis lupus dingo tubulin alpha-1C chain (LOC112678288), transcript variant X1, mRNA >gi|2947496968|ref|XM_072798043.1| PREDICTED: Canis lupus baileyi tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2589175985|ref|XM_060111999.1|",
+          "hit_def": "PREDICTED: Mesoplodon densirostris tubulin alpha 1a (TUBA1A), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2782077555|ref|XM_059080649.2|",
+          "hit_def": "PREDICTED: Kogia breviceps tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2971718614|ref|XM_033866797.2|",
+          "hit_def": "PREDICTED: Tursiops truncatus tubulin alpha-1A chain (LOC117307516), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563568|ref|XM_070494876.1|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1c (TUBA1C), transcript variant X9, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2567542094|ref|XM_059185461.1|",
+          "hit_def": "PREDICTED: Mustela lutreola tubulin alpha-1B chain (LOC131838804), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2591629425|ref|XM_060195460.1|",
+          "hit_def": "PREDICTED: Erinaceus europaeus tubulin alpha-1A chain (LOC103118324), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2954728842|ref|XM_008003128.3|",
+          "hit_def": "PREDICTED: Chlorocebus sabaeus tubulin alpha 1a (TUBA1A), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461847778|ref|XM_009003725.3|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha 1c (TUBA1C), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2589176403|ref|XM_060112221.1|",
+          "hit_def": "PREDICTED: Mesoplodon densirostris tubulin alpha-1B chain (LOC132498498), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2791843623|ref|XM_067696413.1|",
+          "hit_def": "PREDICTED: Pseudorca crassidens tubulin alpha-1A chain (LOC137201869), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2871563550|ref|XM_014850009.3|",
+          "hit_def": "PREDICTED: Equus asinus tubulin alpha 1b (TUBA1B), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2461847781|ref|XM_054238567.1|",
+          "hit_def": "PREDICTED: Callithrix jacchus tubulin alpha 1c (TUBA1C), transcript variant X3, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2957695557|ref|XM_036992429.2|",
+          "hit_def": "PREDICTED: Manis javanica tubulin alpha-1B chain (LOC108383375), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2575422236|ref|XM_059403025.1|",
+          "hit_def": "PREDICTED: Mustela nigripes tubulin alpha-1B chain (LOC132019643), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2957695549|ref|XM_036992010.2|",
+          "hit_def": "PREDICTED: Manis javanica tubulin alpha-1A chain (LOC108393018), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2487080230|ref|XM_028480346.2|",
+          "hit_def": "PREDICTED: Physeter macrocephalus tubulin alpha-1B chain-like (LOC112067146), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2862841527|ref|XM_002711101.5|",
+          "hit_def": "PREDICTED: Oryctolagus cuniculus tubulin alpha-1A chain (LOC100340483), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2898509219|ref|XM_011760218.2|",
+          "hit_def": "PREDICTED: Macaca nemestrina tubulin alpha-1A chain (LOC105492882), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2979456639|ref|XM_020169438.2|",
+          "hit_def": "PREDICTED: Castor canadensis tubulin alpha-1C chain (LOC109690218), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2947249051|ref|XM_026000247.2|",
+          "hit_def": "PREDICTED: Vulpes vulpes tubulin alpha-1B chain (LOC112921105), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGTGAGACAGGAGCTGGCAAGCATGTGCCCCGGGCAGTGT",
+      "target_sequence": "ACACTGCCCGGGGCACATGCTTGCCAGCTCCTGTCTCACT",
+      "arm_3prime": "AGTGAGACAGGAGCTGGCAA",
+      "arm_5prime": "GCATGTGCCCCGGGCAGTGT",
+      "position": 16859,
+      "genomic_start": 98849377,
+      "genomic_end": 98849417,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 76.72195622333442,
+      "tm_3": 61.36556275527545,
+      "tm_5": 62.208471724966785,
+      "tm_diff": 0.8429089696913366,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ]
+      ],
+      "tm_3prime": 61.36556275527545,
+      "tm_5prime": 62.208471724966785,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGAGCTCTACTGCCTGGAACATGGCATCCAGCCTGATGGC",
+      "target_sequence": "GCCATCAGGCTGGATGCCATGTTCCAGGCAGTAGAGCTCC",
+      "arm_3prime": "GGAGCTCTACTGCCTGGAAC",
+      "arm_5prime": "ATGGCATCCAGCCTGATGGC",
+      "position": 16956,
+      "genomic_start": 98849474,
+      "genomic_end": 98849514,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 76.45353143969584,
+      "tm_3": 60.75853076526647,
+      "tm_5": 60.571523283204215,
+      "tm_diff": 0.18700748206225626,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ]
+      ],
+      "tm_3prime": 60.75853076526647,
+      "tm_5prime": 60.571523283204215,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCCAGGCTGGTGTCCAGATCGGCAATGCCTGCTGGGAGC",
+      "target_sequence": "GCTCCCAGCAGGCATTGCCGATCTGGACACCAGCCTGGCC",
+      "arm_3prime": "GGCCAGGCTGGTGTCCAGAT",
+      "arm_5prime": "CGGCAATGCCTGCTGGGAGC",
+      "position": 16991,
+      "genomic_start": 98849509,
+      "genomic_end": 98849549,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 78.3272489136283,
+      "tm_3": 61.9873399719732,
+      "tm_5": 65.28528210590696,
+      "tm_diff": 3.297942133933759,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98849350,
+          98849572
+        ]
+      ],
+      "tm_3prime": 61.9873399719732,
+      "tm_5prime": 65.28528210590696,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGCCGCGAAGCAGCAACCATGGTGAGCAAGCCTTCCCCGG",
+      "target_sequence": "CCGGGGAAGGCTTGCTCACCATGGTTGCTGCTTCGCGGCT",
+      "arm_3prime": "AGCCGCGAAGCAGCAACCAT",
+      "arm_5prime": "GGTGAGCAAGCCTTCCCCGG",
+      "position": 175,
+      "genomic_start": 98851313,
+      "genomic_end": 98851353,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 76.03041834489579,
+      "tm_3": 60.44055887861373,
+      "tm_5": 60.55328633011919,
+      "tm_diff": 0.1127274515054637,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851332,
+          98851432
+        ],
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 60.44055887861373,
+      "tm_5prime": 60.55328633011919,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "TGCTGCTTCGCGGCTGCCGGGTGGATGGCGGAGGCGAGGA",
+      "target_sequence": "TCCTCGCCTCCGCCATCCACCCGGCAGCCGCGAAGCAGCA",
+      "arm_3prime": "TGCTGCTTCGCGGCTGCCGG",
+      "arm_5prime": "GTGGATGGCGGAGGCGAGGA",
+      "position": 21320,
+      "genomic_start": 98851338,
+      "genomic_end": 98851378,
+      "length": 40,
+      "g_content": 0.5,
+      "tm": 78.42442990142308,
+      "tm_3": 62.60109479851792,
+      "tm_5": 66.94129478105725,
+      "tm_diff": 4.340199982539332,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000134214",
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 3,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98851332,
+          98851432
+        ]
+      ],
+      "tm_3prime": 62.60109479851792,
+      "tm_5prime": 66.94129478105725,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|133892260|ref|NM_011653.2|",
+          "hit_def": "Mus musculus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|11560132|ref|NM_022298.1|",
+          "hit_def": "Rattus norvegicus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2678959669|ref|XM_063264206.1|",
+          "hit_def": "PREDICTED: Rattus norvegicus tubulin, alpha 1A (Tuba1a), transcript variant X2, mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2678959667|ref|XM_063264205.1|",
+          "hit_def": "PREDICTED: Rattus norvegicus tubulin, alpha 1A (Tuba1a), transcript variant X1, mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2678959671|ref|XM_063264207.1|",
+          "hit_def": "PREDICTED: Rattus norvegicus tubulin, alpha 1A (Tuba1a), transcript variant X3, mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679822885|ref|XM_029469526.1|",
+          "hit_def": "PREDICTED: Mus caroli tubulin alpha chain-like (LOC110310099), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1820942552|ref|XR_004385906.1|",
+          "hit_def": "PREDICTED: Rattus rattus tubulin alpha-1A chain-like (LOC116884917), misc_RNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGAGCCGCTCCATCAGCAGGGAGGTGAAGCCAGAGCCAGT",
+      "target_sequence": "ACTGGCTCTGGCTTCACCTCCCTGCTGATGGAGCGGCTCT",
+      "arm_3prime": "AGAGCCGCTCCATCAGCAGG",
+      "arm_5prime": "GAGGTGAAGCCAGAGCCAGT",
+      "position": 18781,
+      "genomic_start": 98848799,
+      "genomic_end": 98848839,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 76.00468071557049,
+      "tm_3": 60.63522597993352,
+      "tm_5": 60.669032370812545,
+      "tm_diff": 0.03380639087902182,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98848799,
+          98848895
+        ]
+      ],
+      "tm_3prime": 60.63522597993352,
+      "tm_5prime": 60.669032370812545,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAGGTGAAGCCAGAGCCAGTTCCCCCGCCAAAGCTGTGGA",
+      "target_sequence": "TCCACAGCTTTGGCGGGGGAACTGGCTCTGGCTTCACCTC",
+      "arm_3prime": "GAGGTGAAGCCAGAGCCAGT",
+      "arm_5prime": "TCCCCCGCCAAAGCTGTGGA",
+      "position": 18801,
+      "genomic_start": 98848819,
+      "genomic_end": 98848859,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 77.31064081545213,
+      "tm_3": 60.669032370812545,
+      "tm_5": 60.95237584470431,
+      "tm_diff": 0.28334347389176173,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98848799,
+          98848895
+        ]
+      ],
+      "tm_3prime": 60.669032370812545,
+      "tm_5prime": 60.95237584470431,
+      "thermal_filter_passed": true,
+      "blast_alignments": [
+        {
+          "hit_id": "gi|1195711413|ref|XM_021158042.1|",
+          "hit_def": "PREDICTED: Mus caroli solute carrier family 7 member 11 (Slc7a11), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            1
+          ]
+        },
+        {
+          "hit_id": "gi|133892260|ref|NM_011653.2|",
+          "hit_def": "Mus musculus tubulin, alpha 1A (Tuba1a), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1679822885|ref|XM_029469526.1|",
+          "hit_def": "PREDICTED: Mus caroli tubulin alpha chain-like (LOC110310099), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318323017|ref|XM_051160316.1|",
+          "hit_def": "PREDICTED: Acomys russatus tubulin alpha-1A chain (LOC127201635), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2318323029|ref|XM_051160322.1|",
+          "hit_def": "PREDICTED: Acomys russatus tubulin alpha-1C chain (LOC127201641), mRNA",
+          "evalue": 5.51823e-11,
+          "identity": 1.0,
+          "score": 40.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1949703383|ref|XM_038341571.1|",
+          "hit_def": "PREDICTED: Arvicola amphibius tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503957|ref|XM_057791599.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1C chain-like (LOC130888550), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1196728798|ref|XM_021259877.1|",
+          "hit_def": "PREDICTED: Heterocephalus glaber tubulin alpha-1C chain-like (LOC101726622), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908040836|ref|XM_036209039.1|",
+          "hit_def": "PREDICTED: Onychomys torridus tubulin alpha-1C chain (LOC118597453), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1949703385|ref|XM_038341572.1|",
+          "hit_def": "PREDICTED: Arvicola amphibius tubulin alpha-1C chain (LOC119822383), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2591628748|ref|XM_007518132.3|",
+          "hit_def": "PREDICTED: Erinaceus europaeus tubulin alpha-1C chain (LOC103109125), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287713752|ref|XM_050147816.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1B chain (LOC126505088), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371586|ref|XM_075960593.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha-1C chain-like (LOC142843350), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371588|ref|XM_075960594.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1c (Tuba1c), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414804154|ref|XM_052748887.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis tubulin alpha-1C chain (LOC128117064), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1929266281|ref|XM_028891952.2|",
+          "hit_def": "PREDICTED: Peromyscus leucopus tubulin alpha 1b (Tuba1b), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287777118|ref|XM_050132631.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1C chain-like (LOC126495022), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038316017|ref|XM_041642647.1|",
+          "hit_def": "PREDICTED: Microtus oregoni tubulin alpha-1C chain (LOC121441457), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038316088|ref|XM_041642676.1|",
+          "hit_def": "PREDICTED: Microtus oregoni tubulin alpha 1b (Tuba1b), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908038648|ref|XM_036207857.1|",
+          "hit_def": "PREDICTED: Onychomys torridus tubulin alpha-1B chain (LOC118596873), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287768126|ref|XM_050127918.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1C chain-like (LOC126491932), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1196728800|ref|XM_004846639.3|",
+          "hit_def": "PREDICTED: Heterocephalus glaber tubulin alpha-1C chain-like (LOC101726622), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528496182|ref|XM_057787432.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1C chain (LOC130885721), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371584|ref|XM_075960591.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371582|ref|XM_075960590.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1b (Tuba1b), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2052710351|ref|XM_038341375.2|",
+          "hit_def": "PREDICTED: Arvicola amphibius tubulin alpha-1B chain (LOC119822305), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037321100|ref|XM_075945785.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha-1A chain-like (LOC142833905), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2330799599|ref|XM_052160787.1|",
+          "hit_def": "PREDICTED: Apodemus sylvaticus tubulin alpha 1c (Tuba1c), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287773662|ref|XM_050130846.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1A chain (LOC126493755), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503953|ref|XM_057791596.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287773660|ref|XM_050130844.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1A chain (LOC126493754), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287773735|ref|XM_050130885.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1C chain (LOC126493774), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246070407|ref|XM_048444646.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha-1A chain (LOC125407241), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246039941|ref|XM_048423192.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha-1C chain-like (LOC125393081), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|3037371590|ref|XM_075960595.1|",
+          "hit_def": "PREDICTED: Microtus pennsylvanicus tubulin alpha 1c (Tuba1c), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246070409|ref|XM_048444647.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha 1c (Tuba1c), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503949|ref|XM_057791594.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1B chain (LOC130888547), transcript variant X1, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1490757382|ref|XM_005344184.3|",
+          "hit_def": "PREDICTED: Microtus ochrogaster tubulin alpha-1 chain (LOC101985375), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2528503951|ref|XM_057791595.1|",
+          "hit_def": "PREDICTED: Chionomys nivalis tubulin alpha-1B chain (LOC130888547), transcript variant X2, mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287770090|ref|XM_050128957.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1B chain-like (LOC126492507), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2038316013|ref|XM_041642645.1|",
+          "hit_def": "PREDICTED: Microtus oregoni tubulin alpha-1A chain (LOC121441456), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414761692|ref|XM_052739418.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis tubulin alpha-1A chain-like (LOC128111143), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1908040834|ref|XM_036209038.1|",
+          "hit_def": "PREDICTED: Onychomys torridus tubulin alpha 1a (Tuba1a), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2572399289|ref|XM_059247406.1|",
+          "hit_def": "PREDICTED: Peromyscus eremicus tubulin alpha 1c (Tuba1c), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1490792471|ref|XM_026782480.1|",
+          "hit_def": "PREDICTED: Microtus ochrogaster tubulin alpha-1C chain (LOC101998227), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2414823156|ref|XM_052758305.1|",
+          "hit_def": "PREDICTED: Peromyscus californicus insignis tubulin alpha-1A chain (LOC128122669), mRNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2246099218|ref|XR_007236832.1|",
+          "hit_def": "PREDICTED: Myodes glareolus tubulin alpha-1B chain-like (LOC125416277), misc_RNA",
+          "evalue": 2.56738e-09,
+          "identity": 0.975,
+          "score": 37.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|2287717283|ref|XM_050149616.1|",
+          "hit_def": "PREDICTED: Alexandromys fortis tubulin alpha-1A chain-like (LOC126506235), mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.95,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        },
+        {
+          "hit_id": "gi|1196728801|ref|XM_021259878.1|",
+          "hit_def": "PREDICTED: Heterocephalus glaber tubulin alpha-1C chain-like (LOC101726622), transcript variant X3, mRNA",
+          "evalue": 1.19449e-07,
+          "identity": 0.972972972972973,
+          "score": 34.0,
+          "frame": [
+            1,
+            -1
+          ]
+        }
+      ],
+      "blast_evalue": 5.51823e-11,
+      "blast_identity": 1.0,
+      "specificity_status": "specificity_filtered"
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAAGCCCTGGAGACCTGTGCACTGGTCAGCCTGTGGGAGA",
+      "target_sequence": "TCTCCCACAGGCTGACCAGTGCACAGGTCTCCAGGGCTTC",
+      "arm_3prime": "GAAGCCCTGGAGACCTGTGC",
+      "arm_5prime": "ACTGGTCAGCCTGTGGGAGA",
+      "position": 18848,
+      "genomic_start": 98848866,
+      "genomic_end": 98848906,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 79.23225193180997,
+      "tm_3": 63.049808733443456,
+      "tm_5": 61.37997186519141,
+      "tm_diff": 1.6698368682520481,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014",
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 2,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98848799,
+          98848895
+        ],
+        [
+          98848895,
+          98849069
+        ]
+      ],
+      "tm_3prime": 63.049808733443456,
+      "tm_5prime": 61.37997186519141,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGCAGTGGAAACCTGGGGGGCTGGGTAAATGGAGAAC",
+      "target_sequence": "GTTCTCCATTTACCCAGCCCCCCAGGTTTCCACTGCTGTG",
+      "arm_3prime": "CACAGCAGTGGAAACCTGGG",
+      "arm_5prime": "GGGCTGGGTAAATGGAGAAC",
+      "position": 258,
+      "genomic_start": 98830276,
+      "genomic_end": 98830316,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 77.5027617151643,
+      "tm_3": 60.3129582101476,
+      "tm_5": 61.6797233150881,
+      "tm_diff": 1.366765104940498,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 60.3129582101476,
+      "tm_5prime": 61.6797233150881,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGAGCCGCTCCATCAGCAGGGAGGTGAAGCCAGAGCCAGT",
+      "target_sequence": "ACTGGCTCTGGCTTCACCTCCCTGCTGATGGAGCGGCTCT",
+      "arm_3prime": "AGAGCCGCTCCATCAGCAGG",
+      "arm_5prime": "GAGGTGAAGCCAGAGCCAGT",
+      "position": 329,
+      "genomic_start": 98830347,
+      "genomic_end": 98830387,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 76.00468071557049,
+      "tm_3": 60.63522597993352,
+      "tm_5": 60.669032370812545,
+      "tm_diff": 0.03380639087902182,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 60.63522597993352,
+      "tm_5prime": 60.669032370812545,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GAAGCCCTGGAGACCTGTGCACTGGTCAGCCTGTGGGAGA",
+      "target_sequence": "TCTCCCACAGGCTGACCAGTGCACAGGTCTCCAGGGCTTC",
+      "arm_3prime": "GAAGCCCTGGAGACCTGTGC",
+      "arm_5prime": "ACTGGTCAGCCTGTGGGAGA",
+      "position": 396,
+      "genomic_start": 98830414,
+      "genomic_end": 98830454,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 79.23225193180997,
+      "tm_3": 63.049808733443456,
+      "tm_5": 61.37997186519141,
+      "tm_diff": 1.6698368682520481,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000134214"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98830018,
+          98830443
+        ]
+      ],
+      "tm_3prime": 63.049808733443456,
+      "tm_5prime": 61.37997186519141,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCGCGCCATGCTGCAGACAGGGGCGCGCCGCTGCAATGCG",
+      "target_sequence": "CGCATTGCAGCGGCGCGCCCCTGTCTGCAGCATGGCGCGC",
+      "arm_3prime": "GCGCGCCATGCTGCAGACAG",
+      "arm_5prime": "GGGCGCGCCGCTGCAATGCG",
+      "position": 2486,
+      "genomic_start": 98832504,
+      "genomic_end": 98832544,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 79.57539496144165,
+      "tm_3": 61.926516063943325,
+      "tm_5": 65.79861816539466,
+      "tm_diff": 3.8721021014513326,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 61.926516063943325,
+      "tm_5prime": 65.79861816539466,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "AGTACCCGTTGCCGCCCCGCATTGCAGCGGCGCGCCCCTG",
+      "target_sequence": "CAGGGGCGCGCCGCTGCAATGCGGGGCGGCAACGGGTACT",
+      "arm_3prime": "AGTACCCGTTGCCGCCCCGC",
+      "arm_5prime": "ATTGCAGCGGCGCGCCCCTG",
+      "position": 3,
+      "genomic_start": 98832521,
+      "genomic_end": 98832561,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 76.29269376825187,
+      "tm_3": 61.07372339921034,
+      "tm_5": 62.78613404200945,
+      "tm_diff": 1.7124106427991137,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 61.07372339921034,
+      "tm_5prime": 62.78613404200945,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCGGCAACGGGTACTGTCGCAGAGGCAACCAGAGGAGAA",
+      "target_sequence": "TTCTCCTCTGGTTGCCTCTGCGACAGTACCCGTTGCCGCC",
+      "arm_3prime": "GGCGGCAACGGGTACTGTCG",
+      "arm_5prime": "CAGAGGCAACCAGAGGAGAA",
+      "position": 2527,
+      "genomic_start": 98832545,
+      "genomic_end": 98832585,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 76.67650509178992,
+      "tm_3": 61.63215947214644,
+      "tm_5": 60.18003084767963,
+      "tm_diff": 1.452128624466809,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 61.63215947214644,
+      "tm_5prime": 60.18003084767963,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CAGAGGCAACCAGAGGAGAATCGCTCCATGTGGGCGAGCC",
+      "target_sequence": "GGCTCGCCCACATGGAGCGATTCTCCTCTGGTTGCCTCTG",
+      "arm_3prime": "CAGAGGCAACCAGAGGAGAA",
+      "arm_5prime": "TCGCTCCATGTGGGCGAGCC",
+      "position": 2547,
+      "genomic_start": 98832565,
+      "genomic_end": 98832605,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 77.64908042186187,
+      "tm_3": 60.18003084767963,
+      "tm_5": 62.128370046408236,
+      "tm_diff": 1.948339198728604,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320980"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98832518,
+          98832634
+        ]
+      ],
+      "tm_3prime": 60.18003084767963,
+      "tm_5prime": 62.128370046408236,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CTCTGAGGCCCGTGAGGACATGGCTGCCCTAGAGAAGGAT",
+      "target_sequence": "ATCCTTCTCTAGGGCAGCCATGTCCTCACGGGCCTCAGAG",
+      "arm_3prime": "CTCTGAGGCCCGTGAGGACA",
+      "arm_5prime": "TGGCTGCCCTAGAGAAGGAT",
+      "position": 15460,
+      "genomic_start": 98847978,
+      "genomic_end": 98848018,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 76.90825043997785,
+      "tm_3": 60.31303567449322,
+      "tm_5": 60.7338080254961,
+      "tm_diff": 0.42077235100288135,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.31303567449322,
+      "tm_5prime": 60.7338080254961,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCATGGAGGAGGGTGAGTTCTCTGAGGCCCGTGAGGACA",
+      "target_sequence": "TGTCCTCACGGGCCTCAGAGAACTCACCCTCCTCCATGCC",
+      "arm_3prime": "GGCATGGAGGAGGGTGAGTT",
+      "arm_5prime": "CTCTGAGGCCCGTGAGGACA",
+      "position": 15480,
+      "genomic_start": 98847998,
+      "genomic_end": 98848038,
+      "length": 40,
+      "g_content": 0.45,
+      "tm": 76.8072811335283,
+      "tm_3": 61.61343521557967,
+      "tm_5": 60.31303567449322,
+      "tm_diff": 1.300399541086449,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 61.61343521557967,
+      "tm_5prime": 60.31303567449322,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCTGAGCAACACCACAGCCATTGCTGAGGCCTGGGCTCGC",
+      "target_sequence": "GCGAGCCCAGGCCTCAGCAATGGCTGTGGTGTTGCTCAGC",
+      "arm_3prime": "GCTGAGCAACACCACAGCCA",
+      "arm_5prime": "TTGCTGAGGCCTGGGCTCGC",
+      "position": 15583,
+      "genomic_start": 98848101,
+      "genomic_end": 98848141,
+      "length": 40,
+      "g_content": 0.3,
+      "tm": 78.08542980795806,
+      "tm_3": 60.398934532965654,
+      "tm_5": 64.53362726376918,
+      "tm_diff": 4.134692730803522,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.398934532965654,
+      "tm_5prime": 64.53362726376918,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "ACCCGGTGGTGACCTGGCCAAGGTGCAGAGAGCTGTGTGC",
+      "target_sequence": "GCACACAGCTCTCTGCACCTTGGCCAGGTCACCACCGGGT",
+      "arm_3prime": "ACCCGGTGGTGACCTGGCCA",
+      "arm_5prime": "AGGTGCAGAGAGCTGTGTGC",
+      "position": 15625,
+      "genomic_start": 98848143,
+      "genomic_end": 98848183,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 78.2527787496158,
+      "tm_3": 65.4401520591635,
+      "tm_5": 60.52070482124259,
+      "tm_diff": 4.919447237920906,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 65.4401520591635,
+      "tm_5prime": 60.52070482124259,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CCCACTGTGGTACCCGGTGGTGACCTGGCCAAGGTGCAGA",
+      "target_sequence": "TCTGCACCTTGGCCAGGTCACCACCGGGTACCACAGTGGG",
+      "arm_3prime": "CCCACTGTGGTACCCGGTGG",
+      "arm_5prime": "TGACCTGGCCAAGGTGCAGA",
+      "position": 15636,
+      "genomic_start": 98848154,
+      "genomic_end": 98848194,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 77.99466041244574,
+      "tm_3": 60.42727392726323,
+      "tm_5": 62.414562465789345,
+      "tm_diff": 1.9872885385261156,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320980",
+      "isoform_name": "ENSMUST00000320980",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.42727392726323,
+      "tm_5prime": 62.414562465789345,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCCAGGTCACCACCGGGTACCACAGTGGGAGGCTGGTAG",
+      "target_sequence": "CTACCAGCCTCCCACTGTGGTACCCGGTGGTGACCTGGCC",
+      "arm_3prime": "GGCCAGGTCACCACCGGGTA",
+      "arm_5prime": "CCACAGTGGGAGGCTGGTAG",
+      "position": 18146,
+      "genomic_start": 98848164,
+      "genomic_end": 98848204,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 79.34807606329787,
+      "tm_3": 63.95913751015212,
+      "tm_5": 62.230424680337194,
+      "tm_diff": 1.7287128298149241,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 63.95913751015212,
+      "tm_5prime": 62.230424680337194,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGCATAAGTGGCCAGAGGGAAGTGGATACGAGGGTAGGGT",
+      "target_sequence": "ACCCTACCCTCGTATCCACTTCCCTCTGGCCACTTATGCC",
+      "arm_3prime": "GGCATAAGTGGCCAGAGGGA",
+      "arm_5prime": "AGTGGATACGAGGGTAGGGT",
+      "position": 18434,
+      "genomic_start": 98848452,
+      "genomic_end": 98848492,
+      "length": 40,
+      "g_content": 0.475,
+      "tm": 76.68863061889942,
+      "tm_3": 62.96507972205603,
+      "tm_5": 60.18045762112331,
+      "tm_diff": 2.7846221009327223,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 62.96507972205603,
+      "tm_5prime": 60.18045762112331,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCCAGAGGGAAGTGGATACGAGGGTAGGGTACCAGGTTGG",
+      "target_sequence": "CCAACCTGGTACCCTACCCTCGTATCCACTTCCCTCTGGC",
+      "arm_3prime": "GCCAGAGGGAAGTGGATACG",
+      "arm_5prime": "AGGGTAGGGTACCAGGTTGG",
+      "position": 18444,
+      "genomic_start": 98848462,
+      "genomic_end": 98848502,
+      "length": 40,
+      "g_content": 0.475,
+      "tm": 76.67772265471848,
+      "tm_3": 60.31037838243071,
+      "tm_5": 61.013141198184314,
+      "tm_diff": 0.7027628157536014,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.31037838243071,
+      "tm_5prime": 61.013141198184314,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CACAGCAGTGGAAACCTGGGGGGCTGGGTAAATGGAGAAC",
+      "target_sequence": "GTTCTCCATTTACCCAGCCCCCCAGGTTTCCACTGCTGTG",
+      "arm_3prime": "CACAGCAGTGGAAACCTGGG",
+      "arm_5prime": "GGGCTGGGTAAATGGAGAAC",
+      "position": 18710,
+      "genomic_start": 98848728,
+      "genomic_end": 98848768,
+      "length": 40,
+      "g_content": 0.4,
+      "tm": 77.5027617151643,
+      "tm_3": 60.3129582101476,
+      "tm_5": 61.6797233150881,
+      "tm_diff": 1.366765104940498,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000097014"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000134214",
+      "isoform_name": "ENSMUST00000134214",
+      "overlapping_regions": [
+        [
+          98847718,
+          98848799
+        ]
+      ],
+      "tm_3prime": 60.3129582101476,
+      "tm_5prime": 61.6797233150881,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GCAGTGCGGGACACGGAAACGCCCAGACCGGGAAGAACAA",
+      "target_sequence": "TTGTTCTTCCCGGTCTGGGCGTTTCCGTGTCCCGCACTGC",
+      "arm_3prime": "GCAGTGCGGGACACGGAAAC",
+      "arm_5prime": "GCCCAGACCGGGAAGAACAA",
+      "position": 4,
+      "genomic_start": 98851142,
+      "genomic_end": 98851182,
+      "length": 40,
+      "g_content": 0.35,
+      "tm": 79.29174098983992,
+      "tm_3": 63.78042956248038,
+      "tm_5": 62.09035123787629,
+      "tm_diff": 1.6900783246040874,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 63.78042956248038,
+      "tm_5prime": 62.09035123787629,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GTCCCGCCGCCGCAGTGCGGGACACGGAAACGCCCAGACC",
+      "target_sequence": "GGTCTGGGCGTTTCCGTGTCCCGCACTGCGGCGGCGGGAC",
+      "arm_3prime": "GTCCCGCCGCCGCAGTGCGG",
+      "arm_5prime": "GACACGGAAACGCCCAGACC",
+      "position": 15,
+      "genomic_start": 98851153,
+      "genomic_end": 98851193,
+      "length": 40,
+      "g_content": 0.325,
+      "tm": 77.9507718104935,
+      "tm_3": 64.38567150325548,
+      "tm_5": 62.66456094265135,
+      "tm_diff": 1.7211105606041315,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320813"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320813",
+      "isoform_name": "ENSMUST00000320813",
+      "overlapping_regions": [
+        [
+          98851138,
+          98851332
+        ]
+      ],
+      "tm_3prime": 64.38567150325548,
+      "tm_5prime": 62.66456094265135,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "CCAGAGCCGAAGAGAGCCACTGCGCGGAGAGCTGATGGAT",
+      "target_sequence": "ATCCATCAGCTCTCCGCGCAGTGGCTCTCTTCGGCTCTGG",
+      "arm_3prime": "CCAGAGCCGAAGAGAGCCAC",
+      "arm_5prime": "TGCGCGGAGAGCTGATGGAT",
+      "position": 24506,
+      "genomic_start": 98876037,
+      "genomic_end": 98876077,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 77.96107827686188,
+      "tm_3": 62.095712196274235,
+      "tm_5": 61.38900551073874,
+      "tm_diff": 0.7067066855354938,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 62.095712196274235,
+      "tm_5prime": 61.38900551073874,
+      "thermal_filter_passed": true
+    },
+    {
+      "gene_name": "Tuba1a",
+      "sequence": "GGAGTGTCCCACCAGAGCCGAAGAGAGCCACTGCGCGGAG",
+      "target_sequence": "CTCCGCGCAGTGGCTCTCTTCGGCTCTGGTGGGACACTCC",
+      "arm_3prime": "GGAGTGTCCCACCAGAGCCG",
+      "arm_5prime": "AAGAGAGCCACTGCGCGGAG",
+      "position": 24517,
+      "genomic_start": 98876048,
+      "genomic_end": 98876088,
+      "length": 40,
+      "g_content": 0.375,
+      "tm": 79.19233478730939,
+      "tm_3": 60.970143843261496,
+      "tm_5": 63.41774909926528,
+      "tm_diff": 2.447605256003783,
+      "free_energy": 0.0,
+      "strategy": "isoform_consensus",
+      "target_isoforms": [
+        "ENSMUST00000320811"
+      ],
+      "isoform_overlap_num": 1,
+      "isoform_id": "ENSMUST00000320811",
+      "isoform_name": "ENSMUST00000320811",
+      "overlapping_regions": [
+        [
+          98875406,
+          98876242
+        ]
+      ],
+      "tm_3prime": 60.970143843261496,
+      "tm_5prime": 63.41774909926528,
+      "thermal_filter_passed": true
+    }
+  ]
+}

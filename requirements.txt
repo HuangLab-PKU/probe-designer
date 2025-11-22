@@ -1,0 +1,23 @@
+# Core dependencies
+numpy>=1.24.0
+pandas>=1.5.0
+matplotlib>=3.6.0
+biopython>=1.78
+requests>=2.28.0
+pyyaml>=6.0
+tqdm>=4.64.0
+openpyxl>=3.0.9
+beautifulsoup4>=4.12.0
+
+# Jupyter notebook support
+jupyter>=1.0.0
+ipykernel>=6.15.0
+ipython>=8.0.0
+
+# RNA structure prediction
+# ViennaRNA is now available on Windows, Linux, and macOS
+ViennaRNA>=2.7.0
+
+# Optional: Enhanced performance
+# bottleneck>=1.3.0
+# numexpr>=2.8.0

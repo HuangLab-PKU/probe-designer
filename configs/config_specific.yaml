@@ -1,0 +1,55 @@
+# Configuration for finding isoform-specific binding sites
+# Probes unique to individual isoforms
+
+database:
+  database_type: "ensembl"
+  api_key: "your_ncbi_api_key_here"
+  email: "your_email@example.com"
+
+search:
+  search_strategy: "isoform_specific"
+  binding_site_length: 40
+  max_binding_sites: 100
+  window_size: 50
+  step_size: 1
+  genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file)
+
+filter:
+  min_g_content: 0.3
+  max_g_content: 0.7
+  max_consecutive_g: 5
+  min_tm: 50.0
+  max_tm: 70.0
+  max_tm_diff: 10.0
+  min_free_energy: -10.0
+  check_rna_structure: true
+  require_specificity: true
+  final_probes_per_gene: 3
+
+blast:
+  blast_type: "local"
+  database: "refseq_rna"
+  task: "megablast"
+  evalue: 1.0e-5
+  hitlist_size: 100
+  alignments: 500
+  descriptions: 500
+  megablast: true
+  short_query: false
+  filter: "none"
+  format_type: "XML"
+  service: "plain"
+  batch_size: 100
+  concurrency: 3
+  species: ["Mus musculus"]
+
+output:
+  output_dir: "results"
+  save_fasta: true
+  save_json: true
+  save_excel: true
+
+genome:
+  accessor_priority: ["local", "ensembl"]  # Priority order: "local" uses local FASTA file, "ensembl" uses Ensembl API
+
+species: "mouse"

@@ -1,0 +1,33 @@
+{
+  "species": {
+    "mouse": {
+      "organism": "mouse",
+      "coord_system_version": "GRCm39",
+      "genome_fasta_path": "C:/Users/Mingchuan/Huanglab/spatial/probe_design/data/genome/GRCm39.fa",
+      "display_name": "Mus musculus",
+      "taxonomy_id": 10090
+    },
+    "human": {
+      "organism": "human", 
+      "coord_system_version": "GRCh38",
+      "genome_fasta_path": "C:/Users/Mingchuan/Huanglab/spatial/probe_design/data/genome/GRCh38.fa",
+      "display_name": "Homo sapiens",
+      "taxonomy_id": 9606
+    },
+    "rat": {
+      "organism": "rat",
+      "coord_system_version": "mRatBN7.2",
+      "genome_fasta_path": "C:/Users/Mingchuan/Huanglab/spatial/probe_design/data/genome/mRatBN7.2.fa",
+      "display_name": "Rattus norvegicus", 
+      "taxonomy_id": 10116
+    },
+    "zebrafish": {
+      "organism": "zebrafish",
+      "coord_system_version": "GRCz11",
+      "genome_fasta_path": "C:/Users/Mingchuan/Huanglab/spatial/probe_design/data/genome/GRCz11.fa",
+      "display_name": "Danio rerio",
+      "taxonomy_id": 7955
+    }
+  },
+  "default_species": "mouse"
+}
