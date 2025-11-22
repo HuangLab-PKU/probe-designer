@@ -1,6 +1,9 @@
 import os
 import sys
 import argparse
+import shutil
+import logging
+from datetime import datetime
 from typing import List, Dict
 
 # Add src directory to Python path
@@ -10,35 +13,47 @@ from src.config import ConfigManager
 from src.database import DatabaseInterface
 from src.search_strategies import BindingSiteSearcher
 from src.filtering import SequenceFilter
+from src.utils import load_gene_list
 
 
-def read_gene_list(path: str) -> List[str]:
-    with open(path, 'r', encoding='utf-8') as f:
-        return [line.strip() for line in f if line.strip()]
+def setup_logging_and_copy_config(config_file: str, output_dir: str):
+    """Setup logging and copy configuration files to output directory."""
+    # Create logs directory in output
+    logs_dir = os.path.join(output_dir, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    
+    # Create configs directory in output
+    configs_dir = os.path.join(output_dir, "configs")
+    os.makedirs(configs_dir, exist_ok=True)
+    
+    # Setup logging
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(logs_dir, f"probe_design_{timestamp}.log")
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    
+    # Copy config file to configs subdirectory
+    config_dest = os.path.join(configs_dir, "config_used.yaml")
+    shutil.copy2(config_file, config_dest)
+    logging.info(f"Configuration copied to: {config_dest}")
+    
+    # Copy species config if it exists
+    species_config_path = os.path.join(os.path.dirname(config_file), "species_config.json")
+    if os.path.exists(species_config_path):
+        species_dest = os.path.join(configs_dir, "species_config.json")
+        shutil.copy2(species_config_path, species_dest)
+        logging.info(f"Species configuration copied to: {species_dest}")
+    
+    return log_file
 
 
-def build_isoforms_map(db: DatabaseInterface, gene: str) -> List[Dict]:
-    txs = db.get_isoform_sequences(gene)
-    isoforms = []
-    for tx in txs:
-        exons = tx.get('exons', [])
-        if not exons:
-            continue
-        starts = [e.get('start') for e in exons if 'start' in e]
-        ends = [e.get('end') for e in exons if 'end' in e]
-        if not starts or not ends:
-            continue
-        isoforms.append({
-            'id': tx.get('id'),
-            'external_name': tx.get('external_name') or tx.get('id'),
-            'exons': [{'start': e['start'], 'end': e['end']} for e in exons if 'start' in e and 'end' in e],
-            'start': min(starts),
-            'end': max(ends),
-            'strand': tx.get('strand', 1),
-            'seq_region_name': tx.get('seq_region_name', '1'),
-            'seq': tx.get('seq', '')
-        })
-    return isoforms
 
 
 def main():
@@ -69,6 +84,9 @@ def main():
         for error in errors:
             print(f"  - {error}")
         return
+    
+    # Setup logging and copy configuration files
+    setup_logging_and_copy_config(args.config, cfg.output.output_dir)
 
     # Initialize database interface
     db = DatabaseInterface(cfg.database)
@@ -84,14 +102,14 @@ def main():
         accessor = db.ensembl_genome_accessor()
 
     # Read gene list
-    genes = read_gene_list(args.genes_file)
+    genes = load_gene_list(args.genes_file)
     print(f"Processing {len(genes)} genes...")
 
     # Build sequences and isoforms maps
     sequences: Dict[str, Dict] = {}
     isoforms_map: Dict[str, List[Dict]] = {}
     for g in genes:
-        isoforms = build_isoforms_map(db, g)
+        isoforms = db.get_normalized_isoforms(g)
         if not isoforms:
             print(f"Warning: No isoforms found for gene {g}")
             continue

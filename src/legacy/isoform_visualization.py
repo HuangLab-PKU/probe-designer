@@ -111,7 +111,7 @@ def plot_splice_structures(transcripts, figsize=None, ax=None):
         y_level = idx * 2
         ax.set_yticks(range(0, len(transcripts)*2, 2))
         draw_transcript_unique(ax, tx, y_level)
-        ax.set_yticklabels([t['external_name'] for t in transcripts[::-1]], fontsize=10)
+        ax.set_yticklabels([t['display_name'] for t in transcripts[::-1]], fontsize=10)
     # 设置图例
     legend_elements = list({Line2D([0], [0], color=v['color'], lw=v['lw'], label=v['label']) 
                            for seq_type in ['exon', 'intron'] 
@@ -172,7 +172,7 @@ def plot_overlap_structures(transcripts, figsize=None, ax=None):
         y_level = idx * 2
         ax.set_yticks(range(0, len(transcripts)*2, 2))
         draw_transcript_overlap(ax, tx, y_level)
-        ax.set_yticklabels([t['external_name'] for t in transcripts[::-1]], fontsize=10)
+        ax.set_yticklabels([t['display_name'] for t in transcripts[::-1]], fontsize=10)
     # 设置图例
     max_overlap_num = max(tx.get('exon_splices_count', {}).values(), default=1)+1
     legend_elements = list({Line2D([0], [0], color=v['color'], lw=v['lw'], label=v['label']) 

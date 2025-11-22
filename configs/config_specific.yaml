@@ -12,13 +12,14 @@ search:
   max_binding_sites: 100
   window_size: 50
   step_size: 1
+  genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file)
 
 filter:
   min_g_content: 0.3
   max_g_content: 0.7
-  max_consecutive_g: 3
+  max_consecutive_g: 5
   min_tm: 50.0
-  max_tm: 80.0
+  max_tm: 70.0
   max_tm_diff: 10.0
   min_free_energy: -10.0
   check_rna_structure: true
@@ -49,6 +50,6 @@ output:
   save_excel: true
 
 genome:
-  use_local_first: true
+  accessor_priority: ["local", "ensembl"]  # Priority order: "local" uses local FASTA file, "ensembl" uses Ensembl API
 
 species: "mouse"

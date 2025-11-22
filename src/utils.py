@@ -4,6 +4,7 @@ Utility functions for the probe design system.
 
 import os
 import json
+import re
 import time
 import random
 import string
@@ -69,27 +70,58 @@ def create_output_directory(base_dir: str, create_timestamp: bool = True) -> str
     return output_dir
 
 
-def load_gene_list(file_path: str, gene_column: str = "gene_name") -> List[str]:
-    """Load gene list from .xlsx/.csv/.txt and return a clean list of strings."""
+def load_gene_list(file_path: str, gene_column: Optional[str] = None) -> List[str]:
+    """
+    Load gene list from .xlsx/.xls/.csv/.txt file.
+    
+    For Excel/CSV files:
+        - If gene_column is specified, uses that column
+        - If gene_column is None, uses the first column
+    For text files:
+        - Reads one gene name per line
+    
+    Args:
+        file_path: Path to gene list file
+        gene_column: Column name for Excel/CSV files (None = use first column)
+        
+    Returns:
+        List of gene names (strings)
+    """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Gene list file not found: {file_path}")
+    
     file_ext = Path(file_path).suffix.lower()
+    
     if file_ext in ('.xlsx', '.xls'):
         df = pd.read_excel(file_path)
+        # Use first column if gene_column not specified
+        if gene_column is None:
+            gene_column = df.columns[0]
+        elif gene_column not in df.columns:
+            available_columns = list(df.columns)
+            raise ValueError(f"Column '{gene_column}' not found. Available: {available_columns}")
+        gene_list = [str(gene).strip() for gene in df[gene_column].dropna() 
+                    if str(gene).strip() and str(gene).strip().lower() != 'nan']
+    
     elif file_ext == '.csv':
         df = pd.read_csv(file_path)
+        # Use first column if gene_column not specified
+        if gene_column is None:
+            gene_column = df.columns[0]
+        elif gene_column not in df.columns:
+            available_columns = list(df.columns)
+            raise ValueError(f"Column '{gene_column}' not found. Available: {available_columns}")
+        gene_list = [str(gene).strip() for gene in df[gene_column].dropna() 
+                    if str(gene).strip() and str(gene).strip().lower() != 'nan']
+    
     elif file_ext == '.txt':
-        df = pd.read_csv(file_path, sep='\t', header=None, names=[gene_column])
+        # Plain text file: one gene per line
+        with open(file_path, 'r', encoding='utf-8') as f:
+            gene_list = [line.strip() for line in f if line.strip()]
+    
     else:
-        raise ValueError(f"Unsupported file format: {file_ext}")
-    if gene_column not in df.columns:
-        available_columns = list(df.columns)
-        raise ValueError(f"Column '{gene_column}' not found. Available: {available_columns}")
-    gene_list = []
-    for gene in df[gene_column].dropna():
-        gene_str = str(gene).strip()
-        if gene_str and gene_str != '0' and gene_str != 'nan':
-            gene_list.append(gene_str)
+        raise ValueError(f"Unsupported file format: {file_ext}. Supported: .xlsx, .xls, .csv, .txt")
+    
     return gene_list
 
 
