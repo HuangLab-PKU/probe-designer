@@ -1,8 +1,10 @@
 # cache
-lib/__pycache__/*
+*/__pycache__/*
+*.pyc
 
 # test
-test/*
+test/
+local/
 
 # dataset
 dataset/*
