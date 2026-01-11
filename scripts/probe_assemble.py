@@ -60,7 +60,7 @@ def load_binding_sites_from_excel(excel_file: str) -> Dict[str, List[Dict[str, A
     df = pd.read_excel(excel_file)
     
     # Validate required columns
-    required_cols = ['gene_name', 'arm3', 'arm5', 'st', 'en', 'g_content', 'tm']
+    required_cols = ['gene_name', 'arm3', 'arm5', 'st', 'en', 'g_content', 'tm', 'tm3', 'tm5']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
         raise ValueError(f"Excel file missing required columns: {missing_cols}")
@@ -78,8 +78,15 @@ def load_binding_sites_from_excel(excel_file: str) -> Dict[str, List[Dict[str, A
             'st': int(row['st']),
             'en': int(row['en']),
             'g_content': float(row['g_content']),
-            'tm': float(row['tm'])
+            'tm': float(row['tm']),
+            'tm_3prime': float(row['tm3']),
+            'tm_5prime': float(row['tm5'])
         }
+        
+        # Optional fields
+        if 'isoform_overlap_num' in row:
+            site['isoform_overlap_num'] = row['isoform_overlap_num']
+            
         binding_sites[gene_name].append(site)
     
     print(f"Loaded {sum(len(sites) for sites in binding_sites.values())} binding sites from {len(binding_sites)} genes")
@@ -89,7 +96,6 @@ def load_binding_sites_from_excel(excel_file: str) -> Dict[str, List[Dict[str, A
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(description="Probe assembly tool")
-    
     parser.add_argument("--binding_sites", required=True, help="Binding sites file path (JSON or Excel)")
     parser.add_argument("--gene_info", required=True, help="Gene info Excel file path (must contain gene_name and No. columns)")
     parser.add_argument("--backbone_file", required=True, help="Backbone Excel file path (must contain No. and Sequence columns)")
@@ -126,11 +132,10 @@ def main():
     # Assemble probes
     print("Starting probe assembly...")
     probe_df = assembler.assemble_probes(binding_sites, args.gene_info)
-    
+    probe_df['backbone_file'] = os.path.basename(args.backbone_file)
     if probe_df.empty:
         print("Warning: No probes generated")
         return
-    
     # Optional: Add iLock modification
     if args.ilock:
         print(f"Adding iLock modification (position: {args.ilock})...")

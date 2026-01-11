@@ -130,7 +130,7 @@ class ProbeAssembler:
                         site['arm_3prime'].lower(),
                         backbone
                     )
-                    probe_records.append({
+                    record = {
                         'gene_name': gene_name,
                         'probe_id': probe_id,
                         'probe_seq': probe_seq,
@@ -140,8 +140,13 @@ class ProbeAssembler:
                         'st': site['st'],
                         'en': site['en'],
                         'g_content': site['g_content'],
-                        'tm': site['tm']
-                    })
+                        'tm': site['tm'],
+                        'tm_3prime': site.get('tm_3prime'),
+                        'tm_5prime': site.get('tm_5prime')
+                    }
+                    if 'isoform_overlap_num' in site:
+                        record['isoform_overlap_num'] = site['isoform_overlap_num']
+                    probe_records.append(record)
             
             elif isinstance(probe_ids, list):
                 # Per-site mode: one No. per binding site
@@ -159,7 +164,7 @@ class ProbeAssembler:
                         site['arm_3prime'],
                         backbone
                     )
-                    probe_records.append({
+                    record = {
                         'gene_name': gene_name,
                         'probe_id': probe_id,
                         'probe_seq': probe_seq,
@@ -169,8 +174,13 @@ class ProbeAssembler:
                         'st': site['st'],
                         'en': site['en'],
                         'g_content': site['g_content'],
-                        'tm': site['tm']
-                    })
+                        'tm': site['tm'],
+                        'tm_3prime': site.get('tm_3prime'),
+                        'tm_5prime': site.get('tm_5prime')
+                    }
+                    if 'isoform_overlap_num' in site:
+                        record['isoform_overlap_num'] = site['isoform_overlap_num']
+                    probe_records.append(record)
             else:
                 raise ValueError(f"Invalid gene_info format for gene '{gene_name}'. Expected str/int or list, got {type(probe_ids)}")
         

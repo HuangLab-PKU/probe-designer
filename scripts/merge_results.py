@@ -247,15 +247,10 @@ Example usage:
   python merge_results.py --results-dir results/ --gene-info gene_info.xlsx --output merged.xlsx --missing-output missing_genes.txt
         """
     )
-    
-    parser.add_argument("--results-dir", "-r", required=True, 
-                       help="Results directory path (will traverse all subdirectories)")
-    parser.add_argument("--gene-info", "-g", required=True,
-                       help="Gene info Excel file path (must contain gene_name and No. columns)")
-    parser.add_argument("--output", "-o", required=True,
-                       help="Output file path (merged binding sites Excel file)")
-    parser.add_argument("--missing-output", "-m",
-                       help="Missing genes output file path (default: same directory as output file)")
+    parser.add_argument("--results-dir", "-r", required=True, help="Results directory path (will traverse all subdirectories)")
+    parser.add_argument("--gene-info", "-g", required=True, help="Gene info Excel file path (must contain gene_name and No. columns)")
+    parser.add_argument("--output", "-o", required=True, help="Output file path (merged binding sites Excel file)")
+    parser.add_argument("--missing-output", "-m", help="Missing genes output file path (default: same directory as output file)")
     
     args = parser.parse_args()
     
