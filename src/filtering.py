@@ -1116,6 +1116,10 @@ class SequenceFilter:
                     'en': site['en'],
                 }
                 
+                # Add isoform_overlap_num if available (for consensus mode)
+                if 'isoform_overlap_num' in site:
+                    site_data['isoform_overlap_num'] = site['isoform_overlap_num']
+                
                 # Add BLAST information if available
                 if 'blast_alignments' in site:
                     site_data['blast_evalue'] = site['blast_evalue']

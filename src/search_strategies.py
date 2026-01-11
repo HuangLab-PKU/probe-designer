@@ -473,14 +473,33 @@ class IsoformAwareStrategy(SearchStrategy):
         if self.mode == 'consensus':
             # Prefer higher coverage then spacing optimization
             candidates.sort(key=lambda x: (-x['isoform_overlap_num'], x['st']))
+            
+            # If we have many candidates, pre-filter to keep only the highest coverage ones
+            # This ensures that spacing optimization (which ignores coverage) operates only on high-quality candidates
+            if len(candidates) > self.search_config.max_binding_sites:
+                # Keep top 3x candidates to give optimizer room for spacing
+                # This prevents low-coverage well-spaced sites from displacing high-coverage sites
+                pool_size = min(len(candidates), self.search_config.max_binding_sites * 3)
+                candidates = candidates[:pool_size]
+                
         else:
             # For specific mode, just sort by genomic position
             candidates.sort(key=lambda x: x['st'])
         
         if len(candidates) > self.search_config.max_binding_sites:
+            # Optimization needs positions sorted by coordinate
+            candidates.sort(key=lambda x: x['st'])
             positions = [c['st'] for c in candidates]
             selected = self._optimize_subsequence(positions, self.search_config.max_binding_sites, 0, 0, gene_name)
-            candidates = [c for c in candidates if c['st'] in selected]
+            
+            # Filter candidates to keep only selected positions
+            # Note: We need to handle potential duplicate positions if they exist (unlikely in same gene same strand)
+            selected_set = set(selected)
+            candidates = [c for c in candidates if c['st'] in selected_set]
+            
+            # If consensus mode, re-sort by coverage for final output
+            if self.mode == 'consensus':
+                candidates.sort(key=lambda x: (-x['isoform_overlap_num'], x['st']))
         
         return candidates
 
