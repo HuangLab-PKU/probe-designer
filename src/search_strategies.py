@@ -184,11 +184,16 @@ class BruteForceStrategy(SearchStrategy):
                         else:
                             genomic_end = g_end - rel_pos
                             genomic_start = genomic_end - bds_len
+                    strand_str = "+" if strand in (1, None) else "-"
                     binding_sites.append({
                         'gene_name': gene_name,
                         'sequence': candidate['sequence'],
+                        'target_sequence': candidate['target_sequence'],
+                        'arm_3prime': candidate['arm_3prime'],
+                        'arm_5prime': candidate['arm_5prime'],
                         'st': genomic_start,
                         'en': genomic_end,
+                        'strand': strand_str,
                         'length': bds_len,
                         'g_content': candidate['g_content'],
                         'tm': candidate['tm'],
