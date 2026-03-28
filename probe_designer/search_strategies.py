@@ -155,54 +155,43 @@ class BruteForceStrategy(SearchStrategy):
                     'free_energy': thermal_result['free_energy']
                 })
         
-        # Optimize selection using subsequence optimization
+        # Build results from ALL passing candidates (no limit)
         if candidates:
-            positions = [c['pos'] for c in candidates]
-            optimized_positions = self._optimize_subsequence(
-                positions, 
-                self.search_config.max_binding_sites,
-                min_gap=1,  # Updated gap parameters
-                better_gap=1,
-                gene=gene_name
-            )
-            
-            # Build final results with genomic coordinates when context available
             binding_sites = []
             strand = self.genomic_context.get('strand')
             g_start = self.genomic_context.get('start')
             g_end = self.genomic_context.get('end')
-            
+
             for candidate in candidates:
-                if candidate['pos'] in optimized_positions:
-                    rel_pos = candidate['pos']
-                    genomic_start = None
-                    genomic_end = None
-                    if strand in (1, -1) and isinstance(g_start, int) and isinstance(g_end, int):
-                        if strand == 1:
-                            genomic_start = g_start + rel_pos
-                            genomic_end = genomic_start + bds_len
-                        else:
-                            genomic_end = g_end - rel_pos
-                            genomic_start = genomic_end - bds_len
-                    strand_str = "+" if strand in (1, None) else "-"
-                    binding_sites.append({
-                        'gene_name': gene_name,
-                        'sequence': candidate['sequence'],
-                        'target_sequence': candidate['target_sequence'],
-                        'arm_3prime': candidate['arm_3prime'],
-                        'arm_5prime': candidate['arm_5prime'],
-                        'st': genomic_start if genomic_start is not None else rel_pos,
-                        'en': genomic_end if genomic_end is not None else rel_pos + bds_len,
-                        'strand': strand_str,
-                        'length': bds_len,
-                        'g_content': candidate['g_content'],
-                        'tm': candidate['tm'],
-                        'tm_3': candidate['tm_3'],
-                        'tm_5': candidate['tm_5'],
-                        'tm_diff': candidate['tm_diff'],
-                        'free_energy': candidate['free_energy'],
-                        'strategy': 'brute_force'
-                    })
+                rel_pos = candidate['pos']
+                genomic_start = None
+                genomic_end = None
+                if strand in (1, -1) and isinstance(g_start, int) and isinstance(g_end, int):
+                    if strand == 1:
+                        genomic_start = g_start + rel_pos
+                        genomic_end = genomic_start + bds_len
+                    else:
+                        genomic_end = g_end - rel_pos
+                        genomic_start = genomic_end - bds_len
+                strand_str = "+" if strand in (1, None) else "-"
+                binding_sites.append({
+                    'gene_name': gene_name,
+                    'sequence': candidate['sequence'],
+                    'target_sequence': candidate['target_sequence'],
+                    'arm_3prime': candidate['arm_3prime'],
+                    'arm_5prime': candidate['arm_5prime'],
+                    'st': genomic_start if genomic_start is not None else rel_pos,
+                    'en': genomic_end if genomic_end is not None else rel_pos + bds_len,
+                    'strand': strand_str,
+                    'length': bds_len,
+                    'g_content': candidate['g_content'],
+                    'tm': candidate['tm'],
+                    'tm_3': candidate['tm_3'],
+                    'tm_5': candidate['tm_5'],
+                    'tm_diff': candidate['tm_diff'],
+                    'free_energy': candidate['free_energy'],
+                    'strategy': 'brute_force'
+                })
             
             return binding_sites
         
@@ -491,21 +480,7 @@ class IsoformAwareStrategy(SearchStrategy):
             # For specific mode, just sort by genomic position
             candidates.sort(key=lambda x: x['st'])
         
-        if len(candidates) > self.search_config.max_binding_sites:
-            # Optimization needs positions sorted by coordinate
-            candidates.sort(key=lambda x: x['st'])
-            positions = [c['st'] for c in candidates]
-            selected = self._optimize_subsequence(positions, self.search_config.max_binding_sites, 0, 0, gene_name)
-            
-            # Filter candidates to keep only selected positions
-            # Note: We need to handle potential duplicate positions if they exist (unlikely in same gene same strand)
-            selected_set = set(selected)
-            candidates = [c for c in candidates if c['st'] in selected_set]
-            
-            # If consensus mode, re-sort by coverage for final output
-            if self.mode == 'consensus':
-                candidates.sort(key=lambda x: (-x['isoform_overlap_num'], x['st']))
-        
+        # Return ALL candidates (scoring and peak-ranking handled by caller)
         return candidates
 
 
