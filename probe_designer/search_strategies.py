@@ -209,7 +209,7 @@ class ExonJunctionStrategy(SearchStrategy):
         for pos in junction_positions:
             sites = self._search_around_position(sequence, pos, gene_name)
             binding_sites.extend(sites)
-        return binding_sites[:self.search_config.max_binding_sites]
+        return binding_sites  # return ALL (scoring/ranking handled by caller)
     
     def _search_around_position(self, sequence: str, center_pos: int, gene_name: str) -> List[Dict[str, Any]]:
         sites = []
@@ -470,11 +470,7 @@ class IsoformAwareStrategy(SearchStrategy):
             
             # If we have many candidates, pre-filter to keep only the highest coverage ones
             # This ensures that spacing optimization (which ignores coverage) operates only on high-quality candidates
-            if len(candidates) > self.search_config.max_binding_sites:
-                # Keep top 3x candidates to give optimizer room for spacing
-                # This prevents low-coverage well-spaced sites from displacing high-coverage sites
-                pool_size = min(len(candidates), self.search_config.max_binding_sites * 3)
-                candidates = candidates[:pool_size]
+            # Return ALL candidates (scoring/ranking handled by caller)
                 
         else:
             # For specific mode, just sort by genomic position

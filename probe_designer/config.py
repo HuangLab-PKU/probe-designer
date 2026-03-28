@@ -24,7 +24,7 @@ class DatabaseConfig:
 class SearchConfig:
     """Binding site search configuration."""
     binding_site_length: int = 40  # binding site length
-    max_binding_sites: int = 30  # max sites per gene
+    max_binding_sites: int = 999999  # effectively unlimited (scoring handles ranking)
     search_strategy: str = "exon_junction"  # exon_junction, brute_force, isoform_specific
     step_size: Optional[int] = None  # step size for brute_force
     genes_file: Optional[str] = None  # path to gene list file (can be overridden by command line)
