@@ -5,6 +5,7 @@ Implements pre- and post-BLAST filtering rules.
 
 import os
 import json
+import warnings
 import pandas as pd
 from typing import List, Dict, Any, Optional, Literal
 from Bio.Blast import NCBIXML
@@ -13,10 +14,12 @@ from Bio.SeqUtils import MeltingTemp as mt
 # from concurrent.futures import ThreadPoolExecutor, as_completed  # Imported when needed
 
 try:
-    from .config import FilterConfig, BlastConfig
+    import RNA
+    _HAS_VIENNARNA = True
 except ImportError:
-    # Fallback for when running as standalone
-    from config import FilterConfig, BlastConfig
+    _HAS_VIENNARNA = False
+
+from .config import FilterConfig, BlastConfig
 
 
 class SequenceFilter:
@@ -142,17 +145,16 @@ class SequenceFilter:
         
         # 6. Check RNA secondary structure (if enabled and target sequence provided)
         if check_rna_structure and target_sequence and target_type == "RNA":
-            try:
-                import RNA
-                _, mfe = RNA.fold(target_sequence)
-                result['free_energy'] = mfe
-                if mfe < min_free_energy:
-                    result['failed_checks'].append('rna_structure')
-            except ImportError:
-                # RNAfold not available, skip this check
-                pass
-            except Exception:
-                result['failed_checks'].append('rna_structure_error')
+            if not _HAS_VIENNARNA:
+                warnings.warn("ViennaRNA not installed; skipping RNA structure check")
+            else:
+                try:
+                    _, mfe = RNA.fold(target_sequence)
+                    result['free_energy'] = mfe
+                    if mfe < min_free_energy:
+                        result['failed_checks'].append('rna_structure')
+                except Exception:
+                    result['failed_checks'].append('rna_structure_error')
         
         # 7. Determine if all checks passed
         result['passed'] = len(result['failed_checks']) == 0
@@ -1174,13 +1176,12 @@ class RNAStructureFilter:
     
     def check_rna_structure(self, sequence: str) -> bool:
         """Check RNA secondary structure free energy threshold."""
+        if not _HAS_VIENNARNA:
+            warnings.warn("ViennaRNA not installed; skipping RNA structure check")
+            return True
         try:
-            import RNA
             structure, energy = RNA.fold(sequence)
             return energy >= self.min_free_energy
-        except ImportError:
-            print("Warning: RNAfold not installed, skipping RNA structure check")
-            return True
         except Exception as e:
             print(f"RNA structure check failed: {e}")
             return True

@@ -10,11 +10,11 @@ from typing import List, Dict
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.config import ConfigManager
-from src.database import DatabaseInterface
-from src.search_strategies import BindingSiteSearcher
-from src.filtering import SequenceFilter
-from src.utils import load_gene_list
+from probe_designer.config import ConfigManager
+from probe_designer.database import DatabaseInterface
+from probe_designer.search_strategies import BindingSiteSearcher
+from probe_designer.filtering import SequenceFilter
+from probe_designer.utils import load_gene_list
 
 
 def setup_logging_and_copy_config(config_file: str, output_dir: str, cfg=None):

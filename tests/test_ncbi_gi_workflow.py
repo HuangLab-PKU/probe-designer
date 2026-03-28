@@ -5,11 +5,8 @@ import sys
 import pytest
 from unittest.mock import patch, MagicMock
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-from config import DatabaseConfig
-from database import DatabaseInterface
+from probe_designer.config import DatabaseConfig
+from probe_designer.database import DatabaseInterface
 
 
 # ---------------------------------------------------------------------------

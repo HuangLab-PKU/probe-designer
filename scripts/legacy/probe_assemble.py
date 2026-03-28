@@ -15,7 +15,7 @@ from typing import Optional
 
 # 添加src目录到路径
 import sys
-sys.path.append(str(Path(__file__).parent.parent / "src"))
+sys.path.append(str(Path(__file__).parent.parent))
 
 # 延迟导入条形码工具，避免在仅使用BACKBONE模式时的硬依赖
 def _lazy_load_barcode_data(panel: str, barcode_dir: Path) -> pd.DataFrame:

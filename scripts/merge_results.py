@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import List, Set, Dict
 
 # Add src directory to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 def find_filtered_binding_sites_files(results_dir: str) -> List[str]:

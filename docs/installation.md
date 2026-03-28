@@ -61,7 +61,7 @@ pip install -r code/requirements.txt
 
 ```bash
 # Test basic functionality
-python -c "import src.mutation_probe; print('Installation successful!')"
+python -c "import probe_designer; print('Installation successful!')"
 
 # Test ViennaRNA installation
 python -c "import RNA; print('ViennaRNA version:', RNA.__version__)"

@@ -44,10 +44,10 @@ These modules have been replaced by the new modular architecture:
 These modules are primarily for reference. If you need to use the original functionality, you can import them directly:
 
 ```python
-from src.legacy import search_binding, database_ensembl
+from probe_designer.legacy import search_binding, database_ensembl
 ```
 
-However, it's recommended to use the new modular architecture in `src/` for better maintainability and features.
+However, it's recommended to use the new modular architecture in `probe_designer/` for better maintainability and features.
 
 ## Notes
 

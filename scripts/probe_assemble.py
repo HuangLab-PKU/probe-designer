@@ -18,8 +18,8 @@ from typing import Dict, List, Any
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.config import ProbeConfig
-from src.probe_assembly import ProbeAssembler
+from probe_designer.config import ProbeConfig
+from probe_designer.probe_assembly import ProbeAssembler
 
 
 def load_binding_sites_from_json(json_file: str) -> Dict[str, List[Dict[str, Any]]]:

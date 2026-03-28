@@ -21,8 +21,8 @@ from typing import List, Dict, Optional
 # Add src directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.config import ConfigManager
-from src.utils import load_gene_list
+from probe_designer.config import ConfigManager
+from probe_designer.utils import load_gene_list
 
 
 def run_probe_design(genes_file: str, config_file: str, output_dir: str, 

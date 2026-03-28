@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "probe-designer"
+version = "0.1.0"
+description = "Padlock probe design pipeline for spatial transcriptomics"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "biopython",
+    "requests",
+    "pyyaml",
+    "tqdm",
+    "openpyxl",
+    "beautifulsoup4",
+]
+
+[project.optional-dependencies]
+structure = ["ViennaRNA>=2.7.0"]
+mutation = []
+all = ["probe-designer[structure,mutation]"]
+dev = ["pytest", "pytest-cov"]
+
+[tool.setuptools.packages.find]
+include = ["probe_designer*"]

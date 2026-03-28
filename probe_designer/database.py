@@ -13,9 +13,7 @@ from Bio.SeqRecord import SeqRecord
 from tqdm import tqdm
 from math import ceil
 
-# Import config from the correct location
-try: from .config import DatabaseConfig, GenomeConfig
-except ImportError: from config import DatabaseConfig, GenomeConfig
+from .config import DatabaseConfig, GenomeConfig
 
 
 class DatabaseInterface:

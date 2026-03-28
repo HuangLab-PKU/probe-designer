@@ -19,13 +19,8 @@ import logging
 from tqdm import tqdm
 from copy import deepcopy
 
-try:
-    from .config import SearchConfig, FilterConfig, BlastConfig
-    from .filtering import SequenceFilter
-except ImportError:
-    # Fallback for when running as standalone
-    from config import SearchConfig, FilterConfig, BlastConfig
-    from filtering import SequenceFilter
+from probe_designer.config import SearchConfig, FilterConfig, BlastConfig
+from probe_designer.filtering import SequenceFilter
 
 
 class MutationProbeDesigner:
