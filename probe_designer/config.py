@@ -34,7 +34,7 @@ class SearchConfig:
 class FilterConfig:
     """Sequence filtering configuration."""
     # Pre-BLAST rules (thermal properties)
-    min_g_content: float = 0.4  # min G fraction
+    min_g_content: float = 0.3  # min G fraction per arm
     max_g_content: float = 0.7  # max G fraction
     max_consecutive_g: int = 4  # max consecutive Gs allowed
     min_tm: float = 45.0  # min melting temperature
