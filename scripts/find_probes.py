@@ -57,7 +57,9 @@ def setup_logging_and_copy_config(config_file: str, output_dir: str):
 
 def main():
     parser = argparse.ArgumentParser(description="Find binding sites using brute force strategy (works with Ensembl and NCBI)")
-    parser.add_argument('--genes_file', required=True, help='Path to a text file of gene names (one per line)')
+    gene_group = parser.add_mutually_exclusive_group(required=True)
+    gene_group.add_argument('--genes_file', help='Path to a text file of gene names (one per line)')
+    gene_group.add_argument('--gene_info', help='Excel file with gene_name, GI columns (auto-detects NCBI IDs)')
     parser.add_argument('--config', default='configs/config_bruteforce.yaml', help='Path to configuration file')
     parser.add_argument('--species', default='mouse', help='Species name (mouse, human, rat, zebrafish)')
     parser.add_argument('--database', choices=['ensembl', 'ncbi'], help='Database type (overrides config)')
@@ -93,22 +95,28 @@ def main():
     # Initialize database interface
     db = DatabaseInterface(cfg.database)
 
-    # Prepare genome accessor - prefer local, fallback to Ensembl
+    # Prepare genome accessor using priority chain
     accessor = None
-    if cfg.genome.use_local_first and cfg.genome.genome_fasta_path and os.path.exists(cfg.genome.genome_fasta_path):
-        print(f"Using local genome: {cfg.genome.genome_fasta_path}")
-        accessor = db.local_genome_accessor(cfg.genome.genome_fasta_path)
-    
-    if accessor is None and cfg.database.database_type == 'ensembl':
-        print("Using Ensembl genome accessor")
-        accessor = db.ensembl_genome_accessor()
+    try:
+        accessor = db.initialize_genome_accessor(cfg.genome)
+    except RuntimeError as e:
+        print(f"Warning: genome accessor not available ({e}), proceeding without it")
 
-    # Read gene list
-    genes = load_gene_list(args.genes_file)
+    # Read gene list (from --genes_file or --gene_info)
+    gene_ids = None
+    if args.gene_info:
+        import pandas as pd
+        df = pd.read_excel(args.gene_info)
+        genes = df['gene_name'].astype(str).str.strip().tolist()
+        if 'GI' in df.columns:
+            gene_ids = df['GI'].astype(str).str.strip().tolist()
+            cfg.database.database_type = 'ncbi'
+    else:
+        genes = load_gene_list(args.genes_file)
     print(f"Processing {len(genes)} genes using {cfg.database.database_type} database...")
 
     # Get gene sequences (unpack result structure)
-    seq_result = db.get_gene_sequences(genes)
+    seq_result = db.get_gene_sequences(genes, gene_ids=gene_ids)
     sequences = seq_result.get('sequences', {}) if isinstance(seq_result, dict) else seq_result
     errors = seq_result.get('errors', {}) if isinstance(seq_result, dict) else {}
     print(f"Retrieved sequences for {len(sequences)} genes")
@@ -157,7 +165,7 @@ def main():
             new_site = dict(site)
             new_site['arm_3prime'] = arm_3prime
             new_site['arm_5prime'] = arm_5prime
-            new_site['target_sequence'] = target_seq
+            new_site['target_sequence'] = probe_seq
             enriched_sites[gene].append(new_site)
 
     # Initialize filter and run full pipeline (batch APIs)

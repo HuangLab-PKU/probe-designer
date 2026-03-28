@@ -141,12 +141,12 @@ class DatabaseInterface:
         else:
             raise NotImplementedError("Isoform analysis supported for Ensembl only")
 
-    def get_gene_sequences(self, gene_list: List[str]) -> Dict[str, Any]:
+    def get_gene_sequences(self, gene_list: List[str], gene_ids: List[str] = None) -> Dict[str, Any]:
         """Retrieve sequences for a list of genes."""
         if self.config.database_type == "ensembl":
             return self._ensembl_get_gene_sequences(gene_list)
         elif self.config.database_type == "ncbi":
-            return self._get_ncbi_sequences(gene_list)
+            return self._get_ncbi_sequences(gene_list, gene_ids=gene_ids)
         else:
             raise ValueError(f"Unsupported database type: {self.config.database_type}")
     
@@ -255,13 +255,14 @@ class DatabaseInterface:
             return None
      
 
-    def _get_ncbi_sequences(self, gene_list: List[str]) -> Dict[str, Any]:
+    def _get_ncbi_sequences(self, gene_list: List[str], gene_ids: List[str] = None) -> Dict[str, Any]:
         """Fetch sequences from NCBI using Entrez API."""
         sequences_of_all = {}
         error_messages = {gene: [] for gene in gene_list}
-        
-        # Step 1: Get gene IDs for each gene
-        gene_ids = self._ncbi_get_gene_ids(gene_list)
+
+        # Step 1: Get gene IDs (skip search if preset IDs provided)
+        if gene_ids is None:
+            gene_ids = self._ncbi_get_gene_ids(gene_list)
         
         # Step 2: Fetch GenBank records in batches
         genbank_records = self._ncbi_fetch_genbank_records(gene_ids)

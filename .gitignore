@@ -1,39 +1,22 @@
-# 忽略编辑器配置
+# test and local files
+test/
+local/
+experiments/
+
+# IDE
 .vscode/
+.cursor/
 .idea/
 *.swp
 *.swo
 
-# 忽略系统和临时文件
+# System and temporary files
 .DS_Store
 *.log
 *.tmp
 Thumbs.db
 desktop.ini
 
-# cache
+# Cache
 */__pycache__/
 *.pyc
-
-# test
-/test/
-
-# local files
-/local/
-
-# dataset
-dataset/*
-!dataset/_example_dataset
-!dataset/_example_dataset/**
-
-# local files
-.localuse*
-binding_searcher**
-!binding_searcher_ensembl.ipynb
-!binding_searcher_NCBI.ipynb
-!binding_searcher.ipynb
-
-probe_stitch**
-!probe_stitch.ipynb
-probe_specificity**
-binding_batch_blast.ipynb

@@ -31,9 +31,13 @@ except ImportError:
 class MutationProbeDesigner:
     """Designs padlock probes for mutation detection."""
     
-    def __init__(self, search_config: SearchConfig, filter_config: FilterConfig):
+    def __init__(self, search_config: SearchConfig, filter_config: FilterConfig,
+                 target_type: str = "RNA"):
+        if target_type not in ("RNA", "DNA"):
+            raise ValueError(f"target_type must be 'RNA' or 'DNA', got {repr(target_type)}")
         self.search_config = search_config
         self.filter_config = filter_config
+        self.target_type = target_type  # "RNA" for mRNA, "DNA" for cDNA
         self.filter = SequenceFilter(filter_config, BlastConfig())
     
     def _global_to_local_pos(self, global_pos: int, global_start: int) -> int:
@@ -208,24 +212,30 @@ class MutationProbeDesigner:
         arm5_seq = target_seq[pos5_target+1-arm5_len:pos5_target+1]  # Left arm from target
         arm3_seq = target_seq[pos3_target:pos3_target+arm3_len]  # Right arm from target
         
-        # Step 3: Generate padlock arms (reverse complementary to target sequence)
-        probe_arm5 = self._reverse_complement(arm5_seq)
-        probe_arm3 = self._reverse_complement(arm3_seq)
+        # Step 3: Generate padlock arms based on target type
+        if self.target_type == "RNA":
+            # mRNA targeting: padlock arms = RC(mRNA region)
+            probe_arm5 = self._reverse_complement(arm5_seq)
+            probe_arm3 = self._reverse_complement(arm3_seq)
+        else:
+            # cDNA targeting: cDNA = RC(mRNA), so padlock arms = mRNA sequence
+            # Arms are swapped because cDNA runs antiparallel to mRNA
+            probe_arm5 = arm3_seq
+            probe_arm3 = arm5_seq
         
         # Step 4: Create binding sequence (plp arm 3' + plp arm 5')
         binding_seq = probe_arm3 + probe_arm5
         
-        # Step 5: Create target_sequence (arm5_seq + gap + arm3_seq)
-        # For padlock probes, arms are typically adjacent, so no gap
-        target_sequence = arm5_seq + arm3_seq
-        
+        # Step 5: Create target_sequence (the actual target strand the probe binds)
+        if self.target_type == "RNA":
+            target_sequence = arm5_seq + arm3_seq  # mRNA sequence
+        else:
+            target_sequence = self._reverse_complement(arm5_seq + arm3_seq)  # cDNA sequence
+
         return {
-            # 'arm5_seq': arm5_seq,  # mRNA sequence (5' arm region)
-            # 'arm3_seq': arm3_seq,  # mRNA sequence (3' arm region)
             'probe_arm5': probe_arm5,  # Padlock 5' arm
             'probe_arm3': probe_arm3,  # Padlock 3' arm
-            # 'binding_seq': binding_seq,  # Complete binding sequence
-            'target_sequence': target_sequence,  # Complete target mRNA sequence
+            'target_sequence': target_sequence,  # Actual target sequence (mRNA or cDNA)
             'pos5_target': pos5_target,  # pos5 in target sequence coordinates
             'pos3_target': pos3_target   # pos3 in target sequence coordinates
         }
@@ -236,7 +246,7 @@ class MutationProbeDesigner:
             arm3,  # 3' arm
             arm5,  # 5' arm
             sequence_type="DNA",
-            target_type="RNA",
+            target_type=self.target_type,
             target_sequence=target_seq
         )
         
@@ -493,19 +503,21 @@ class MutationProbeDesigner:
         return probes
 
 
-def design_mutation_probes(mut_info_list: List[Dict[str, Any]], 
-                          genome_accessor, plp_params: Dict[str, Any], 
-                          pad: int = 50, filter_config: FilterConfig = None) -> List[Dict[str, Any]]:
+def design_mutation_probes(mut_info_list: List[Dict[str, Any]],
+                          genome_accessor, plp_params: Dict[str, Any],
+                          pad: int = 50, filter_config: FilterConfig = None,
+                          target_type: str = "RNA") -> List[Dict[str, Any]]:
     """
     Convenience function to design mutation probes.
-    
+
     Args:
         mut_info_list: List of mutation information dictionaries
         genome_accessor: Function to access genome sequence
         plp_params: Probe design parameters
         pad: Padding around mutation site
         filter_config: Optional filter configuration
-        
+        target_type: "RNA" for mRNA targeting, "DNA" for cDNA targeting
+
     Returns:
         List of mutation information with designed probes
     """
@@ -513,9 +525,9 @@ def design_mutation_probes(mut_info_list: List[Dict[str, Any]],
     search_config = SearchConfig()
     if filter_config is None:
         filter_config = FilterConfig()
-    
+
     # Create designer
-    designer = MutationProbeDesigner(search_config, filter_config)
-    
+    designer = MutationProbeDesigner(search_config, filter_config, target_type=target_type)
+
     # Design probes
     return designer.design_mutation_probes(mut_info_list, genome_accessor, plp_params, pad)

@@ -63,7 +63,7 @@ def setup_logging_and_copy_config(config_file: str, output_dir: str, cfg=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Find consensus binding sites (max isoforms per gene) using Ensembl and IsoformConsensusStrategy")
-    parser.add_argument('--config', default='configs/config_consensus.yaml', help='Path to configuration file')
+    parser.add_argument('--config', default='designer/configs/config_consensus.yaml', help='Path to configuration file')
     parser.add_argument('--genes_file', help='Path to a text file of gene names (one per line, overrides config)')
     parser.add_argument('--species', help='Override species name (mouse, human, rat, zebrafish)')
     parser.add_argument('--blast_species', nargs='+', help='Override target species for BLAST search (default: from config blast.species)')

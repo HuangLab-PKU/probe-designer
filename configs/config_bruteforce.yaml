@@ -19,7 +19,7 @@ filter:
   max_g_content: 0.7
   max_consecutive_g: 5
   min_tm: 50.0
-  max_tm: 70.0
+  max_tm: 65.0
   max_tm_diff: 10.0
   min_free_energy: -10.0
   check_rna_structure: true
@@ -41,7 +41,7 @@ blast:
   service: "plain"
   batch_size: 100
   concurrency: 3
-  species: ["Mus musculus"]
+  species: ["Homo sapiens"]
 
 output:
   output_dir: "results"
@@ -52,4 +52,4 @@ output:
 genome:
   accessor_priority: ["local", "ensembl"]  # Priority order: "local" uses local FASTA file, "ensembl" uses Ensembl API
 
-species: "mouse"
+species: "human"  # Default species (can be overridden by --species)

@@ -986,7 +986,11 @@ class SequenceFilter:
                         if not content or content == '<?xml version="1.0"?>\n<BlastOutput>\n</BlastOutput>':
                             problematic_batches.append(i)
                         elif '<Iteration_message>' in content and 'Error:' in content:
-                            problematic_batches.append(i)
+                            # Only mark as problematic if there are zero valid iterations
+                            # NCBI CPU throttling warnings contain "Error:" but data may still be valid
+                            iteration_count = content.count('<Iteration>')
+                            if iteration_count == 0:
+                                problematic_batches.append(i)
                 except Exception:
                     problematic_batches.append(i)
         return problematic_batches
@@ -1006,7 +1010,10 @@ class SequenceFilter:
                     continue
                 
                 if '<Iteration_message>' in content and 'Error:' in content:
-                    continue
+                    # NCBI CPU throttling warnings contain "Error:" but data may still be valid
+                    # Only skip if there are zero valid iterations
+                    if content.count('<Iteration>') == 0:
+                        continue
                 
                 # Count iterations in this batch
                 from io import StringIO
