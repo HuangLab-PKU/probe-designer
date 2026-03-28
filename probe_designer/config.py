@@ -159,9 +159,11 @@ class ConfigManager:
         """Load species configuration from species_config.json."""
         # Try multiple possible locations for species_config.json
         possible_paths = [
-            # In configs/ directory (code/configs/species_config.json)
+            # In configs/ directory relative to package (dev layout: designer/configs/)
             os.path.join(os.path.dirname(__file__), '..', 'configs', 'species_config.json'),
-            # In local/configs/ directory (code/local/configs/species_config.json)
+            # Docker: /designer/configs/ (mounted read-only volume)
+            os.path.join('/designer', 'configs', 'species_config.json'),
+            # In local/configs/ directory
             os.path.join(os.path.dirname(__file__), '..', 'local', 'configs', 'species_config.json'),
             # Relative to current working directory
             os.path.join('local', 'configs', 'species_config.json'),

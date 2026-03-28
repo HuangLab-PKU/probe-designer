@@ -2,6 +2,7 @@
 test/
 local/
 experiments/
+.pytest_cache/
 
 # IDE
 .vscode/
