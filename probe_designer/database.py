@@ -123,8 +123,13 @@ class DatabaseInterface:
         if failed_accessors:
             print(f"Warning: Failed accessors: {'; '.join(failed_accessors)}")
         print(f"Using genome accessor: {accessor_used}")
-        
+
+        self._genome_accessor = accessor
         return accessor
+
+    def get_genome_accessor(self):
+        """Return previously initialized genome accessor, or None."""
+        return getattr(self, '_genome_accessor', None)
     
     def get_isoform_info(self, gene_symbol: str) -> List[Dict]:
         """Retrieve detailed isoform information for a gene (Ensembl only)."""    

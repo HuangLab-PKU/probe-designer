@@ -68,11 +68,11 @@ def compute_target_score(
         score += 0.5
 
     # 6. Delta G / free energy (0-1)
+    # Less negative = less secondary structure = easier probe binding = better
+    # dG=0 → 1.0 (best), dG=-10 → 0.0 (worst)
     mfe = site.get("free_energy", 0)
     if mfe < 0:
-        # More negative = better (more stable secondary structure avoidance)
-        # Normalize: -10 kcal/mol = 1.0, 0 = 0.0
-        score += min(1.0, abs(mfe) / 10.0)
+        score += max(0.0, 1.0 - abs(mfe) / 10.0)
 
     return round(score, 3)
 
@@ -132,10 +132,18 @@ def peak_rank(
                 continue
 
         if not round_sites:
-            # All remaining sites overlap with selections — append them at the end
-            for v in regions.values():
-                result.extend(v)
-                v.clear()
+            # All remaining sites overlap — interleave by region (round-robin)
+            # to maintain spatial distribution even in the tail
+            remaining = True
+            while remaining:
+                remaining = False
+                tail_round = []
+                for rid in sorted(regions.keys()):
+                    if regions[rid]:
+                        tail_round.append(regions[rid].pop(0))
+                        remaining = True
+                tail_round.sort(key=lambda s: s.get("score", 0), reverse=True)
+                result.extend(tail_round)
             break
 
         # Within this round, sort by score descending

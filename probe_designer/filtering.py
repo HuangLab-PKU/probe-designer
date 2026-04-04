@@ -600,8 +600,12 @@ class SequenceFilter:
                         'GAPCOSTS': '5 2',
                         'PENALTY': '-3',
                         'REWARD': '2',
-                        'FORMAT_TYPE': 'XML'
+                        'FORMAT_TYPE': 'XML',
                     }
+                    # Restrict BLAST to target organisms only
+                    if target_organisms:
+                        org_query = " OR ".join(f'"{org}"[organism]' for org in target_organisms)
+                        blast_params['ENTREZ_QUERY'] = org_query
                     
                     print(f"Submitting batch {batch_index+1}/{len(batches)} with {len(fasta_string.split('>'))-1} sequences...")
                     
@@ -735,13 +739,34 @@ class SequenceFilter:
         """Filter candidates based on specificity and complementarity with reference sequences."""
         blast_data = self._parse_blast_results(blast_results_file, binding_sites)
         filtered_sites = {}
-        
+
         # If no BLAST data available, return empty results
         if not blast_data:
             print("No BLAST data available - specificity filtering failed.")
             print("No sequences will be returned due to BLAST failure.")
             return {}
-        
+
+        # Determine target organisms for post-BLAST filtering
+        target_organisms = self.filter_config.target_organisms
+        if target_organisms is None:
+            target_organisms = self.blast_config.species or []
+
+        # Pre-filter all BLAST alignments to target organisms only
+        if target_organisms:
+            org_lower = [org.lower() for org in target_organisms]
+            total_removed = 0
+            for qid, binfo in blast_data.items():
+                if 'alignments' not in binfo:
+                    continue
+                orig_len = len(binfo['alignments'])
+                binfo['alignments'] = [
+                    a for a in binfo['alignments']
+                    if any(org in a.get('hit_def', '').lower() for org in org_lower)
+                ]
+                total_removed += orig_len - len(binfo['alignments'])
+            if total_removed > 0:
+                print(f"Removed {total_removed} non-target-organism alignments from BLAST results")
+
         print(f"Applying specificity filters to {len(binding_sites)} genes...")
         # Specificity filtering
         for gene_name, sites in binding_sites.items():
@@ -749,10 +774,10 @@ class SequenceFilter:
             for site in sites:
                 # Create the query ID using the same format as FASTA generation
                 query_id = self._generate_query_id(site)
-                
+
                 if query_id in blast_data:
                     blast_info = blast_data[query_id]
-                    
+
                     # Check if this is missing BLAST data
                     if blast_info.get('missing', False):
                         print(f"Warning: Missing BLAST data for {query_id}")
