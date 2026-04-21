@@ -1,38 +1,39 @@
 # Probe Design Pipeline Scripts
 
-> **Deprecation notice (0.2.0):** The three `find_*_probes.py` scripts in this
-> directory are now thin shims that forward to the new ``probe-design`` CLI.
-> They print a DeprecationWarning on start and will be removed in 0.3.0.
-> Migrate to ``probe-design`` ASAP — it is the single entry point installed
-> alongside ``probe-designer`` via ``pip install -e .``.
+> **Deprecation notice (0.2.1):** All five scripts in this directory are now
+> thin shims that forward to the new ``probe-design`` CLI. They print a
+> DeprecationWarning on start and will be removed in 0.3.0. Migrate to
+> ``probe-design`` — it's the single entry point installed via
+> ``pip install -e .``. `scripts/legacy/` was deleted in 0.2.1.
 
 ## Preferred interface
 
 ```bash
-probe-design design --genes-file genes.txt --strategy isoform_consensus
-probe-design design --genes-file genes.txt --strategy isoform_specific
-probe-design design --genes-file genes.txt --strategy single_sequence   # was brute_force
-probe-design score  --input out/binding_sites.json
-probe-design select --input out/scored.json --top-n 3 --min-gap 40
+probe-design design   --genes-file genes.txt --strategy isoform_consensus
+probe-design design   --genes-file genes.txt --strategy isoform_specific
+probe-design design   --genes-file genes.txt --strategy single_sequence   # was brute_force
+probe-design score    --input  out/binding_sites.json
+probe-design select   --input  out/scored.json --top-n 3 --min-gap 40
+probe-design merge    --results-dir runs/ --gene-info genes.xlsx --output merged.xlsx
+probe-design assemble --binding-sites merged.xlsx --gene-info genes.xlsx --backbone bb.xlsx --output probes/
 probe-design validate --config configs/config_consensus.yaml
 ```
 
 The CLI auto-invokes scoring + peak_rank + top-N spatial selection for every
-design run, so CLI output now matches the webapp's quality metric.
+design run, so CLI output matches the webapp's quality metric.
 
-## Legacy scripts (deprecated)
+## Legacy shims (deprecated)
 
-### 1. Find Binding Sites
+| Shim | Forwards to |
+|---|---|
+| `find_consensus_probes.py` | `probe-design design --strategy isoform_consensus` |
+| `find_specific_probes.py` | `probe-design design --strategy isoform_specific` |
+| `find_single_sequence_probes.py` *(renamed from `find_probes.py` in 0.2.1)* | `probe-design design --strategy single_sequence` |
+| `merge_results.py` | `probe-design merge` |
+| `probe_assemble.py` | `probe-design assemble` |
 
-#### `find_consensus_probes.py` *(deprecated: use `probe-design design --strategy isoform_consensus`)*
-Finds consensus binding sites (probes that bind to maximum number of isoforms per gene).
-
-#### `find_specific_probes.py` *(deprecated: use `probe-design design --strategy isoform_specific`)*
-Finds isoform-specific binding sites per gene.
-
-#### `find_probes.py` *(deprecated: use `probe-design design --strategy single_sequence`)*
-Finds binding sites by scanning one input sequence per gene (mRNA from NCBI,
-or a full-length Ensembl isoform).
+Each shim translates the old argparse flags (``--genes_file`` with underscore)
+to the new CLI's flags (``--genes-file`` with hyphen) before forwarding.
 
 **Common Parameters:**
 - `--config`: Configuration file path (YAML format)

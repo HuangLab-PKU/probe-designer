@@ -5,9 +5,64 @@ Simplified probe assembly from binding sites with backbones.
 
 import os
 import json
+from pathlib import Path
 import pandas as pd
 from typing import List, Dict, Any, Optional, Union
 from .config import ProbeConfig
+
+
+def load_binding_sites(path: Union[str, Path]) -> Dict[str, List[Dict[str, Any]]]:
+    """Dispatch-on-extension loader for binding sites data.
+
+    Accepts a path to either a pipeline-produced JSON
+    (``{"gene_name": [{"arm_3prime": ..., "arm_5prime": ..., ...}, ...]}``)
+    or a filtered-results XLSX with the historical column names
+    (``gene_name``, ``arm3``, ``arm5``, ``st``, ``en``, ``g_content``,
+    ``tm``, ``tm3``, ``tm5``, optional ``isoform_overlap_num``).
+
+    Returns the canonical dict-of-lists shape used throughout the library.
+    Raises ``FileNotFoundError``, ``ValueError`` on unsupported formats or
+    missing XLSX columns.
+    """
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Binding sites file not found: {path}")
+
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    if suffix in (".xlsx", ".xls"):
+        df = pd.read_excel(path)
+        required = {"gene_name", "arm3", "arm5", "st", "en", "g_content", "tm", "tm3", "tm5"}
+        missing = required - set(df.columns)
+        if missing:
+            raise ValueError(
+                f"Excel file missing required columns: {sorted(missing)}"
+            )
+
+        out: Dict[str, List[Dict[str, Any]]] = {}
+        for _, row in df.iterrows():
+            gene = str(row["gene_name"])
+            site = {
+                "arm_3prime": str(row["arm3"]),
+                "arm_5prime": str(row["arm5"]),
+                "st": int(row["st"]),
+                "en": int(row["en"]),
+                "g_content": float(row["g_content"]),
+                "tm": float(row["tm"]),
+                "tm_3prime": float(row["tm3"]),
+                "tm_5prime": float(row["tm5"]),
+            }
+            if "isoform_overlap_num" in df.columns and pd.notna(row.get("isoform_overlap_num")):
+                site["isoform_overlap_num"] = row["isoform_overlap_num"]
+            out.setdefault(gene, []).append(site)
+        return out
+
+    raise ValueError(
+        f"Unsupported binding-sites file format: {suffix} (use .json or .xlsx)"
+    )
 
 
 class ProbeAssembler:

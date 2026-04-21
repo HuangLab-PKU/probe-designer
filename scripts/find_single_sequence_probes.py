@@ -43,14 +43,14 @@ def _parse_legacy_args(argv: list[str]) -> list[str]:
 
 def main() -> int:
     warnings.warn(
-        "scripts/find_probes.py is deprecated; use "
+        "scripts/find_single_sequence_probes.py is deprecated; use "
         "'probe-design design --strategy single_sequence' instead. "
         "This shim will be removed in probe-designer 0.3.0.",
         DeprecationWarning,
         stacklevel=2,
     )
     print(
-        "[deprecation] find_probes.py: please migrate to "
+        "[deprecation] find_single_sequence_probes.py: please migrate to "
         "'probe-design design --strategy single_sequence'.",
         file=sys.stderr,
     )

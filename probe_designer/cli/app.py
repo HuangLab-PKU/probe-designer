@@ -8,7 +8,9 @@ import logging
 
 import typer
 
+from probe_designer.cli import assemble as assemble_cmd
 from probe_designer.cli import design as design_cmd
+from probe_designer.cli import merge as merge_cmd
 from probe_designer.cli import score as score_cmd
 from probe_designer.cli import select as select_cmd
 from probe_designer.cli import validate as validate_cmd
@@ -24,6 +26,8 @@ app = typer.Typer(
 app.command("design", help="Run the full design pipeline (search, filter, BLAST, score, rank, select).")(design_cmd.design)
 app.command("score", help="Score and peak-rank a saved binding_sites JSON (no BLAST).")(score_cmd.score)
 app.command("select", help="Apply top-N + min-gap selection to a scored binding_sites JSON.")(select_cmd.select)
+app.command("merge", help="Merge filtered_binding_sites.xlsx files from multiple runs into one XLSX.")(merge_cmd.merge)
+app.command("assemble", help="Attach backbones to binding sites to produce final probe sequences.")(assemble_cmd.assemble)
 app.command("validate", help="Load and validate a YAML config (with env-var expansion).")(validate_cmd.validate)
 
 
