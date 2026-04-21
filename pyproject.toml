@@ -16,13 +16,18 @@ dependencies = [
     "tqdm",
     "openpyxl",
     "beautifulsoup4",
+    "typer>=0.12",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]
 structure = ["ViennaRNA>=2.7.0"]
 mutation = []
 all = ["probe-designer[structure,mutation]"]
-dev = ["pytest", "pytest-cov"]
+dev = ["pytest", "pytest-cov", "responses"]
+
+[project.scripts]
+probe-design = "probe_designer.cli.app:app"
 
 [tool.setuptools.packages.find]
 include = ["probe_designer*"]

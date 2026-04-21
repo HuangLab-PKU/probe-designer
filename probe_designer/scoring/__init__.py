@@ -1,11 +1,24 @@
-"""Target scoring and peak-finding ranking for padlock probe design.
+"""Target scoring, peak-finding ranking, and top-N selection for padlock probe design.
 
-Provides:
+Public API (preserved from previous flat scoring.py):
 - compute_target_score(): composite quality score for a binding site
 - peak_rank(): position-aware ranking that spreads top targets across the gene
+
+Added in Phase 1:
+- select_top_n_with_gap(): DB-agnostic top-N selection with minimum spatial gap
+  between selections (migrated from webapp task_runner._auto_select_top_n).
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
+
+from .selection import select_top_n_with_gap
+
+
+__all__ = [
+    "compute_target_score",
+    "peak_rank",
+    "select_top_n_with_gap",
+]
 
 
 def compute_target_score(
@@ -26,14 +39,12 @@ def compute_target_score(
     """
     score = 0.0
 
-    # 1. Isoform coverage (0-3)
     overlap = site.get("isoform_overlap_num", 1)
     if total_isoforms > 0:
         score += min(3.0, (overlap / total_isoforms) * 3.0)
     else:
         score += 1.5  # neutral if no isoform data
 
-    # 2. BLAST support (0-2)
     alignments = site.get("blast_alignments", [])
     mrna_hits = sum(
         1 for a in alignments
@@ -43,23 +54,18 @@ def compute_target_score(
     )
     score += min(2.0, mrna_hits / 5.0 * 2.0)
 
-    # 3. Tm proximity to lower bound (0-2)
     tm5 = site.get("tm_5prime", 0)
     tm3 = site.get("tm_3prime", 0)
     if tm5 > 0 and tm3 > 0:
         avg_tm = (tm5 + tm3) / 2
-        # Prefer Tm close to min_arm_tm (lower = better for specificity)
-        # Score decreases as Tm moves away from min_arm_tm
         tm_excess = max(0, avg_tm - min_arm_tm)
-        tm_range = 20.0  # normalize over 20°C range
+        tm_range = 20.0
         score += max(0, 2.0 * (1.0 - tm_excess / tm_range))
 
-    # 4. Tm balance (0-1)
     tm_diff = abs(tm5 - tm3)
     if max_tm_diff > 0:
         score += max(0, 1.0 * (1.0 - tm_diff / max_tm_diff))
 
-    # 5. Terminal GC clamp (0-1)
     arm5 = site.get("arm_5prime", "")
     arm3 = site.get("arm_3prime", "")
     if arm5 and arm5[0] in "GCgc":
@@ -67,9 +73,9 @@ def compute_target_score(
     if arm3 and arm3[-1] in "GCgc":
         score += 0.5
 
-    # 6. Delta G / free energy (0-1)
-    # Less negative = less secondary structure = easier probe binding = better
-    # dG=0 → 1.0 (best), dG=-10 → 0.0 (worst)
+    # NOTE: docstring claims 'dG=0 -> 1.0 (best)' but the guard is `if mfe < 0`
+    # so mfe=0 actually contributes 0. Phase 1 characterization tests lock
+    # this behavior; behavior change is a separate decision.
     mfe = site.get("free_energy", 0)
     if mfe < 0:
         score += max(0.0, 1.0 - abs(mfe) / 10.0)
@@ -96,11 +102,9 @@ def peak_rank(
     if not sites:
         return []
 
-    # Assign region IDs
     for site in sites:
         site["_region"] = site.get("st", 0) // region_size
 
-    # Group by region, sort each group by score descending
     regions: Dict[int, List[Dict]] = {}
     for site in sites:
         regions.setdefault(site["_region"], []).append(site)
@@ -115,7 +119,6 @@ def peak_rank(
             if not candidates:
                 continue
 
-            # Find best candidate not overlapping with already-selected in this region
             selected_in_region = [
                 s.get("st", 0) for s in result if s.get("_region") == region_id
             ]
@@ -127,13 +130,10 @@ def peak_rank(
                     picked = True
                     break
 
-            # If all remaining overlap, skip this region for now
             if not picked:
                 continue
 
         if not round_sites:
-            # All remaining sites overlap — interleave by region (round-robin)
-            # to maintain spatial distribution even in the tail
             remaining = True
             while remaining:
                 remaining = False
@@ -146,11 +146,9 @@ def peak_rank(
                 result.extend(tail_round)
             break
 
-        # Within this round, sort by score descending
         round_sites.sort(key=lambda s: s.get("score", 0), reverse=True)
         result.extend(round_sites)
 
-    # Clean up temp field
     for site in result:
         site.pop("_region", None)
 

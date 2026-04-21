@@ -157,14 +157,16 @@ class ConfigManager:
     
     def _load_species_config(self):
         """Load species configuration from species_config.json."""
-        # Try multiple possible locations for species_config.json
+        # __file__ is probe_designer/config/__init__.py; go up two levels to reach designer/
+        package_root = os.path.dirname(os.path.dirname(__file__))  # .../probe_designer
+        designer_root = os.path.dirname(package_root)               # .../designer
         possible_paths = [
-            # In configs/ directory relative to package (dev layout: designer/configs/)
-            os.path.join(os.path.dirname(__file__), '..', 'configs', 'species_config.json'),
+            # Dev layout: designer/configs/
+            os.path.join(designer_root, 'configs', 'species_config.json'),
             # Docker: /designer/configs/ (mounted read-only volume)
             os.path.join('/designer', 'configs', 'species_config.json'),
-            # In local/configs/ directory
-            os.path.join(os.path.dirname(__file__), '..', 'local', 'configs', 'species_config.json'),
+            # local/configs/ under designer root
+            os.path.join(designer_root, 'local', 'configs', 'species_config.json'),
             # Relative to current working directory
             os.path.join('local', 'configs', 'species_config.json'),
             os.path.join('configs', 'species_config.json'),
