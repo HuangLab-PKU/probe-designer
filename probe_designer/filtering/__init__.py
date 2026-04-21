@@ -1,17 +1,24 @@
-"""
-Sequence filtering module
-Implements pre- and post-BLAST filtering rules.
+"""Sequence filtering: pre- and post-BLAST filter rules.
+
+Phase 3 moved the single-file ``filtering.py`` into this subpackage as a
+behavior-preserving step and removed the dead ``_optimize_subsequence``
+binary-search selection (superseded by peak_rank + select_top_n_with_gap).
+
+Further decomposition of this 1100+ line facade into thermal.py /
+blast_runner.py / blast_parser.py / specificity.py / rna_structure.py
+is deferred to a focused follow-up so behavior-critical BLAST retry
+logic stays intact.
 """
 
-import os
 import json
+import logging
+import os
 import warnings
+from typing import Any, Dict, List, Literal, Optional
+
 import pandas as pd
-from typing import List, Dict, Any, Optional, Literal
 from Bio.Blast import NCBIXML
 from Bio.SeqUtils import MeltingTemp as mt
-# from tqdm import tqdm  # Imported when needed
-# from concurrent.futures import ThreadPoolExecutor, as_completed  # Imported when needed
 
 try:
     import RNA
@@ -19,7 +26,10 @@ try:
 except ImportError:
     _HAS_VIENNARNA = False
 
-from .config import FilterConfig, BlastConfig
+from probe_designer.config import BlastConfig, FilterConfig
+
+
+logger = logging.getLogger(__name__)
 
 
 class SequenceFilter:
@@ -215,59 +225,6 @@ class SequenceFilter:
             'tm_3prime': tm_3,
             'tm_5prime': tm_5
         }
-    
-    def _optimize_subsequence(self, positions: List[int], length: int, min_gap: int = 1, 
-                            better_gap: int = 1, gene: str = "") -> List[int]:
-        """Optimize subsequence selection to maximize distance between sites."""
-        if len(positions) == 0:
-            print(f"Gene {gene}: No valid positions found, please loosen threshold conditions.")
-            return []
-        
-        if len(positions) <= length:
-            return positions
-        
-        positions.sort()
-        
-        def is_valid(min_difference: int, target_length: int, min_gap: int) -> bool:
-            count = 1
-            current_min = positions[0]
-            
-            for i in range(1, len(positions)):
-                if positions[i] - current_min >= min_difference:
-                    count += 1
-                    current_min = positions[i]
-            
-            return count >= target_length and min_difference > min_gap
-        
-        # Binary search for optimal spacing
-        left, right = 0, positions[-1] - positions[0]
-        result = []
-        
-        while left <= right:
-            mid = (left + right) // 2
-            if is_valid(mid, length, min_gap):
-                result = [positions[0]]
-                current_min = positions[0]
-                
-                for i in range(1, len(positions)):
-                    if positions[i] - current_min >= mid:
-                        result.append(positions[i])
-                        current_min = positions[i]
-                        if len(result) >= length:
-                            break
-                
-                left = mid + 1
-            else:
-                right = mid - 1
-        
-        if not result:
-            print(f"Gene {gene}: Not enough positions for {length} binding sites.")
-            result = positions[:length]
-        
-        if mid < better_gap:
-            print(f"Gene {gene}: Conditions too harsh, consider loosening parameters for better results")
-        
-        return result
     
     def pre_blast_filter(self, binding_sites: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List[Dict[str, Any]]]:
         """Filter candidates before running BLAST using thermal filter."""
