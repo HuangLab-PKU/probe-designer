@@ -85,29 +85,111 @@ class TestMinGapConstraint:
         assert len(result) == 2
 
 
-class TestWebappParity:
-    """Matches behavior of webapp/task_runner.py:_auto_select_top_n lines 177-241."""
+class TestRoundRobinClustering:
+    """Round-robin-across-clusters is the core selection semantic.
 
-    def test_greedy_not_optimal(self):
-        # Greedy picks 10 first, blocking 9; 8 at far position selected.
+    Binding sites come in clusters of nearby high-scoring positions; the
+    selector covers one-per-cluster first, then double-dips only after
+    every cluster has contributed. Greedy-by-score alone would pile picks
+    into the densest cluster.
+    """
+
+    def test_round_robin_prefers_cluster_spread_over_raw_score(self):
+        # Cluster A (mids 120 & 130, both in region 1 at region_size=80)
+        # packs scores 10 and 9.9; cluster B is a far lone site at mid=1020
+        # with score 5. Pure greedy would pick [10, 9.9] and miss the far
+        # cluster entirely (because 9.9's midpoint is 10nt from 10's midpoint
+        # — still >= min_gap=10 in the greedy check). Round-robin picks one
+        # from each region first.
         sites = [
-            _site(score=10.0, st=100),
-            _site(score=9.0, st=130),   # too close to 100
-            _site(score=8.0, st=200),
+            _site(score=10.0, st=100),    # cluster A, mid=120
+            _site(score=9.9, st=110),     # cluster A, mid=130 (same region as above)
+            _site(score=5.0, st=1000),    # cluster B, mid=1020 (region 12)
         ]
-        result = select_top_n_with_gap(sites, top_n=2, min_gap=40)
-        assert [s["score"] for s in result] == [10.0, 8.0]
+        # Use min_gap=5 so a pure greedy would happily take 120 then 130
+        # (|130-120|=10 >= 5); the round-robin version must still prefer spread.
+        result = select_top_n_with_gap(
+            sites, top_n=2, min_gap=5, region_size=80,
+        )
+        scores = sorted(s["score"] for s in result)
+        assert 5.0 in scores, f"round-robin should reach cluster B; got {scores}"
+        assert 10.0 in scores, f"cluster A's best must be picked; got {scores}"
+        assert 9.9 not in scores, f"greedy-not-round-robin would wrongly pick 9.9; got {scores}"
 
-    def test_sites_without_position_allowed_unconditionally(self):
-        # Webapp code: except (json.JSONDecodeError, IndexError, TypeError): pass
-        # i.e. position-less sites bypass the spacing check
+    def test_second_round_dips_back_into_cluster_when_more_needed(self):
+        # top_n=3 with 2 clusters (3 sites vs 1): round 1 picks one each,
+        # round 2 goes back into the bigger cluster for the next-best.
         sites = [
-            {"score": 10.0},  # no st/en
+            _site(score=10.0, st=100),    # cluster A
+            _site(score=9.0, st=200),     # cluster A (different region: 220//80=2 vs 120//80=1)
+            _site(score=8.5, st=300),     # cluster A (mid=320, region 4)
+            _site(score=6.0, st=2000),    # cluster B, far away
+        ]
+        # region_size=500 coalesces 100-300 into cluster "A" for this test
+        result = select_top_n_with_gap(
+            sites, top_n=3, min_gap=40, region_size=500,
+        )
+        scores = sorted(s["score"] for s in result)
+        # Round 1: best of A (10) + best of B (6).
+        # Round 2: 2nd-best of A whose midpoint is >=40 away — st=200 mid=220, |220-120|=100 OK -> 9.
+        assert scores == [6.0, 9.0, 10.0]
+
+    def test_min_gap_blocks_dip_back_into_tight_cluster(self):
+        # Tight cluster: all 3 sites within min_gap of each other.
+        # After round 1 picks one, the rest can't be added without violating.
+        sites = [
+            _site(score=10.0, st=100),   # mid=120
+            _site(score=9.0, st=110),    # mid=130; 10 from 120 < 40
+            _site(score=8.0, st=120),    # mid=140; 20 from 120 < 40
+            _site(score=5.0, st=2000),   # separate cluster
+        ]
+        result = select_top_n_with_gap(
+            sites, top_n=4, min_gap=40, region_size=500,
+        )
+        scores = sorted(s["score"] for s in result)
+        # Expect exactly 2 picks: best of each cluster.
+        assert scores == [5.0, 10.0]
+
+    def test_cluster_best_always_wins_over_distant_lower(self):
+        # Cluster A has 10.0 AND 9.9 (adjacent); one far lone site at 9.0.
+        # Round-robin round 1: A best (10) + B best (9). Committed in score
+        # order = [10, 9]. 9.9 stays unpicked.
+        sites = [
+            _site(score=10.0, st=100),    # cluster A
+            _site(score=9.9, st=150),     # cluster A (same region with st=100 when region_size=80: 120//80=1, 170//80=2)
+            _site(score=9.0, st=5000),    # cluster B far away
+        ]
+        # Use a larger region_size to be sure the 2 cluster-A sites share a region
+        result = select_top_n_with_gap(
+            sites, top_n=2, min_gap=40, region_size=200,
+        )
+        scores = [s["score"] for s in result]
+        assert scores == [10.0, 9.0]
+
+
+class TestPositionlessSites:
+    def test_sites_without_position_fill_after_clustered(self):
+        # Positioned sites participate in round-robin; positionless fill at end.
+        sites = [
+            _site(score=10.0, st=100),    # positioned
+            _site(score=9.0, st=1000),    # positioned, different region
+            {"score": 7.0},               # no st/en
+            {"score": 6.0},
+        ]
+        result = select_top_n_with_gap(sites, top_n=4, min_gap=40)
+        assert len(result) == 4
+        # First two must be the positioned pair (both regions covered)
+        first_two_scores = {result[0]["score"], result[1]["score"]}
+        assert first_two_scores == {9.0, 10.0}
+
+    def test_only_positionless_sites_returned_by_score_desc(self):
+        sites = [
+            {"score": 10.0},
             {"score": 9.0},
             {"score": 8.0},
         ]
         result = select_top_n_with_gap(sites, top_n=3, min_gap=40)
-        assert len(result) == 3
+        assert [s["score"] for s in result] == [10.0, 9.0, 8.0]
 
 
 class TestReturnOrder:

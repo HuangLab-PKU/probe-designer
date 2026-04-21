@@ -263,7 +263,11 @@ class Pipeline:
         for idx, site in enumerate(ranked):
             site["peak_rank"] = idx
 
-        result.sites = select_top_n_with_gap(ranked, top_n=top_n, min_gap=min_gap)
+        # select_top_n_with_gap does its own round-robin-across-clusters; use the
+        # same region_size as peak_rank so the two stages agree on "cluster".
+        result.sites = select_top_n_with_gap(
+            ranked, top_n=top_n, min_gap=min_gap, region_size=80,
+        )
         return result
 
     # ------------------------------------------------------------------
