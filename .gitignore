@@ -9,6 +9,11 @@ experiments/
 *.env
 !.env.example
 
+# Accidental SQLite DBs (webapp may drop one here when run from wrong CWD)
+*.db
+*.sqlite
+*.sqlite3
+
 # IDE
 .vscode/
 .cursor/
