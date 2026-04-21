@@ -14,19 +14,25 @@ from tqdm import tqdm
 from math import ceil
 
 from .config import DatabaseConfig, GenomeConfig
+from .sources.credentials import get_entrez_credentials
 
 
 class DatabaseInterface:
     """Unified database interface."""
-    
+
     def __init__(self, config: DatabaseConfig):
         self.config = config
         self.server = "https://rest.ensembl.org"
         self.headers = {"Content-Type": "application/json"}
-        
-        # Set up NCBI Entrez credentials
-        Entrez.email = "1418767067@qq.com"
-        Entrez.api_key = '010eacb785458478918b0cb14bea9f9df609'
+
+        # NCBI Entrez credentials: read from ENTREZ_EMAIL / ENTREZ_API_KEY env
+        # vars (optionally via a .env file). Never committed. See
+        # designer/.env.example for the expected variables.
+        email, api_key = get_entrez_credentials(required=False)
+        if email:
+            Entrez.email = email
+        if api_key:
+            Entrez.api_key = api_key
     
     def ensembl_genome_accessor(self, species: str = None, coord_system_version: str = None):
         """Create Ensembl REST API genome accessor function."""

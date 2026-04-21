@@ -269,24 +269,6 @@ class ConfigManager:
             # This is handled in __init__ after load_config
             pass
     
-    def save_config(self, config_file: str):
-        """Save configuration to JSON or YAML file."""
-        config_data = {
-            'database': self.database.__dict__,
-            'search': self.search.__dict__,
-            'filter': self.filter.__dict__,
-            'probe': self.probe.__dict__,
-            'blast': self.blast.__dict__,
-            'output': self.output.__dict__,
-            'genome': self.genome.__dict__
-        }
-        
-        with open(config_file, 'w', encoding='utf-8') as f:
-            if config_file.endswith('.yaml') or config_file.endswith('.yml'):
-                yaml.dump(config_data, f, default_flow_style=False, allow_unicode=True)
-            else:
-                json.dump(config_data, f, indent=2, ensure_ascii=False)
-    
     def get_organism_gene_format(self, gene_name: str) -> str:
         """Format gene name based on organism conventions."""
         if self.database.organism == 'mouse':

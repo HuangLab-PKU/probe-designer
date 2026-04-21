@@ -4,6 +4,11 @@ local/
 experiments/
 .pytest_cache/
 
+# Credentials — never commit. Use .env.example as template.
+.env
+*.env
+!.env.example
+
 # IDE
 .vscode/
 .cursor/
