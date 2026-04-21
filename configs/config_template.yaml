@@ -16,7 +16,7 @@ database:
 # ============================================================================
 search:
   # Binding site search strategy
-  search_strategy: "isoform_consensus"  # Options: "brute_force", "exon_junction", "isoform_specific", "isoform_consensus"
+  search_strategy: "isoform_consensus"  # Options: "single_sequence", "isoform_consensus", "isoform_specific", "exon_junction"
   
   # Binding site parameters
   binding_site_length: 40  # Length of binding sites in base pairs (20-60 recommended)

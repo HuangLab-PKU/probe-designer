@@ -9,6 +9,8 @@ DB-awareness is injected via hooks; no direct DB import here.
 from __future__ import annotations
 
 import logging
+import shutil
+import tempfile
 import uuid
 from dataclasses import asdict
 from pathlib import Path
@@ -128,29 +130,44 @@ class Pipeline:
         per_gene: Dict[str, GeneResult] = {}
         total = len(genes)
 
-        for idx, gene in enumerate(genes):
-            self.progress.on_gene_start(gene, idx, total)
-            result = self._run_single(
-                gene,
-                strategy=strategy,
-                species=species,
-                searcher=searcher,
-                target_organism=target_organism,
-                top_n=top_n,
-                min_gap=min_gap,
-                skip_blast=skip_blast,
+        # One BLAST working dir for the whole run — avoids per-gene tempdir
+        # leaks when output_dir is not provided (CLI dry-run, webapp default).
+        owned_blast_tmp: Optional[Path] = None
+        if self.output_dir is not None:
+            blast_dir = Path(self.output_dir) / "blast_results"
+            blast_dir.mkdir(parents=True, exist_ok=True)
+        else:
+            owned_blast_tmp = Path(tempfile.mkdtemp(prefix="probe_design_blast_"))
+            blast_dir = owned_blast_tmp
+
+        try:
+            for idx, gene in enumerate(genes):
+                self.progress.on_gene_start(gene, idx, total)
+                result = self._run_single(
+                    gene,
+                    strategy=strategy,
+                    species=species,
+                    searcher=searcher,
+                    target_organism=target_organism,
+                    top_n=top_n,
+                    min_gap=min_gap,
+                    skip_blast=skip_blast,
+                    blast_dir=blast_dir,
+                )
+                per_gene[gene] = result
+                self.progress.on_gene_complete(gene, len(result.sites))
+
+            self.progress.on_pipeline_complete(len(per_gene))
+
+            return PipelineResult(
+                per_gene=per_gene,
+                config_snapshot=self._config_snapshot(),
+                run_id=uuid.uuid4().hex[:12],
+                output_dir=self.output_dir,
             )
-            per_gene[gene] = result
-            self.progress.on_gene_complete(gene, len(result.sites))
-
-        self.progress.on_pipeline_complete(len(per_gene))
-
-        return PipelineResult(
-            per_gene=per_gene,
-            config_snapshot=self._config_snapshot(),
-            run_id=uuid.uuid4().hex[:12],
-            output_dir=self.output_dir,
-        )
+        finally:
+            if owned_blast_tmp is not None:
+                shutil.rmtree(owned_blast_tmp, ignore_errors=True)
 
     # ------------------------------------------------------------------
     # Per-gene pipeline
@@ -167,6 +184,7 @@ class Pipeline:
         top_n: int,
         min_gap: int,
         skip_blast: bool,
+        blast_dir: Path,
     ) -> GeneResult:
         """Run all post-processing stages for one gene."""
         result = GeneResult(gene=gene)
@@ -217,9 +235,8 @@ class Pipeline:
         if not skip_blast and sites:
             self.progress.on_stage(gene, "blast", {"n_in": len(sites)})
             try:
-                blast_out_dir = self._blast_output_dir()
                 blast_file = self._seq_filter.run_blast(
-                    {gene: sites}, str(blast_out_dir), target_organisms=[target_organism]
+                    {gene: sites}, str(blast_dir), target_organisms=[target_organism]
                 )
                 sites = self._seq_filter.specificity_filter(
                     {gene: sites}, blast_file
@@ -282,15 +299,6 @@ class Pipeline:
     # ------------------------------------------------------------------
     # Infrastructure
     # ------------------------------------------------------------------
-
-    def _blast_output_dir(self) -> Path:
-        if self.output_dir:
-            blast_dir = self.output_dir / "blast_results"
-            blast_dir.mkdir(parents=True, exist_ok=True)
-            return blast_dir
-        import tempfile
-        tmp = Path(tempfile.mkdtemp(prefix="probe_design_blast_"))
-        return tmp
 
     def _config_snapshot(self) -> Dict[str, Any]:
         """Serializable view of the current config for run provenance."""

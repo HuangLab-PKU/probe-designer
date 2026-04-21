@@ -56,7 +56,7 @@
 #### search_strategy
 - **含义**: 结合位点搜索策略
 - **可能的值**:
-  - `"brute_force"`: 暴力搜索，在整个序列上搜索所有可能的结合位点
+  - `"single_sequence"`: 在一条输入序列上扫描所有合格位点（v0.2.0 前叫 `"brute_force"`）
   - `"exon_junction"`: 在外显子连接处搜索结合位点
   - `"isoform_specific"`: 搜索特定转录本的结合位点
   - `"isoform_consensus"`: 搜索覆盖多个转录本的共识结合位点（推荐）
