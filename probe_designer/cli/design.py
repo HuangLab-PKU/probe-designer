@@ -95,7 +95,7 @@ def design(
     if config_path is None:
         pkg_root = Path(__file__).resolve().parent.parent.parent  # designer/
         default_name = {
-            Strategy.single_sequence: "config_bruteforce.yaml",   # renamed in Phase 5
+            Strategy.single_sequence: "config_single_sequence.yaml",
             Strategy.isoform_consensus: "config_consensus.yaml",
             Strategy.isoform_specific: "config_specific.yaml",
         }[strategy]

@@ -36,14 +36,13 @@ from probe_designer.search_strategies import BindingSiteSearcher
 logger = logging.getLogger(__name__)
 
 
-# User-facing strategy names mapped to the BindingSiteSearcher dispatch key.
-# Phase 5 will align the class names; this map gives us a stable user surface.
+# User-facing strategy names are now identical to the BindingSiteSearcher
+# dispatch keys after the Phase 5 rename; the mapping is retained for
+# forward-compatibility (e.g., if future user-facing names diverge again).
 _STRATEGY_TO_SEARCHER_KEY: Dict[str, str] = {
-    "single_sequence": "brute_force",
+    "single_sequence": "single_sequence",
     "isoform_consensus": "isoform_consensus",
     "isoform_specific": "isoform_specific",
-    # Legacy value accepted for one release cycle while webapp/YAML migrate
-    "brute_force": "brute_force",
 }
 
 _ISOFORM_STRATEGIES = {"isoform_consensus", "isoform_specific"}
@@ -88,7 +87,7 @@ class Pipeline:
         self._genome_accessor = None
         try:
             self._genome_accessor = self._db.initialize_genome_accessor(config.genome)
-        except Exception as exc:  # genome not essential for brute_force path
+        except Exception as exc:  # genome not essential for single_sequence path
             logger.warning("Genome accessor unavailable: %s", exc)
 
         self._seq_filter = SequenceFilter(config.filter, config.blast)

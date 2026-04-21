@@ -1,13 +1,14 @@
-# Configuration for brute force binding site search
-# Works with both Ensembl and NCBI databases
+# Configuration for single-sequence binding site search
+# (renamed from 'brute_force' in Phase 5).
+# Input: one mRNA sequence per gene (NCBI) or one full-length isoform (Ensembl).
 
 database:
   database_type: "ensembl"
-  api_key: "your_ncbi_api_key_here"
-  email: "your_email@example.com"
+  api_key: "${ENTREZ_API_KEY}"
+  email: "${ENTREZ_EMAIL}"
 
 search:
-  search_strategy: "brute_force"
+  search_strategy: "single_sequence"
   binding_site_length: 40
   max_binding_sites: 100
   window_size: 50

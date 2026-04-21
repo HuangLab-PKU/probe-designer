@@ -175,14 +175,12 @@ class TestResultShape:
         assert pr.sites_by_gene() == {"A": [{}, {}], "B": [{}]}
 
 
-class TestLegacyBruteForceAccepted:
-    """Phase 2 transitional: 'brute_force' still accepted pending Phase 5 rename."""
+class TestLegacyStrategyRejected:
+    """Phase 5: 'brute_force' is no longer accepted (clean rename, no alias)."""
 
-    def test_brute_force_alias_does_not_raise(self, minimal_config):
+    def test_brute_force_is_no_longer_valid(self, minimal_config):
         with patch("probe_designer.pipeline.pipeline.DatabaseInterface") as mock_db_cls:
-            mock_db = MagicMock()
-            mock_db_cls.return_value = mock_db
-            mock_db.get_gene_sequences.return_value = {"sequences": {}}
+            mock_db_cls.return_value = MagicMock()
             p = Pipeline(minimal_config)
-            # Should not raise
-            p.run(["ACTB"], strategy="brute_force")
+            with pytest.raises(ValueError, match="Unknown strategy"):
+                p.run(["ACTB"], strategy="brute_force")

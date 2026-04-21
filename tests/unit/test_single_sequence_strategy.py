@@ -1,14 +1,13 @@
-"""Characterization tests for BruteForceStrategy (to be renamed SingleSequenceStrategy).
+"""Characterization tests for SingleSequenceStrategy (formerly BruteForceStrategy).
 
-Locks the search_binding_sites behavior on a synthetic sequence before the
-Phase 5 rename and search_strategies.py → search/ package split. No HTTP
+Locks the search_binding_sites behavior on a synthetic sequence. No HTTP
 required — feeds a synthetic sequence directly.
 """
 from __future__ import annotations
 
 import pytest
 
-from probe_designer.search_strategies import BruteForceStrategy
+from probe_designer.search_strategies import SingleSequenceStrategy
 from probe_designer.config import SearchConfig, FilterConfig
 
 
@@ -35,7 +34,7 @@ def strategy():
     search_cfg = SearchConfig()
     # Tighten filter so only some positions pass — gives meaningful output
     filter_cfg = FilterConfig()
-    return BruteForceStrategy(search_cfg, filter_cfg)
+    return SingleSequenceStrategy(search_cfg, filter_cfg)
 
 
 class TestReturnShape:
@@ -57,11 +56,10 @@ class TestReturnShape:
         missing = required_keys - set(sites[0].keys())
         assert not missing, f"Missing keys in site: {missing}"
 
-    def test_strategy_field_is_brute_force(self, strategy):
-        """Phase 5 will change this to 'single_sequence'; pin current value."""
+    def test_strategy_field_is_single_sequence(self, strategy):
         sites = strategy.search_binding_sites(SYNTHETIC_SEQ, "TEST_GENE")
         if sites:
-            assert sites[0]["strategy"] == "brute_force"
+            assert sites[0]["strategy"] == "single_sequence"
 
     def test_gene_name_propagated(self, strategy):
         sites = strategy.search_binding_sites(SYNTHETIC_SEQ, "TEST_GENE")
@@ -110,7 +108,7 @@ class TestGenomicContext:
             "end": 1199,
             "strand": 1,
         }
-        strategy = BruteForceStrategy(search_cfg, filter_cfg, genomic_context=genomic_context)
+        strategy = SingleSequenceStrategy(search_cfg, filter_cfg, genomic_context=genomic_context)
         sites = strategy.search_binding_sites(SYNTHETIC_SEQ, "TEST_GENE")
         for s in sites:
             # On + strand: genomic_start = g_start + rel_pos
@@ -124,7 +122,7 @@ class TestGenomicContext:
         genomic_context = {
             "seq_region_name": "1", "start": 1000, "end": 1199, "strand": -1,
         }
-        strategy = BruteForceStrategy(search_cfg, filter_cfg, genomic_context=genomic_context)
+        strategy = SingleSequenceStrategy(search_cfg, filter_cfg, genomic_context=genomic_context)
         sites = strategy.search_binding_sites(SYNTHETIC_SEQ, "TEST_GENE")
         for s in sites:
             assert s["strand"] == "-"

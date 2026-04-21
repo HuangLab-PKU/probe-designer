@@ -22,8 +22,8 @@ search:
   binding_site_length: 40  # Length of binding sites in base pairs (20-60 recommended)
   max_binding_sites: 100  # Maximum binding sites per gene
   
-  # Search parameters (for brute_force strategy)
-  step_size: 1  # Step size for sliding window search (optional, only for brute_force)
+  # Search parameters (for single_sequence strategy)
+  step_size: 1  # Step size for sliding window search (optional, only for single_sequence)
   
   # Gene list file
   genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file argument)

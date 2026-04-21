@@ -33,63 +33,13 @@ class SearchStrategy:
         """Return reverse complement of a DNA sequence."""
         complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
         return "".join(complement[base] for base in reversed(sequence))
-    
-    def _optimize_subsequence(self, positions: List[int], num_required: int, min_gap: int, 
-                            better_gap: int, gene: str) -> List[int]:
-        """Optimize subsequence selection to maximize distance between sites."""
-        if len(positions) == 0:
-            print(f"Gene {gene}: No valid positions found, please loosen threshold conditions.")
-            return []
-        
-        if len(positions) <= num_required:
-            return positions
-        
-        positions.sort()
-        
-        def is_valid(min_difference: int, num_required: int, min_gap: int) -> bool:
-            count = 1
-            current_min = positions[0]
-            
-            for i in range(1, len(positions)):
-                if positions[i] - current_min >= min_difference:
-                    count += 1
-                    current_min = positions[i]
-            
-            return count >= num_required and min_difference > min_gap
-        
-        # Binary search for optimal spacing
-        left, right = 0, positions[-1] - positions[0]
-        result = []
-        
-        while left <= right:
-            mid = (left + right) // 2
-            if is_valid(mid, num_required, min_gap):
-                result = [positions[0]]
-                current_min = positions[0]
-                
-                for i in range(1, len(positions)):
-                    if positions[i] - current_min >= mid:
-                        result.append(positions[i])
-                        current_min = positions[i]
-                        if len(result) >= num_required:
-                            break
-                
-                left = mid + 1
-            else:
-                right = mid - 1
-        
-        if not result:
-            print(f"Gene {gene}: Not enough positions for {num_required} binding sites.")
-            result = positions[:num_required]
-        
-        if mid < better_gap:
-            print(f"Gene {gene}: Conditions too harsh, consider loosening parameters for better results")
-        
-        return result
 
 
-class BruteForceStrategy(SearchStrategy):
-    """Search across the whole sequence with comprehensive filtering and optimization."""
+class SingleSequenceStrategy(SearchStrategy):
+    """Scan a single input sequence (mRNA or one full-length isoform) for binding sites.
+
+    Phase 5 rename of the former ``BruteForceStrategy``. No functional change.
+    """
     
     def __init__(self, search_config: SearchConfig, filter_config: FilterConfig, genomic_context: Optional[Dict[str, Any]] = None, show_progress: bool = False):
         super().__init__(search_config, filter_config, show_progress)
@@ -190,7 +140,7 @@ class BruteForceStrategy(SearchStrategy):
                     'tm_5': candidate['tm_5'],
                     'tm_diff': candidate['tm_diff'],
                     'free_energy': candidate['free_energy'],
-                    'strategy': 'brute_force'
+                    'strategy': 'single_sequence'
                 })
             
             return binding_sites
@@ -505,7 +455,7 @@ class BindingSiteSearcher:
         self.show_progress = show_progress
         self.strategies = {
             'exon_junction': ExonJunctionStrategy,
-            'brute_force': BruteForceStrategy,
+            'single_sequence': SingleSequenceStrategy,
             'isoform_specific': IsoformSpecificStrategy,
             'isoform_consensus': IsoformConsensusStrategy
         }
@@ -523,7 +473,7 @@ class BindingSiteSearcher:
         if 'show_progress' not in kwargs:
             kwargs['show_progress'] = self.show_progress
         
-        # Forward genomic_context for brute_force if provided via kwargs
+        # Forward genomic_context for single_sequence if provided via kwargs
         return strategy_class(self.search_config, self.filter_config, **kwargs)
     
     def search_all_genes(self, sequences: Optional[Dict[str, Any]] = None, isoforms: Optional[Dict] = None) -> Dict[str, List[Dict[str, Any]]]:
@@ -531,7 +481,7 @@ class BindingSiteSearcher:
         Search binding sites for genes.
         
         Args:
-            sequences: Optional dict of {gene_name: {'sequence': str, ...}} for strategies that need direct sequence access (e.g., brute_force)
+            sequences: Optional dict of {gene_name: {'sequence': str, ...}} for strategies that need direct sequence access (e.g., single_sequence)
             isoforms: Optional dict of {gene_name: [isoform_dicts]} for strategies that use isoform information (e.g., isoform_consensus)
         
         Returns:
@@ -546,7 +496,7 @@ class BindingSiteSearcher:
                 raise ValueError(f"Strategy '{self.search_config.search_strategy}' requires isoforms parameter")
             genes_to_process = list(isoforms.keys())
         else:
-            # For sequence-based strategies (brute_force, exon_junction), use sequences dict
+            # For sequence-based strategies (single_sequence, exon_junction), use sequences dict
             if sequences is None:
                 raise ValueError(f"Strategy '{self.search_config.search_strategy}' requires sequences parameter")
             genes_to_process = list(sequences.keys())
@@ -563,10 +513,10 @@ class BindingSiteSearcher:
                 if isoforms and gene_name in isoforms:
                     strategy = self.create_strategy('isoform_specific', isoforms=isoforms[gene_name])
                 else:
-                    # Fallback to brute_force if no isoforms
+                    # Fallback to single_sequence if no isoforms
                     if sequences and gene_name in sequences and 'sequence' in sequences[gene_name]:
                         sequence = sequences[gene_name]['sequence']
-                        strategy = self.create_strategy('brute_force')
+                        strategy = self.create_strategy('single_sequence')
                     else:
                         if not self.show_progress:
                             print(f"Skipping {gene_name}: no isoforms and no sequence")
@@ -575,16 +525,16 @@ class BindingSiteSearcher:
                 if isoforms and gene_name in isoforms:
                     strategy = self.create_strategy('isoform_consensus', isoforms=isoforms[gene_name], genome_accessor=self.genome_accessor)
                 else:
-                    # Fallback to brute_force if no isoforms
+                    # Fallback to single_sequence if no isoforms
                     if sequences and gene_name in sequences and 'sequence' in sequences[gene_name]:
                         sequence = sequences[gene_name]['sequence']
-                        strategy = self.create_strategy('brute_force')
+                        strategy = self.create_strategy('single_sequence')
                     else:
                         if not self.show_progress:
                             print(f"Skipping {gene_name}: no isoforms and no sequence")
                         continue
             else:
-                # Sequence-based strategies (brute_force, exon_junction)
+                # Sequence-based strategies (single_sequence, exon_junction)
                 if sequences is None or gene_name not in sequences:
                     if not self.show_progress:
                         print(f"Skipping {gene_name}: no sequence data")
@@ -598,7 +548,7 @@ class BindingSiteSearcher:
                 
                 sequence = gene_data['sequence']
                 
-                if self.search_config.search_strategy == 'brute_force':
+                if self.search_config.search_strategy == 'single_sequence':
                     # Assemble genomic context if available in gene_data
                     genomic_context = {
                         'seq_region_name': gene_data['seq_region_name'],
@@ -606,7 +556,7 @@ class BindingSiteSearcher:
                         'end': gene_data['end'],
                         'strand': gene_data['strand']
                     }
-                    strategy = self.create_strategy('brute_force', genomic_context=genomic_context)
+                    strategy = self.create_strategy('single_sequence', genomic_context=genomic_context)
                 else:
                     strategy = self.create_strategy(self.search_config.search_strategy)
             
