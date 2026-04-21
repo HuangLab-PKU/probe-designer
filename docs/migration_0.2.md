@@ -156,6 +156,27 @@ If you run the webapp:
 
 ---
 
+## 0.2.1 addenda
+
+- **Selection semantics changed** (webapp-facing). `select_top_n_with_gap`
+  (and therefore the webapp's `_auto_select_top_n`) now does
+  round-robin-across-clusters instead of greedy-by-score. In practice this
+  means when binding sites cluster in dense peaks, the first picks spread
+  across peaks for gene-wide coverage rather than piling into the densest
+  peak. Same API; no action needed unless you're writing tests that
+  assumed the old greedy output. See CHANGELOG 0.2.1 for the full
+  rationale and the new `--region-size` flag on `probe-design select`.
+- `scripts/find_probes.py` was renamed to `scripts/find_single_sequence_probes.py`
+  so the three find_* shims share a consistent naming scheme. The shim still
+  accepts all legacy arguments; only the file name changed.
+- Two new CLI subcommands finish the surface promised in the 0.2.0 plan:
+  `probe-design merge` (replaces `scripts/merge_results.py`) and
+  `probe-design assemble` (replaces `scripts/probe_assemble.py`). Both
+  scripts now forward via the usual DeprecationWarning shim.
+- `scripts/legacy/` (the two pre-refactor files) was deleted.
+- `notebooks/` was renamed to `examples/`; two broken notebooks that imported
+  the long-renamed `lib.*` modules were deleted.
+
 ## What didn't change
 
 - The underlying search, filter, and BLAST algorithms are byte-identical.

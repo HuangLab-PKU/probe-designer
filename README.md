@@ -57,6 +57,8 @@ Output:
 | `probe-design design`   | Full pipeline: search → filter → BLAST → score → peak_rank → top-N |
 | `probe-design score`    | Re-score an existing `binding_sites.json` (no BLAST) |
 | `probe-design select`   | Apply top-N + min-gap to a scored JSON |
+| `probe-design merge`    | Combine `filtered_binding_sites.xlsx` from multiple runs into one XLSX |
+| `probe-design assemble` | Attach backbones to binding sites → final probe sequences |
 | `probe-design validate` | Dry-run: expand `${VAR}` in YAML, hydrate config, exit non-zero on error |
 
 Run `probe-design <cmd> --help` for per-command flags.
