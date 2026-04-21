@@ -1,55 +1,31 @@
-# Documentation
+# Documentation Index
 
-This directory contains all project documentation.
+## For users
 
-## 📚 Documentation Structure
+- **[../README.md](../README.md)** — Top-level overview + CLI quick start
+- **[installation.md](installation.md)** — Environment setup, credentials, troubleshooting
+- **[migration_0.2.md](migration_0.2.md)** — Upgrading from 0.1.x to 0.2.0
 
-### Getting Started
-- [Installation Guide](installation.md) - How to set up the development environment
-- [Quick Start](quick-start.md) - Get up and running quickly
-- [Configuration](configuration.md) - Configuration options and parameters
+## For contributors
 
-### User Guide
-- [Probe Design Workflow](probe-design-workflow.md) - Complete probe design process
-- [Diagnostics and Analysis](diagnostics.md) - Understanding diagnostic outputs
-- [Excel Export](excel-export.md) - Working with exported results
-- [Troubleshooting](troubleshooting.md) - Common issues and solutions
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** — Commit conventions, branching, PR flow
+- **[../CHANGELOG.md](../CHANGELOG.md)** — Release notes (authoritative; older
+  copies that once lived here have been removed)
 
-### Development
-- [Development Guide](DEVELOPMENT.md) - Contributing and development guidelines
-- [Architecture](architecture.md) - System architecture and design principles
-- [API Reference](api-reference.md) - Detailed API documentation
-- [Testing](testing.md) - Testing guidelines and procedures
+## For hands-on reference
 
-### Project Management
-- [Changelog](CHANGELOG.md) - Detailed change history with technical details
-- [Release Notes](release-notes.md) - Version release information
+- **[../configs/README.md](../configs/README.md)** — YAML config schema (zh)
+- **[../scripts/README.md](../scripts/README.md)** — Legacy script shims and their
+  new `probe-design` equivalents
 
-## 🚀 Quick Links
+## Inline API docs
 
-- **New to the project?** Start with [Installation Guide](installation.md)
-- **Want to contribute?** Read [Development Guide](DEVELOPMENT.md)
-- **Looking for changes?** Check [Changelog](CHANGELOG.md) for detailed change history
-- **Need help?** See [Troubleshooting](troubleshooting.md)
+Every public module has a module-level docstring. Start from:
+- `probe_designer.pipeline.Pipeline` — the central orchestration API
+- `probe_designer.scoring` — `compute_target_score`, `peak_rank`, `select_top_n_with_gap`
+- `probe_designer.genome` — GTF + Ensembl isoform sources
+- `probe_designer.config.loader` — `load_yaml_with_env` (`${VAR}` / `${VAR:-default}`)
 
-## 📝 Documentation Standards
-
-- All documentation is written in Markdown
-- Use clear, concise language
-- Include code examples where helpful
-- Keep documentation up-to-date with code changes
-- Use consistent formatting and structure
-
-## 🔄 Keeping Documentation Updated
-
-When making code changes:
-1. Update relevant documentation files
-2. Add entries to CHANGELOG.md for significant changes (include technical details)
-3. Test any code examples in documentation
-4. Update version numbers and release notes
-
-## 📞 Getting Help
-
-- Check [Troubleshooting](troubleshooting.md) for common issues
-- Review [Development Guide](DEVELOPMENT.md) for contribution guidelines
-- Create an issue on GitHub for bugs or feature requests
+```python
+python -c "help(<module>)"
+```

@@ -1,195 +1,151 @@
 # Installation Guide
 
-This guide will help you set up the probe design environment on your system.
+## Requirements
 
-## Prerequisites
+| Component | Version |
+|---|---|
+| OS | Windows 10/11, macOS 10.14+, or Linux |
+| Python | 3.10+ |
+| Conda/Mamba | Miniforge or Miniconda |
+| BLAST+ (optional) | 2.13+ for local BLAST; online fallback works without it |
+| ViennaRNA (optional) | 2.7+ for RNA secondary-structure check |
 
-### System Requirements
-- **Operating System**: Windows 10/11, macOS 10.14+, or Linux
-- **Python**: 3.8 or higher
-- **Memory**: At least 8GB RAM (16GB recommended for large datasets)
-- **Storage**: At least 5GB free space
+Notes:
+- ViennaRNA wheels are on PyPI for Windows, Linux, and macOS
+  (`pip install ViennaRNA`).
+- The pipeline will auto-fall back to online NCBI BLAST if BLAST+ isn't on PATH.
 
-### Platform-Specific Notes
-✅ **Good News**: ViennaRNA is now available on **Windows**, **Linux**, and **macOS** systems!
+---
 
-- **Windows**: ViennaRNA 2.7.0+ is available via pip
-- **Linux/macOS**: ViennaRNA is available via conda or pip
-- **All platforms**: RNA structure prediction is fully supported
-
-### Required Software
-- **Conda** or **Miniconda**: For environment management
-- **Git**: For version control
-- **Text Editor**: VS Code, PyCharm, or similar
-
-## Installation Steps
-
-### 1. Clone the Repository
+## Setup
 
 ```bash
-git clone <repository-url> probe_designer
-cd probe_designer
+# 1. Clone the repo (or initialize submodules from the parent project)
+cd designer/
+
+# 2. Create the conda environment (env name: probe-design, with a hyphen)
+mamba env create -f environment.yml
+mamba activate probe-design
+
+# 3. Install the package in editable mode. This also registers the
+#    `probe-design` console script on PATH.
+pip install -e .
+
+# 4. (Optional) install optional extras
+pip install -e ".[structure]"   # ViennaRNA for RNA MFE
+pip install -e ".[dev]"         # pytest + responses + coverage
 ```
 
-### 2. Create Environment
-
-#### Option A: Using Conda (Recommended)
-```bash
-# Create environment from environment.yml
-conda env create -f code/environment.yml
-
-# Activate environment
-conda activate probe_design
-```
-
-#### Option B: Using pip
-```bash
-# Create virtual environment
-python -m venv probe_design_env
-
-# Activate environment
-# On Windows:
-probe_design_env\Scripts\activate
-# On Linux/macOS:
-source probe_design_env/bin/activate
-
-# Install dependencies
-pip install -r code/requirements.txt
-```
-
-### 3. Verify Installation
+Verify:
 
 ```bash
-# Test basic functionality
-python -c "import probe_designer; print('Installation successful!')"
-
-# Test ViennaRNA installation
-python -c "import RNA; print('ViennaRNA version:', RNA.__version__)"
-
-# Run a simple test
-python local/probe_design_BZ09_TNBC_mut.py --help
+probe-design --help
+python -c "import probe_designer; print(probe_designer.__version__)"
 ```
 
-## Configuration
+---
 
-### 1. Genome Data Setup
+## Credentials
 
-You need to have the reference genome FASTA file available:
+The pipeline uses NCBI Entrez when fetching mRNA sequences. Without
+credentials, NCBI rate-limits aggressively.
 
 ```bash
-# Example path (adjust as needed)
-genome_path = "G:/genome/GRCh38.fa"
+# From the designer/ root:
+cp .env.example .env
+
+# Edit .env:
+#   ENTREZ_EMAIL=your-email@example.com
+#   ENTREZ_API_KEY=<your NCBI API key>
 ```
 
-### 2. Configuration Files
+The key file is `.gitignored`; only `.env.example` is tracked.
 
-Copy and modify configuration files as needed:
+To get a key: log into [ncbi.nlm.nih.gov/account](https://ncbi.nlm.nih.gov/account)
+and create one in **API Key Management**.
 
-```bash
-# Copy template configuration
-cp configs/config_template.yaml configs/my_config.yaml
+Never commit credentials. YAML configs can reference env vars via
+`${ENTREZ_EMAIL}` / `${ENTREZ_API_KEY}` placeholders — these expand at load
+time. Run `probe-design validate --config <your.yaml>` to preview.
 
-# Edit configuration file
-nano configs/my_config.yaml
+---
+
+## Reference Genome
+
+Set `genome_fasta_path` under the `genome:` section of your YAML config, or
+use `--genome-fasta /path/to/GRCh38.fa` on the CLI. Without a local genome,
+the pipeline falls back to Ensembl REST for sequence retrieval (slower, 15s
+timeout per query).
+
+Per-species defaults live in `configs/species_config.json`:
+
+```json
+{
+  "species": {
+    "human":  {"genome_fasta_path": "/data/genomes/GRCh38.fa", ...},
+    "mouse":  {"genome_fasta_path": "/data/genomes/GRCm39.fa", ...}
+  }
+}
 ```
 
-### 3. Environment Variables (Optional)
+For local GTF (used by isoform strategies, offline), set
+`genome.gtf_path` or pass `--gtf /path/to/gencode.gtf`. First parse builds
+a `<gtf>.pidx.json` byte-offset index so subsequent gene lookups are O(1).
 
-```bash
-# Set genome path
-export GENOME_PATH="/path/to/genome.fa"
-
-# Set output directory
-export OUTPUT_DIR="/path/to/output"
-```
+---
 
 ## Troubleshooting
 
-### Common Issues
+### `probe-design: command not found`
 
-#### 1. Conda Environment Issues
+The console script wasn't registered. Re-run `pip install -e .` from the
+`designer/` directory. Confirm with:
+
 ```bash
-# If conda command not found
-# Install Miniconda from: https://docs.conda.io/en/latest/miniconda.html
-
-# If environment activation fails
-conda deactivate
-conda activate probe_design
+pip show probe-designer
+# Editable project location: .../designer
 ```
 
-#### 2. Python Import Errors
+### `ConfigError: Unresolved environment variable: ${ENTREZ_EMAIL}`
+
+Your YAML has `${ENTREZ_EMAIL}` but no env var + no default. Either:
+- Set it in `.env` / your shell, or
+- Change YAML to `${ENTREZ_EMAIL:-}` (empty default if truly optional), or
+- Remove the placeholder from the YAML.
+
+### ViennaRNA missing
+
+Thermal filter still runs; only the optional RNA secondary-structure check
+is skipped. To enable:
+
 ```bash
-# Check Python version
-python --version
-
-# Reinstall packages
-pip install --force-reinstall -r requirements.txt
-```
-
-#### 3. Genome File Issues
-```bash
-# Check if genome file exists and is readable
-ls -la /path/to/genome.fa
-
-# Test genome access
-python -c "from pyfaidx import Fasta; f = Fasta('/path/to/genome.fa'); print('Genome accessible')"
-```
-
-#### 4. RNA Structure Prediction Issues
-```bash
-# Check if ViennaRNA is available
-python -c "import RNA; print('ViennaRNA version:', RNA.__version__)"
-
-# Test RNA structure prediction
-python -c "import RNA; structure, mfe = RNA.fold('GGGGAAAACCCC'); print(f'Structure: {structure}, MFE: {mfe}')"
-
-# If ViennaRNA not available, install it
 pip install ViennaRNA
-
-# If still having issues, disable RNA structure checks in config
-# Set check_rna_structure: false in your configuration file
 ```
 
-#### 5. Memory Issues
-```bash
-# For large datasets, consider:
-# - Reducing batch size
-# - Using smaller test datasets
-# - Increasing system memory
-```
+Set `filter.check_rna_structure: true` in your config.
 
-### Getting Help
+### BLAST+ not on PATH
 
-If you encounter issues:
+The online fallback kicks in automatically. If both fail, the pipeline
+returns pre-BLAST thermal results only and logs a warning — you'll see
+`"BLAST failed (...), continuing with pre-BLAST results"` in the log.
+To skip BLAST entirely (e.g., in dry runs), pass `--skip-blast`.
 
-1. Check the [Troubleshooting Guide](troubleshooting.md)
-2. Review error messages carefully
-3. Check system requirements
-4. Create an issue on GitHub with:
-   - Operating system
-   - Python version
-   - Error message
-   - Steps to reproduce
+### Genome FASTA not found
 
-## Next Steps
+Check `configs/species_config.json` for the path on your species. For
+Windows paths with spaces, use forward slashes: `C:/data/genome.fa`.
 
-After successful installation:
+### NCBI 429 rate limits
 
-1. Read the [Quick Start Guide](quick-start.md)
-2. Try the [Probe Design Workflow](probe-design-workflow.md)
-3. Explore [Configuration Options](configuration.md)
+Either set `ENTREZ_API_KEY` in `.env` (raises limit from 3 to 10 req/s),
+or reduce concurrency via `blast.concurrency` in your config.
 
-## Uninstallation
+---
 
-To remove the installation:
+## Uninstall
 
 ```bash
-# Deactivate environment
-conda deactivate
-
-# Remove conda environment
-conda env remove -n probe_design
-
-# Remove repository (optional)
-rm -rf probe_design
+mamba deactivate
+mamba env remove -n probe-design
 ```
