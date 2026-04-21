@@ -1,42 +1,38 @@
 # Probe Design Pipeline Scripts
 
-This directory contains scripts for the complete probe design pipeline: finding binding sites, merging results, and assembling probes.
+> **Deprecation notice (0.2.0):** The three `find_*_probes.py` scripts in this
+> directory are now thin shims that forward to the new ``probe-design`` CLI.
+> They print a DeprecationWarning on start and will be removed in 0.3.0.
+> Migrate to ``probe-design`` ASAP — it is the single entry point installed
+> alongside ``probe-designer`` via ``pip install -e .``.
 
-## Pipeline Overview
+## Preferred interface
 
-The probe design pipeline consists of three main steps:
+```bash
+probe-design design --genes-file genes.txt --strategy isoform_consensus
+probe-design design --genes-file genes.txt --strategy isoform_specific
+probe-design design --genes-file genes.txt --strategy single_sequence   # was brute_force
+probe-design score  --input out/binding_sites.json
+probe-design select --input out/scored.json --top-n 3 --min-gap 40
+probe-design validate --config configs/config_consensus.yaml
+```
 
-1. **Find binding sites** - Search for candidate binding sites using different strategies
-2. **Merge results** - Combine results from multiple runs and filter by gene list
-3. **Assemble probes** - Assemble final probe sequences with backbones
+The CLI auto-invokes scoring + peak_rank + top-N spatial selection for every
+design run, so CLI output now matches the webapp's quality metric.
 
-## Scripts
+## Legacy scripts (deprecated)
 
 ### 1. Find Binding Sites
 
-#### `find_consensus_probes.py`
+#### `find_consensus_probes.py` *(deprecated: use `probe-design design --strategy isoform_consensus`)*
 Finds consensus binding sites (probes that bind to maximum number of isoforms per gene).
 
-**Usage:**
-```bash
-python find_consensus_probes.py --config configs/config_consensus.yaml --genes_file genes.txt
-```
-
-#### `find_specific_probes.py`
+#### `find_specific_probes.py` *(deprecated: use `probe-design design --strategy isoform_specific`)*
 Finds isoform-specific binding sites per gene.
 
-**Usage:**
-```bash
-python find_specific_probes.py --config configs/config_specific.yaml --genes_file genes.txt
-```
-
-#### `find_probes.py`
-Finds binding sites using brute force strategy (works with both Ensembl and NCBI databases).
-
-**Usage:**
-```bash
-python find_probes.py --config configs/config_bruteforce.yaml --genes_file genes.txt
-```
+#### `find_probes.py` *(deprecated: use `probe-design design --strategy single_sequence`)*
+Finds binding sites by scanning one input sequence per gene (mRNA from NCBI,
+or a full-length Ensembl isoform).
 
 **Common Parameters:**
 - `--config`: Configuration file path (YAML format)
