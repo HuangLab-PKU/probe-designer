@@ -71,6 +71,7 @@ def fetch_ensembl_isoforms(
         isoforms = []
         for tx in transcripts:
             exons = []
+            exon_legacy = []
             for exon in tx.get("Exon", []):
                 ex_start = exon.get("start", 0)
                 ex_end = exon.get("end", 0)
@@ -82,12 +83,27 @@ def fetch_ensembl_isoforms(
                     "rel_start": round(rel_start, 2),
                     "rel_width": round(rel_width, 2),
                 })
+                exon_legacy.append({
+                    "start": ex_start,
+                    "end": ex_end,
+                    "strand": exon.get("strand", tx.get("strand", strand)),
+                })
+            tx_chrom = tx.get("seq_region_name", chrom)
+            tx_strand = tx.get("strand", strand)
+            tx_display = tx.get("display_name") or tx.get("id", "")
             isoforms.append({
+                # v0.2.1 shape (UI / progress / API consumers)
                 "accession": tx.get("id", ""),
                 "biotype": tx.get("biotype", ""),
                 "start": tx.get("start", 0),
                 "end": tx.get("end", 0),
                 "exons": exons,
+                # Legacy Ensembl-Transcript shape (search_strategies.IsoformAwareness)
+                "id": tx.get("id", ""),
+                "display_name": tx_display,
+                "seq_region_name": tx_chrom,
+                "strand": tx_strand,
+                "Exon": exon_legacy,
             })
 
         return {

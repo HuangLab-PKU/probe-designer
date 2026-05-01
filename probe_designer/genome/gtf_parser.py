@@ -82,9 +82,12 @@ def parse_gtf_for_gene(gtf_path: str | os.PathLike, gene_symbol: str) -> Dict[st
 
     gene_length = max(1, (gene_end or gene_start) - gene_start)
 
+    strand_int = 1 if strand == "+" else -1
+
     isoforms = []
     for tx_id, tx_data in transcripts.items():
         exons = []
+        exon_legacy = []
         for ex in tx_data["exons"]:
             rel_start = max(0.0, (ex["start"] - gene_start) / gene_length * 100)
             rel_width = max(0.5, (ex["end"] - ex["start"]) / gene_length * 100)
@@ -94,19 +97,31 @@ def parse_gtf_for_gene(gtf_path: str | os.PathLike, gene_symbol: str) -> Dict[st
                 "rel_start": round(rel_start, 2),
                 "rel_width": round(rel_width, 2),
             })
+            exon_legacy.append({
+                "start": ex["start"],
+                "end": ex["end"],
+                "strand": strand_int,
+            })
         isoforms.append({
+            # v0.2.1 shape
             "accession": tx_id,
             "biotype": tx_data.get("biotype", ""),
             "start": tx_data["start"],
             "end": tx_data["end"],
             "exons": sorted(exons, key=lambda e: e["start"]),
+            # Legacy Ensembl-Transcript shape (search_strategies.IsoformAwareness)
+            "id": tx_id,
+            "display_name": tx_id,
+            "seq_region_name": chrom,
+            "strand": strand_int,
+            "Exon": sorted(exon_legacy, key=lambda e: e["start"]),
         })
 
     return {
         "chromosome": chrom,
         "start": gene_start,
         "end": gene_end,
-        "strand": 1 if strand == "+" else -1,
+        "strand": strand_int,
         "isoforms": isoforms,
     }
 
