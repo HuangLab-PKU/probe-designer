@@ -90,6 +90,14 @@ def design(
         False, "--skip-blast",
         help="Skip BLAST + specificity step (faster; only thermal filter applied)."
     ),
+    isoform_biotype: Optional[List[str]] = typer.Option(
+        None, "--isoform-biotype",
+        help="Only consider isoforms with this Ensembl biotype during "
+             "isoform_consensus / isoform_specific. Pass multiple times to "
+             "keep multiple biotypes. Common: 'protein_coding'. Without this "
+             "flag, all isoforms (including retained_intron, NMD, "
+             "processed_transcript) participate, which can dilute consensus."
+    ),
 ) -> None:
     """Run the end-to-end design pipeline and write scored/selected results."""
     if config_path is None:
@@ -130,7 +138,10 @@ def design(
 
     isoform_provider = None
     if strategy in (Strategy.isoform_consensus, Strategy.isoform_specific):
-        isoform_provider = DefaultIsoformProvider(gtf_path=gtf_path)
+        isoform_provider = DefaultIsoformProvider(
+            gtf_path=gtf_path,
+            keep_biotypes=isoform_biotype or None,
+        )
 
     pipeline = Pipeline(
         cfg,
