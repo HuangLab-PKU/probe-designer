@@ -11,6 +11,20 @@ from typing import List, Dict, Any, Optional, Union
 from .config import ProbeConfig
 
 
+def assemble_plain_padlock(arm5: str, arm3: str, backbone: str) -> str:
+    """Assemble a plain padlock probe — ``arm5 + backbone + arm3``.
+
+    Used by mutation ``mRNA_noiLock`` and ``cDNA`` chemistries, and (next
+    round) by TCR. iLock assembly is in
+    :func:`probe_designer.ext.mutation.probe.assemble_ilock` because the
+    invader linker geometry is chemistry-specific.
+
+    Caller is responsible for casing — this function preserves whatever the
+    arms / backbone come in as.
+    """
+    return arm5 + backbone + arm3
+
+
 def load_binding_sites(path: Union[str, Path]) -> Dict[str, List[Dict[str, Any]]]:
     """Dispatch-on-extension loader for binding sites data.
 
