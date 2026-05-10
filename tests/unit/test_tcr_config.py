@@ -20,19 +20,32 @@ def make_kwargs(tmp_path: Path, **overrides):
 
 
 # ---------------------------------------------------------------------------
-# Defaults reflect TCR convention: mRNA-only by default
+# Defaults reflect TCR convention: dRNA-only by default
 # ---------------------------------------------------------------------------
 
 
-def test_default_chemistry_is_mrna_only(tmp_path):
+def test_default_chemistry_is_drna_only(tmp_path):
     cfg = TcrConfig(**make_kwargs(tmp_path))
-    assert cfg.chemistries == ["mRNA"]
+    assert cfg.chemistries == ["dRNA"]
     assert not cfg.has_cdna()
 
 
 def test_chemistries_with_cdna_triggers_has_cdna(tmp_path):
-    cfg = TcrConfig(**make_kwargs(tmp_path, chemistries=["mRNA", "cDNA"]))
+    cfg = TcrConfig(**make_kwargs(tmp_path, chemistries=["dRNA", "cDNA"]))
     assert cfg.has_cdna()
+
+
+def test_legacy_mrna_chemistry_normalized_to_drna(tmp_path):
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        cfg = TcrConfig(**make_kwargs(tmp_path, chemistries=["mRNA"]))
+    assert cfg.chemistries == ["dRNA"]
+
+
+def test_codebook_field_default_none(tmp_path):
+    cfg = TcrConfig(**make_kwargs(tmp_path))
+    assert cfg.codebook is None
 
 
 def test_default_geometry_40_20_3(tmp_path):
@@ -96,7 +109,7 @@ def test_yaml_loader_with_dual_chemistry(tmp_path):
 input_xlsx: in.xlsx
 output_dir: out/
 backbone_file: backbone.xlsx
-chemistries: [mRNA, cDNA]
+chemistries: [dRNA, cDNA]
 bds_len: 40
 arm_len: 20
 tm_range: [55, 65]
@@ -107,7 +120,7 @@ rt_primer_gap: 12
     p = tmp_path / "config.yaml"
     p.write_text(yaml_text, encoding="utf-8")
     cfg = TcrConfig.from_yaml(p)
-    assert cfg.chemistries == ["mRNA", "cDNA"]
+    assert cfg.chemistries == ["dRNA", "cDNA"]
     assert cfg.has_cdna()
     assert cfg.tm_range == (55.0, 65.0)
     assert cfg.sites_per_clone == 5

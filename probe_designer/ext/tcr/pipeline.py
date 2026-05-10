@@ -36,6 +36,12 @@ from probe_designer.ext.tcr.probe import (
     TcrProbeDesigner,
     validate_subseq_in_target,
 )
+from probe_designer.io.probe_schema import (
+    CHEM_RT,
+    apply_final_column_order,
+    make_padlock_name,
+    make_rt_primer_name,
+)
 from probe_designer.probe_assembly import assemble_plain_padlock
 from probe_designer.rt_primer import design_rt_primer_from_target
 
@@ -208,7 +214,7 @@ def _phase2_blast(
     # concatenation as the binding sequence.
     seqs = []
     for s in flat:
-        binding = (s["arm_3prime_mRNA"] + s["arm_5prime_mRNA"]).upper()
+        binding = (s["arm_3prime_dRNA"] + s["arm_5prime_dRNA"]).upper()
         seqs.append({
             "probe_id": s["gene_name"] + f"_pos{s['pos']}",
             "binding_sequence": binding,
@@ -249,49 +255,39 @@ def _load_backbone_map(backbone_file: Path) -> Dict[int, tuple]:
 
 
 def _assemble_one(chemistry: str, bds_row: Dict, no: int,
-                   bc_name: str, bc_seq: str, backbone_file_name: str) -> Dict:
+                   bc_name: str, bc_seq: str, backbone_file_name: str,
+                   codebook: str) -> Dict:
     arm5 = str(bds_row[f"arm_5prime_{chemistry}"]).lower()
     arm3 = str(bds_row[f"arm_3prime_{chemistry}"]).lower()
     probe = assemble_plain_padlock(arm5=arm5, arm3=arm3,
                                     backbone=str(bc_seq).upper())
+    clone_name = str(bds_row["gene_name"])
     clone_id = bds_row.get("clone_id", "")
     pos = int(bds_row["pos"])
     return {
-        "No.": no,
-        "Probe_Name": f"{clone_id}_{chemistry}_{pos}_SP_{no}",
-        "target_type": "TCR",
+        "order": pd.NA,
+        "probe_name": make_padlock_name(
+            name=str(clone_id) or clone_name, position=pos,
+            chemistry=chemistry, codebook=codebook, no=no,
+        ),
+        "probe_sequence": probe,
+        "gene_name": bds_row["gene_name"], "clone_id": clone_id,
         "chemistry": chemistry,
-        "iLock": "no",
-        "gene_name": bds_row["gene_name"], "clone_id": clone_id, "position": pos,
-        "target_sequence": bds_row["target_sequence"],
-        "arm_5prime": arm5, "arm_3prime": arm3,
-        "backbone_No.": no,
-        "backbone_name": bc_name,
-        "backbone_sequence": bc_seq,
-        "Probe_Seq": probe,
-        "Probe_Length": len(probe),
+        "position": pos, "target_sequence": bds_row["target_sequence"],
+        "probe_arm5": arm5, "probe_arm3": arm3, "probe_length": len(probe),
+        "No.": no, "codebook": codebook,
+        "backbone_name": bc_name, "backbone_sequence": bc_seq,
+        "backbone_file": backbone_file_name,
+        "gc_content": bds_row.get("g_content"),
         "tm": bds_row.get(f"tm_{chemistry}"),
         "tm_5prime": bds_row.get(f"tm_5prime_{chemistry}"),
         "tm_3prime": bds_row.get(f"tm_3prime_{chemistry}"),
-        "g_content": bds_row.get("g_content"),
-        "mfe": bds_row.get("mfe"),
         "score": bds_row.get("score"),
-        "tm_cDNA_warning": bds_row.get("tm_cDNA_warning", False),
+        "free_energy": bds_row.get("mfe"),
         "blast_hit_count": bds_row.get("blast_hit_count", 0),
         "blast_top_hits": bds_row.get("blast_top_hits", ""),
-        "backbone_file": backbone_file_name,
+        "tm_cdna_warning": bds_row.get("tm_cDNA_warning", False),
     }
-
-
-_FINAL_COLS = [
-    "No.", "Probe_Name", "target_type", "chemistry", "iLock",
-    "gene_name", "clone_id", "position", "target_sequence",
-    "arm_5prime", "arm_3prime",
-    "backbone_No.", "backbone_name", "backbone_sequence",
-    "Probe_Seq", "Probe_Length",
-    "tm", "tm_5prime", "tm_3prime", "g_content", "mfe", "score",
-    "tm_cDNA_warning", "blast_hit_count", "blast_top_hits", "backbone_file",
-]
 
 
 def _phase3_assemble(
@@ -299,6 +295,7 @@ def _phase3_assemble(
 ) -> tuple[pd.DataFrame, Path, Path, int]:
     backbone_map = _load_backbone_map(cfg.backbone_file)
     start_no = cfg.resolve_start_no()
+    codebook = cfg.resolve_codebook()
     n_chem = len(cfg.chemistries)
     rows: List[Dict] = []
     for i, r in bds_df.reset_index(drop=True).iterrows():
@@ -310,17 +307,17 @@ def _phase3_assemble(
                 )
             bc_name, bc_seq = backbone_map[no]
             rows.append(_assemble_one(chem, r.to_dict(), no, bc_name, bc_seq,
-                                       cfg.backbone_file.name))
+                                       cfg.backbone_file.name, codebook))
 
     combined = pd.DataFrame(rows).sort_values("No.").reset_index(drop=True)
-    combined = combined[_FINAL_COLS]
+    combined = apply_final_column_order(combined, kind="padlock")
 
     xlsx = run_dir / "probes_combined.xlsx"
     combined.to_excel(xlsx, index=False, engine="openpyxl")
     fasta = run_dir / "probes_combined.fasta"
     with open(fasta, "w") as f:
         for _, r in combined.iterrows():
-            f.write(f">{r['Probe_Name']}\n{r['Probe_Seq']}\n")
+            f.write(f">{r['probe_name']}\n{r['probe_sequence']}\n")
     # probe_info mirrors at run_dir AND experiment_dir
     combined.to_excel(run_dir / "probe_info.xlsx", index=False, engine="openpyxl")
     combined.to_excel(experiment_dir / "probe_info.xlsx",
@@ -370,22 +367,26 @@ def _phase4_rt_primers(
             tm_max=cfg.rt_primer_tm_range[1],
         )
         rows.append({
-            "No.": no, "gene_name": clone_name, "clone_id": clone_id,
-            "Padlock_Probe_Name": probe["Probe_Name"],
-            "Padlock_Probe_No.": no,
-            "BDS_pos": pos, "BDS_end": pos + cfg.bds_len,
-            "RT_Primer_Name": f"{clone_id}_RT_{pos}_SP_{no}",
-            "RT_Primer_Sequence": primer["primer_seq"],
-            "RT_Primer_Length": primer["primer_length"],
-            "Tm": primer["tm"],
-            "GC_Percent": primer["gc_percent"],
-            "Primer_Start_on_Target": primer["primer_target_start"],
-            "Primer_End_on_Target": primer["primer_target_end"],
-            "Gap_nt": primer["gap_nt"],
-            "Notes": primer["notes"],
+            "order": pd.NA,
+            "probe_name": make_rt_primer_name(
+                name=str(clone_id) or clone_name, position=pos,
+            ),
+            "probe_sequence": primer["primer_seq"],
+            "gene_name": clone_name, "clone_id": clone_id,
+            "chemistry": CHEM_RT,
+            "position": pos, "target_sequence": probe.get("target_sequence", ""),
+            "probe_length": primer["primer_length"],
+            "gc_content": primer["gc_percent"],
+            "tm": primer["tm"],
+            "paired_padlock_probe_name": probe["probe_name"],
+            "paired_padlock_no": no,
+            "notes": primer["notes"],
+            "primer_start_on_target": primer["primer_target_start"],
+            "primer_end_on_target": primer["primer_target_end"],
+            "gap_nt": primer["gap_nt"],
         })
 
-    res_df = pd.DataFrame(rows)
+    res_df = apply_final_column_order(pd.DataFrame(rows), kind="rt")
     xlsx = run_dir / "rt_primers.xlsx"
     fasta = run_dir / "rt_primers.fasta"
     with pd.ExcelWriter(xlsx, engine="openpyxl") as writer:
@@ -400,19 +401,19 @@ def _phase4_rt_primers(
                 ],
                 "Value": [
                     len(res_df),
-                    f"{res_df['Tm'].min():.1f} - {res_df['Tm'].max():.1f} C",
-                    f"{res_df['RT_Primer_Length'].min()} - {res_df['RT_Primer_Length'].max()} nt",
-                    int((res_df["Tm"] < cfg.rt_primer_tm_range[0]).sum()),
-                    int((res_df["Tm"] > cfg.rt_primer_tm_range[1]).sum()),
-                    int((res_df["Notes"] != "").sum()),
+                    f"{res_df['tm'].min():.1f} - {res_df['tm'].max():.1f} C",
+                    f"{res_df['probe_length'].min()} - {res_df['probe_length'].max()} nt",
+                    int((res_df["tm"] < cfg.rt_primer_tm_range[0]).sum()),
+                    int((res_df["tm"] > cfg.rt_primer_tm_range[1]).sum()),
+                    int((res_df["notes"].fillna("") != "").sum()),
                 ],
             })
             summary.to_excel(writer, sheet_name="Summary", index=False)
     with open(fasta, "w") as f:
         for _, r in res_df.iterrows():
-            if r["RT_Primer_Sequence"]:
-                f.write(f">{r['RT_Primer_Name']}\n{r['RT_Primer_Sequence']}\n")
-    logger.info("Phase 4: %d RT primers → rt_primers.xlsx", len(res_df))
+            if r["probe_sequence"]:
+                f.write(f">{r['probe_name']}\n{r['probe_sequence']}\n")
+    logger.info("Phase 4: %d RT primers -> rt_primers.xlsx", len(res_df))
     return xlsx
 
 

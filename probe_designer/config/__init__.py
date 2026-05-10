@@ -53,6 +53,7 @@ class FilterConfig:
 class ProbeConfig:
     """Probe assembly configuration."""
     backbone_file: Optional[str] = None  # Backbone Excel file path (must contain 'No.' and 'Sequence' columns)
+    codebook: Optional[str] = None  # Codebook name (e.g. SP369); falls back to backbone-filename regex.
 
 
 @dataclass

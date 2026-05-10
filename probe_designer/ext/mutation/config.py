@@ -6,6 +6,7 @@ accepted via :meth:`MutationConfig.from_yaml`.
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -14,7 +15,26 @@ from typing import Dict, List, Optional, Tuple
 # Public chemistry catalog. Per-experiment overrides should mutate the dict
 # returned by :func:`default_chemistry_params` (a fresh copy each call) — never
 # the module-level constant.
-ALL_CHEMISTRIES: Tuple[str, ...] = ("iLock", "mRNA_noiLock", "cDNA")
+ALL_CHEMISTRIES: Tuple[str, ...] = ("iLock", "dRNA", "cDNA")
+
+# Legacy chemistry tokens kept as input aliases. The CLI / YAML still accepts
+# them but they are normalized to the new canonical names before any pipeline
+# logic runs.
+_LEGACY_CHEMISTRY_ALIASES: Dict[str, str] = {
+    "mRNA_noiLock": "dRNA",
+}
+
+
+def _canonicalize_chemistry(name: str) -> str:
+    """Map legacy chemistry tokens to the canonical name; pass others through."""
+    if name in _LEGACY_CHEMISTRY_ALIASES:
+        new = _LEGACY_CHEMISTRY_ALIASES[name]
+        warnings.warn(
+            f"Chemistry name {name!r} is deprecated; use {new!r} instead.",
+            DeprecationWarning, stacklevel=3,
+        )
+        return new
+    return name
 
 
 @dataclass
@@ -31,9 +51,12 @@ class ChemistryParams:
 def default_chemistry_params() -> Dict[str, ChemistryParams]:
     """Canonical 2026-05+ catalog.
 
-    Default iLock Tm range is **50-70 °C** (down from templates' 55-75).
+    Default iLock Tm range is **50-70 C** (down from templates' 55-75).
     Per the 2026-05-10 audit decision, 50-70 rescues otherwise-unmappable
     invader-overlap mutations with no specificity loss.
+
+    Chemistry keys use canonical names: ``iLock``, ``dRNA``, ``cDNA``.
+    The legacy ``mRNA_noiLock`` token is normalized to ``dRNA`` on input.
     """
     return {
         "iLock": ChemistryParams(
@@ -43,7 +66,7 @@ def default_chemistry_params() -> Dict[str, ChemistryParams]:
             mutation_position="5end_and_3tip",
             designer="invader",
         ),
-        "mRNA_noiLock": ChemistryParams(
+        "dRNA": ChemistryParams(
             target_type="RNA", tm_model="R_DNA_NN1",
             tm_range=(55.0, 75.0),
             check_rna_structure=True,
@@ -109,6 +132,10 @@ class MutationConfig:
     # Genome FASTA (default: <repo>/data/genome/GRCh38.fa)
     genome_path: Optional[Path] = None
 
+    # Codebook name (e.g. "SP369"). Goes into every padlock probe_name and the
+    # `codebook` column. If None, resolved from the backbone filename.
+    codebook: Optional[str] = None
+
     def __post_init__(self) -> None:
         # Coerce path-likes
         self.input_xlsx = Path(self.input_xlsx)
@@ -118,6 +145,14 @@ class MutationConfig:
             self.last_no_from = Path(self.last_no_from)
         if self.genome_path is not None:
             self.genome_path = Path(self.genome_path)
+
+        # Normalize legacy chemistry tokens (e.g. mRNA_noiLock -> dRNA) so the
+        # rest of the pipeline only sees canonical names. Also re-key the
+        # per-chemistry params dict to match.
+        self.chemistries = [_canonicalize_chemistry(c) for c in self.chemistries]
+        self.chemistry_params = {
+            _canonicalize_chemistry(k): v for k, v in self.chemistry_params.items()
+        }
 
         # Validate chemistries
         unknown = [c for c in self.chemistries if c not in ALL_CHEMISTRIES]
@@ -171,6 +206,16 @@ class MutationConfig:
             return self.genome_path
         return repo_root / "data" / "genome" / "GRCh38.fa"
 
+    def resolve_codebook(self) -> str:
+        """Return the codebook name for this run.
+
+        Uses :func:`probe_designer.io.probe_schema.resolve_codebook` to
+        either honor the explicit ``codebook`` field or fall back to a
+        regex match on the backbone filename.
+        """
+        from probe_designer.io.probe_schema import resolve_codebook
+        return resolve_codebook(self.codebook, self.backbone_file)
+
     @classmethod
     def from_yaml(cls, path: Path) -> "MutationConfig":
         """Load a YAML file mapping field names to values.
@@ -199,6 +244,7 @@ class MutationConfig:
         params_overrides = data.pop("chemistry_params", {}) or {}
         params = default_chemistry_params()
         for chem, overrides in params_overrides.items():
+            chem = _canonicalize_chemistry(chem)
             if chem not in params:
                 raise ValueError(f"chemistry_params: unknown chemistry {chem!r}")
             current = params[chem]

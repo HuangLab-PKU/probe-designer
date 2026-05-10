@@ -48,10 +48,11 @@ def command(
         help="Backbone Excel: columns No., Barcode, Sequence."
     ),
     chemistries_csv: str = typer.Option(
-        "mRNA", "--chemistries",
-        help="Comma-separated subset of {mRNA, cDNA}. Default: mRNA only. "
+        "dRNA", "--chemistries",
+        help="Comma-separated subset of {dRNA, cDNA}. Default: dRNA only. "
              "Add cDNA for both chemistries; RT primer phase auto-runs "
-             "whenever cDNA is in the selection."
+             "whenever cDNA is in the selection. Legacy 'mRNA' is accepted "
+             "and normalized to 'dRNA'."
     ),
     start_no: Optional[int] = typer.Option(
         None, "--start-no",
@@ -60,6 +61,12 @@ def command(
     last_no_from: Optional[Path] = typer.Option(
         None, "--last-no-from", exists=True, dir_okay=False, readable=True,
         help="Read last_no.txt from a previous panel; first probe = read+1."
+    ),
+    codebook: Optional[str] = typer.Option(
+        None, "--codebook",
+        help="Codebook name (e.g. SP369). Goes into every padlock probe_name "
+             "and the `codebook` column. If omitted, inferred from the backbone "
+             "filename (e.g. backbone_SP369.xlsx -> SP369)."
     ),
     bds_len: int = typer.Option(
         40, "--bds-len",
@@ -75,7 +82,7 @@ def command(
     ),
     tm_range: str = typer.Option(
         "50,60", "--tm-range",
-        help="mRNA arm Tm window 'low,high' (default: 50,60)."
+        help="dRNA arm Tm window 'low,high' (default: 50,60)."
     ),
     rt_primer_gap: int = typer.Option(
         15, "--rt-primer-gap",
@@ -111,6 +118,8 @@ def command(
         cfg.backbone_file = backbone
         if skip_blast:
             cfg.skip_blast = True
+        if codebook is not None:
+            cfg.codebook = codebook
     else:
         chemistries: List[str] = [
             c.strip() for c in chemistries_csv.split(",") if c.strip()
@@ -130,6 +139,7 @@ def command(
             rt_primer_tm_range=_parse_pair(rt_primer_tm_range, kind=float),
             skip_blast=skip_blast,
             plot_tm_landscape=plot_tm_landscape,
+            codebook=codebook,
         )
 
     logger.info("Running TCR pipeline with chemistries=%s", cfg.chemistries)

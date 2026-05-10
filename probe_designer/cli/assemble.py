@@ -41,6 +41,12 @@ def assemble(
         None, "--ilock", case_sensitive=False,
         help="Add iLock modification on 3prime / 5prime / both arms."
     ),
+    codebook: Optional[str] = typer.Option(
+        None, "--codebook",
+        help="Codebook name (e.g. SP369). Goes into every padlock probe_name "
+             "and the `codebook` column. If omitted, inferred from the backbone "
+             "filename (e.g. backbone_SP369.xlsx -> SP369)."
+    ),
 ) -> None:
     """Attach backbones to binding sites and save the assembled probes."""
     if ilock and ilock not in ("3prime", "5prime", "both"):
@@ -53,7 +59,9 @@ def assemble(
 
     output.mkdir(parents=True, exist_ok=True)
 
-    assembler = ProbeAssembler(ProbeConfig(backbone_file=str(backbone)))
+    assembler = ProbeAssembler(ProbeConfig(
+        backbone_file=str(backbone), codebook=codebook,
+    ))
     probes_df = assembler.assemble_probes(sites, str(gene_info))
     probes_df["backbone_file"] = backbone.name
 

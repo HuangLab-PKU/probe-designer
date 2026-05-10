@@ -20,7 +20,7 @@ from probe_designer.blast.gene_aware import (
 
 class TestExtractBindingQuery:
     def test_non_ilock_concatenates_arm3_then_arm5(self):
-        q = extract_binding_query("AAAA", "TTTT", "mRNA_noiLock")
+        q = extract_binding_query("AAAA", "TTTT", "dRNA")
         assert q == "TTTTAAAA"
 
     def test_cdna_uses_same_concatenation(self):

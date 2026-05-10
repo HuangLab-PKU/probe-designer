@@ -6,12 +6,30 @@ via :meth:`TcrConfig.from_yaml`.
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 
-ALL_CHEMISTRIES: Tuple[str, ...] = ("mRNA", "cDNA")
+ALL_CHEMISTRIES: Tuple[str, ...] = ("dRNA", "cDNA")
+
+# Legacy chemistry tokens kept as input aliases. Normalized before pipeline
+# logic runs so the rest of the codebase only sees canonical names.
+_LEGACY_CHEMISTRY_ALIASES: Dict[str, str] = {
+    "mRNA": "dRNA",
+}
+
+
+def _canonicalize_chemistry(name: str) -> str:
+    if name in _LEGACY_CHEMISTRY_ALIASES:
+        new = _LEGACY_CHEMISTRY_ALIASES[name]
+        warnings.warn(
+            f"TCR chemistry name {name!r} is deprecated; use {new!r} instead.",
+            DeprecationWarning, stacklevel=3,
+        )
+        return new
+    return name
 
 
 @dataclass
@@ -26,9 +44,13 @@ class TcrConfig:
     output_dir: Path
     backbone_file: Path
 
-    # Chemistries — default = direct mRNA only (cDNA is opt-in).
+    # Chemistries — default = direct-RNA padlock only (cDNA is opt-in).
     # Whenever 'cDNA' is in the list, RT primer design runs automatically.
-    chemistries: List[str] = field(default_factory=lambda: ["mRNA"])
+    chemistries: List[str] = field(default_factory=lambda: ["dRNA"])
+
+    # Codebook name (e.g. "SP369"); goes into every padlock probe_name and the
+    # `codebook` column. If None, resolved from the backbone filename.
+    codebook: Optional[str] = None
 
     # Scan geometry
     bds_len: int = 40
@@ -60,6 +82,9 @@ class TcrConfig:
         self.backbone_file = Path(self.backbone_file)
         if self.last_no_from is not None:
             self.last_no_from = Path(self.last_no_from)
+
+        # Normalize legacy chemistry tokens (mRNA -> dRNA) before validation.
+        self.chemistries = [_canonicalize_chemistry(c) for c in self.chemistries]
 
         # Validate chemistries
         unknown = [c for c in self.chemistries if c not in ALL_CHEMISTRIES]
@@ -105,6 +130,16 @@ class TcrConfig:
             return int(self.start_no)
         assert self.last_no_from is not None
         return int(self.last_no_from.read_text(encoding="utf-8").strip()) + 1
+
+    def resolve_codebook(self) -> str:
+        """Return the codebook name (e.g. ``SP369``).
+
+        Honors the explicit ``codebook`` field if set; otherwise falls back
+        to a regex match on the backbone filename. See
+        :func:`probe_designer.io.probe_schema.resolve_codebook`.
+        """
+        from probe_designer.io.probe_schema import resolve_codebook
+        return resolve_codebook(self.codebook, self.backbone_file)
 
     @classmethod
     def from_yaml(cls, path: Path) -> "TcrConfig":

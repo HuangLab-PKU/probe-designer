@@ -87,16 +87,16 @@ def test_dual_chemistry_arms_present_for_each_site(trb_cdr3_pair):
     assert sites, "expected at least one BDS candidate"
     s = sites[0]
     # Both chemistry arm pairs present
-    for key in ("arm_5prime_mRNA", "arm_3prime_mRNA",
+    for key in ("arm_5prime_dRNA", "arm_3prime_dRNA",
                 "arm_5prime_cDNA", "arm_3prime_cDNA"):
         assert key in s, f"missing {key}"
         assert len(s[key]) == 20
-    # mRNA arm = RC of target slice; cDNA arm = literal target slice
+    # dRNA arm = RC of target slice; cDNA arm = literal target slice
     target = s["target_sequence"]
     assert s["arm_3prime_cDNA"].upper() == target[:20]
     assert s["arm_5prime_cDNA"].upper() == target[20:]
-    assert s["arm_3prime_mRNA"].upper() == _reverse_complement(target)[:20]
-    assert s["arm_5prime_mRNA"].upper() == _reverse_complement(target)[20:]
+    assert s["arm_3prime_dRNA"].upper() == _reverse_complement(target)[:20]
+    assert s["arm_5prime_dRNA"].upper() == _reverse_complement(target)[20:]
 
 
 def test_dual_chemistry_tms_present(trb_cdr3_pair):
@@ -105,13 +105,13 @@ def test_dual_chemistry_tms_present(trb_cdr3_pair):
         trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "TestClone1",
     )
     s = sites[0]
-    for key in ("tm_mRNA", "tm_5prime_mRNA", "tm_3prime_mRNA",
+    for key in ("tm_dRNA", "tm_5prime_dRNA", "tm_3prime_dRNA",
                 "tm_cDNA", "tm_5prime_cDNA", "tm_3prime_cDNA"):
         assert key in s
         assert isinstance(s[key], float)
-    # cDNA Tm should be slightly higher than mRNA Tm for a balanced sequence
+    # cDNA Tm should be slightly higher than dRNA Tm for a balanced sequence
     assert s["tm_cDNA"] > 0
-    assert s["tm_mRNA"] > 0
+    assert s["tm_dRNA"] > 0
 
 
 def test_ligation_point_is_inside_cdr3(trb_cdr3_pair):

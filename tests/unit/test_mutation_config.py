@@ -123,6 +123,22 @@ start_no: 100
     assert cfg.chemistries == ["iLock"]
     assert cfg.chemistry_params["iLock"].tm_range == (45.0, 80.0)
     # Other chemistries keep their defaults even if not in this run's chemistries
-    assert cfg.chemistry_params["mRNA_noiLock"].tm_range == (55.0, 75.0)
+    assert cfg.chemistry_params["dRNA"].tm_range == (55.0, 75.0)
     assert cfg.arm_len_range == (8, 35)
     assert cfg.mfe_min == -25.0
+
+
+def test_legacy_chemistry_token_normalized_to_drna(tmp_path):
+    """Legacy ``mRNA_noiLock`` is accepted but normalized to ``dRNA``."""
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        cfg = MutationConfig(
+            **make_kwargs(tmp_path, chemistries=["mRNA_noiLock"]),
+        )
+    assert cfg.chemistries == ["dRNA"]
+
+
+def test_codebook_field_default_none(tmp_path):
+    cfg = MutationConfig(**make_kwargs(tmp_path))
+    assert cfg.codebook is None

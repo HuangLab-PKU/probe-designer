@@ -83,16 +83,16 @@ def plot_tm_landscape(
                 cdr3_start = sites[0]["cdr3_start"]
                 cdr3_end = sites[0]["cdr3_end"]
                 positions = [s["ligation_point"] for s in sites]
-                ax.plot(positions, [s["tm_3prime_mRNA"] for s in sites], "b.-",
-                        markersize=3, linewidth=1, label="3' Tm mRNA", alpha=0.8)
-                ax.plot(positions, [s["tm_5prime_mRNA"] for s in sites], "r.-",
-                        markersize=3, linewidth=1, label="5' Tm mRNA", alpha=0.8)
+                ax.plot(positions, [s["tm_3prime_dRNA"] for s in sites], "b.-",
+                        markersize=3, linewidth=1, label="3' Tm dRNA", alpha=0.8)
+                ax.plot(positions, [s["tm_5prime_dRNA"] for s in sites], "r.-",
+                        markersize=3, linewidth=1, label="5' Tm dRNA", alpha=0.8)
                 ax.plot(positions, [s["tm_3prime_cDNA"] for s in sites], "b.--",
                         markersize=2, linewidth=0.7, label="3' Tm cDNA", alpha=0.5)
                 ax.plot(positions, [s["tm_5prime_cDNA"] for s in sites], "r.--",
                         markersize=2, linewidth=0.7, label="5' Tm cDNA", alpha=0.5)
                 ax.axhspan(tm_min, tm_max, alpha=0.12, color="green",
-                           label=f"mRNA Tm gate [{tm_min:.0f},{tm_max:.0f}]")
+                           label=f"dRNA Tm gate [{tm_min:.0f},{tm_max:.0f}]")
                 ax.axvspan(cdr3_start, cdr3_end, alpha=0.08, color="orange",
                            label="CDR3 / allowed region")
                 if clone_name in selected_map:
@@ -100,8 +100,8 @@ def plot_tm_landscape(
                         lp = s["ligation_point"]
                         ax.axvline(lp, color="black", linewidth=1.2,
                                    linestyle="-", alpha=0.6)
-                        ax.plot(lp, s["tm_5prime_mRNA"], "b^", markersize=8, zorder=5)
-                        ax.plot(lp, s["tm_3prime_mRNA"], "rv", markersize=8, zorder=5)
+                        ax.plot(lp, s["tm_5prime_dRNA"], "b^", markersize=8, zorder=5)
+                        ax.plot(lp, s["tm_3prime_dRNA"], "rv", markersize=8, zorder=5)
                 meta = clone_metadata.get(clone_name, {})
                 clone_id = meta.get("clone_id", clone_name)
                 n_sel = len(selected_map.get(clone_name, []))

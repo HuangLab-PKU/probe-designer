@@ -49,10 +49,11 @@ def test_pipeline_smoke_bz07_skip_blast(tmp_path: Path):
         input_xlsx=input_xlsx,
         output_dir=fake_experiment / "output",
         backbone_file=BACKBONE,
-        chemistries=["iLock", "mRNA_noiLock", "cDNA"],
+        chemistries=["iLock", "dRNA", "cDNA"],
         start_no=200,
         skip_blast=True,
         genome_path=GENOME,
+        codebook="SP369",
     )
 
     result = run_mutation_pipeline(cfg)
@@ -69,12 +70,19 @@ def test_pipeline_smoke_bz07_skip_blast(tmp_path: Path):
     # Verify the final xlsx has 3 rows in the canonical column order
     df = pd.read_excel(result.final_probes_xlsx, sheet_name="Final_Probes")
     assert len(df) == 3
-    assert set(df["chemistry"]) == {"iLock", "mRNA_noiLock", "cDNA"}
+    assert set(df["chemistry"]) == {"iLock", "dRNA", "cDNA"}
+    # Schema-v2 leading three columns
+    assert df.columns.tolist()[:3] == ["order", "probe_name", "probe_sequence"]
     # Numbering must be contiguous
     assert sorted(df["No."].tolist()) == [200, 201, 202]
     # iLock probe must start with the default flap
     ilock_row = df[df["chemistry"] == "iLock"].iloc[0]
-    assert ilock_row["Probe_Seq"].startswith("CGTTGCTGTGGCG")
+    assert ilock_row["probe_sequence"].startswith("CGTTGCTGTGGCG")
+    # probe_name format: {gene}_{pos}_{chem}_{codebook}_{No.}
+    for _, row in df.iterrows():
+        parts = row["probe_name"].rsplit("_", 4)
+        assert parts[2] in {"iLock", "dRNA", "cDNA"}
+        assert parts[3] == "SP369"
 
     # last_no.txt was written
     assert (cfg.output_dir / "last_no.txt").read_text().strip() == "202"
@@ -98,6 +106,7 @@ def test_pipeline_subset_chemistries_just_ilock(tmp_path: Path):
         start_no=300,
         skip_blast=True,
         genome_path=GENOME,
+        codebook="SP369",
     )
     result = run_mutation_pipeline(cfg)
 

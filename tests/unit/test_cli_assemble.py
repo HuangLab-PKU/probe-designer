@@ -15,8 +15,12 @@ runner = CliRunner()
 
 @pytest.fixture
 def backbone_xlsx(tmp_path):
-    """Backbone file with one sequence row."""
-    p = tmp_path / "backbone.xlsx"
+    """Backbone file with one sequence row.
+
+    Filename embeds an SP369 codebook tag so resolve_codebook can pick it
+    up without an explicit --codebook flag.
+    """
+    p = tmp_path / "backbone_SP369.xlsx"
     pd.DataFrame({
         "No.": ["1"],
         "Sequence": ["GTTTTTGGTAAGCTTCGGATCCTCAGACGGAAGACTC"],
@@ -70,6 +74,14 @@ class TestAssembleSubcommand:
         assert out.exists()
         xlsx_files = list(out.glob("*.xlsx"))
         assert xlsx_files, f"no xlsx in {out}: {list(out.iterdir())}"
+
+        # Schema-v2: leading three columns must be order/probe_name/probe_sequence,
+        # and probe_name follows the new format.
+        df = pd.read_excel(xlsx_files[0])
+        assert df.columns.tolist()[:3] == ["order", "probe_name", "probe_sequence"]
+        assert df["chemistry"].iloc[0] == "dRNA"
+        assert df["codebook"].iloc[0] == "SP369"
+        assert df["probe_name"].iloc[0] == "ACTB_100_dRNA_SP369_1"
 
     def test_empty_binding_sites_exits_nonzero(
         self, tmp_path, gene_info_xlsx, backbone_xlsx

@@ -30,8 +30,8 @@ def _require_assets():
         pytest.skip(f"BZ23_TCR input not present at {BZ23_TCR_INPUT}")
 
 
-def test_pipeline_smoke_bz23_mrna_only_skip_blast(tmp_path: Path):
-    """Default chemistry (mRNA only) — no RT primers, no BLAST round."""
+def test_pipeline_smoke_bz23_drna_only_skip_blast(tmp_path: Path):
+    """Default chemistry (dRNA only) — no RT primers, no BLAST round."""
     _require_assets()
 
     fake_experiment = tmp_path / "20260510_ZCH_BZ23_TCR_smoke"
@@ -44,35 +44,37 @@ def test_pipeline_smoke_bz23_mrna_only_skip_blast(tmp_path: Path):
         input_xlsx=input_xlsx,
         output_dir=fake_experiment / "output",
         backbone_file=BACKBONE,
-        chemistries=["mRNA"],
+        chemistries=["dRNA"],
         start_no=200,
         skip_blast=True,
         plot_tm_landscape=False,  # speed up the test; landscape covered separately
+        codebook="SP369",
     )
     result = run_tcr_pipeline(cfg)
 
     assert result.clones_total >= 1
     assert result.clones_with_sites >= 1
     assert result.sites_selected >= result.clones_with_sites
-    # mRNA only ⇒ probes_total == sites_selected
+    # dRNA only -> probes_total == sites_selected
     assert result.probes_total == result.sites_selected
-    assert result.rt_primers_xlsx is None  # no cDNA → no RT primers
+    assert result.rt_primers_xlsx is None  # no cDNA -> no RT primers
     assert result.final_probes_xlsx.exists()
     assert result.final_probes_fasta.exists()
 
     # Verify final xlsx
     df = pd.read_excel(result.final_probes_xlsx)
-    assert set(df["chemistry"]) == {"mRNA"}
+    assert set(df["chemistry"]) == {"dRNA"}
+    assert df.columns.tolist()[:3] == ["order", "probe_name", "probe_sequence"]
     assert df["No."].tolist() == sorted(df["No."].tolist())
     assert df["No."].iloc[0] == 200
-    # Probe_Name follows clone-id convention
-    for name in df["Probe_Name"]:
-        assert "_mRNA_" in name
-        assert "_SP_" in name
+    # probe_name follows new schema: {clone_id}_{pos}_{chem}_{codebook}_{No.}
+    for name in df["probe_name"]:
+        assert "_dRNA_" in name
+        assert "_SP369_" in name
 
 
 def test_pipeline_smoke_bz23_dual_chemistry(tmp_path: Path):
-    """--chemistries mRNA,cDNA → 2 probes per site + RT primers auto-run."""
+    """--chemistries dRNA,cDNA -> 2 probes per site + RT primers auto-run."""
     _require_assets()
 
     fake_experiment = tmp_path / "20260510_ZCH_BZ23_TCR_dual"
@@ -85,10 +87,11 @@ def test_pipeline_smoke_bz23_dual_chemistry(tmp_path: Path):
         input_xlsx=input_xlsx,
         output_dir=fake_experiment / "output",
         backbone_file=BACKBONE,
-        chemistries=["mRNA", "cDNA"],
+        chemistries=["dRNA", "cDNA"],
         start_no=200,
         skip_blast=True,
         plot_tm_landscape=False,
+        codebook="SP369",
     )
     result = run_tcr_pipeline(cfg)
 
@@ -97,4 +100,4 @@ def test_pipeline_smoke_bz23_dual_chemistry(tmp_path: Path):
     assert result.rt_primers_xlsx.exists()
 
     df = pd.read_excel(result.final_probes_xlsx)
-    assert set(df["chemistry"]) == {"mRNA", "cDNA"}
+    assert set(df["chemistry"]) == {"dRNA", "cDNA"}

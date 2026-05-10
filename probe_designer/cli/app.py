@@ -11,6 +11,7 @@ import typer
 from probe_designer.cli import assemble as assemble_cmd
 from probe_designer.cli import design as design_cmd
 from probe_designer.cli import merge as merge_cmd
+from probe_designer.cli import migrate_columns as migrate_columns_cmd
 from probe_designer.cli import score as score_cmd
 from probe_designer.cli import select as select_cmd
 from probe_designer.cli import validate as validate_cmd
@@ -31,8 +32,9 @@ app.command("select", help="Apply top-N + min-gap selection to a scored binding_
 app.command("merge", help="Merge filtered_binding_sites.xlsx files from multiple runs into one XLSX.")(merge_cmd.merge)
 app.command("assemble", help="Attach backbones to binding sites to produce final probe sequences.")(assemble_cmd.assemble)
 app.command("validate", help="Load and validate a YAML config (with env-var expansion).")(validate_cmd.validate)
-app.command("mutation", help="Design padlock probes for somatic mutations (iLock / mRNA_noiLock / cDNA chemistries).")(mutation_cmd)
-app.command("tcr", help="Design padlock probes for TCR clone CDR3 regions (mRNA / cDNA chemistries; default mRNA only).")(tcr_cmd)
+app.command("migrate-columns", help="Upgrade legacy probe Excel files to Schema v2 (.bak written alongside).")(migrate_columns_cmd.migrate_columns)
+app.command("mutation", help="Design padlock probes for somatic mutations (iLock / dRNA / cDNA chemistries).")(mutation_cmd)
+app.command("tcr", help="Design padlock probes for TCR clone CDR3 regions (dRNA / cDNA chemistries; default dRNA only).")(tcr_cmd)
 
 
 @app.callback()

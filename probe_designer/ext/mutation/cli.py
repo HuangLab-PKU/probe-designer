@@ -51,7 +51,8 @@ def command(
     ),
     chemistries_csv: str = typer.Option(
         ",".join(ALL_CHEMISTRIES), "--chemistries",
-        help="Comma-separated subset of {iLock, mRNA_noiLock, cDNA}."
+        help="Comma-separated subset of {iLock, dRNA, cDNA}. "
+             "Legacy 'mRNA_noiLock' is accepted and normalized to 'dRNA'."
     ),
     start_no: Optional[int] = typer.Option(
         None, "--start-no",
@@ -61,13 +62,20 @@ def command(
         None, "--last-no-from", exists=True, dir_okay=False, readable=True,
         help="Read last_no.txt from a previous panel; first probe = read+1."
     ),
+    codebook: Optional[str] = typer.Option(
+        None, "--codebook",
+        help="Codebook name (e.g. SP369). Goes into every padlock probe_name "
+             "and the `codebook` column. If omitted, inferred from the "
+             "backbone filename (e.g. backbone_SP369.xlsx -> SP369)."
+    ),
     ilock_tm_range: Optional[str] = typer.Option(
         None, "--ilock-tm-range",
         help="Override iLock chemistry tm_range as 'low,high' (default: 50,70)."
     ),
-    mrna_noilock_tm_range: Optional[str] = typer.Option(
-        None, "--mrna-noilock-tm-range",
-        help="Override mRNA_noiLock tm_range (default: 55,75)."
+    drna_tm_range: Optional[str] = typer.Option(
+        None, "--drna-tm-range", "--mrna-noilock-tm-range",
+        help="Override dRNA (direct-RNA padlock) tm_range (default: 55,75). "
+             "The legacy --mrna-noilock-tm-range alias is still accepted."
     ),
     cdna_tm_range: Optional[str] = typer.Option(
         None, "--cdna-tm-range",
@@ -123,15 +131,15 @@ def command(
             cfg.genome_path = genome_path
         if skip_blast:
             cfg.skip_blast = True
+        if codebook is not None:
+            cfg.codebook = codebook
     else:
         chemistries: List[str] = [c.strip() for c in chemistries_csv.split(",") if c.strip()]
         chem_params = default_chemistry_params()
         if ilock_tm_range:
             chem_params["iLock"].tm_range = _parse_pair(ilock_tm_range, kind=float)
-        if mrna_noilock_tm_range:
-            chem_params["mRNA_noiLock"].tm_range = _parse_pair(
-                mrna_noilock_tm_range, kind=float,
-            )
+        if drna_tm_range:
+            chem_params["dRNA"].tm_range = _parse_pair(drna_tm_range, kind=float)
         if cdna_tm_range:
             chem_params["cDNA"].tm_range = _parse_pair(cdna_tm_range, kind=float)
 
@@ -150,6 +158,7 @@ def command(
             start_no=start_no,
             last_no_from=last_no_from,
             genome_path=genome_path,
+            codebook=codebook,
         )
 
     logger.info("Running mutation pipeline with chemistries=%s", cfg.chemistries)

@@ -48,6 +48,12 @@ from probe_designer.ext.mutation.probe import (
     assemble_ilock,
 )
 from probe_designer.genome.local_fasta import build_genome_accessor
+from probe_designer.io.probe_schema import (
+    CHEM_RT,
+    apply_final_column_order,
+    make_padlock_name,
+    make_rt_primer_name,
+)
 from probe_designer.probe_assembly import assemble_plain_padlock
 from probe_designer.rt_primer import design_rt_primer
 
@@ -401,7 +407,7 @@ def _load_backbone(backbone_file: Path) -> pd.DataFrame:
 
 def _build_stitch_row(chemistry: str, merged_row, no: int,
                        bc_name: str, bc_seq: str, ilock_flap: str,
-                       backbone_file_name: str) -> Dict[str, Any]:
+                       backbone_file_name: str, codebook: str) -> Dict[str, Any]:
     suffix = f"_{chemistry}"
     arm5 = str(merged_row[f"plp_arm5{suffix}"]).lower()
     arm3 = str(merged_row[f"plp_arm3{suffix}"]).lower()
@@ -420,43 +426,48 @@ def _build_stitch_row(chemistry: str, merged_row, no: int,
         assert probe.startswith(arm5) and probe.endswith(arm3), \
             f"{chemistry} probe for {gene}@{start} violates plain-padlock layout"
 
-    name = f"{merged_row['Gene']}_{chemistry}_{merged_row['Start']}_SP_{no}"
+    position = int(merged_row["Start"])
+    probe_name = make_padlock_name(
+        name=str(merged_row["Gene"]), position=position,
+        chemistry=chemistry, codebook=codebook, no=no,
+    )
     return {
-        "No.": no, "Probe_Name": name,
-        "target_type": "mut", "chemistry": chemistry,
-        "iLock": "yes" if chemistry == "iLock" else "no",
+        "order": pd.NA,
+        "probe_name": probe_name,
+        "probe_sequence": probe,
         "gene_name": merged_row["Gene"], "clone_id": "",
-        "position": merged_row["Start"],
-        "Chr": merged_row["Chr"],
-        "Start": merged_row["Start"], "End": merged_row["End"],
-        "Ref": merged_row["Ref"], "Alt": merged_row["Alt"],
-        "Strand": merged_row.get(f"strand{suffix}", ""),
-        "Mutation_Type": merged_row.get(f"mut_type{suffix}", ""),
-        "tm_model": merged_row.get(f"tm_model{suffix}", ""),
-        "mutation_position": merged_row.get(f"mutation_position{suffix}", ""),
-        "arm_5prime": arm5, "arm_3prime": arm3,
-        "arm5_len": merged_row.get(f"arm5_len{suffix}"),
-        "arm3_len": merged_row.get(f"arm3_len{suffix}"),
-        "plp_pos5_local": merged_row.get(f"plp_pos5_local{suffix}"),
-        "iLock_flap": flap, "iLock_linker_nt": linker,
-        "backbone_No.": no, "backbone_name": bc_name, "backbone_sequence": bc_seq,
-        "Probe_Seq": probe, "Probe_Length": len(probe),
+        "chemistry": chemistry,
+        "position": position, "target_sequence": merged_row.get(f"target_sequence{suffix}", ""),
+        "probe_arm5": arm5, "probe_arm3": arm3, "probe_length": len(probe),
+        "No.": no, "codebook": codebook,
+        "backbone_name": bc_name, "backbone_sequence": bc_seq,
+        "backbone_file": backbone_file_name,
+        "gc_content": merged_row.get(f"g_content{suffix}"),
         "tm": merged_row.get(f"tm{suffix}"),
         "tm_5prime": merged_row.get(f"tm_5prime{suffix}"),
         "tm_3prime": merged_row.get(f"tm_3prime{suffix}"),
-        "g_content": merged_row.get(f"g_content{suffix}"),
-        "free_energy": merged_row.get(f"free_energy{suffix}"),
         "score": merged_row.get(f"score{suffix}"),
-        "target_sequence": merged_row.get(f"target_sequence{suffix}", ""),
-        "blast_hits_count": merged_row.get(f"blast_hits_count{suffix}", 0),
+        "free_energy": merged_row.get(f"free_energy{suffix}"),
+        "blast_hit_count": merged_row.get(f"blast_hits_count{suffix}", 0),
+        "blast_top_hits": pd.NA,
         "same_gene_exact": merged_row.get(f"same_gene_exact{suffix}", 0),
-        "backbone_file": backbone_file_name,
+        "chr": merged_row["Chr"],
+        "genomic_start": merged_row["Start"], "genomic_end": merged_row["End"],
+        "ref": merged_row["Ref"], "alt": merged_row["Alt"],
+        "strand": merged_row.get(f"strand{suffix}", ""),
+        "mutation_type": merged_row.get(f"mut_type{suffix}", ""),
+        "tm_model": merged_row.get(f"tm_model{suffix}", ""),
+        "mutation_position": merged_row.get(f"mutation_position{suffix}", ""),
+        "arm5_len": merged_row.get(f"arm5_len{suffix}"),
+        "arm3_len": merged_row.get(f"arm3_len{suffix}"),
+        "plp_pos5_local": merged_row.get(f"plp_pos5_local{suffix}"),
+        "ilock_flap": flap, "ilock_linker_nt": linker,
     }
 
 
 def _stitch(merged_df: pd.DataFrame, backbone_df: pd.DataFrame,
              start_no: int, chemistries: List[str], ilock_flap: str,
-             backbone_file_name: str) -> pd.DataFrame:
+             backbone_file_name: str, codebook: str) -> pd.DataFrame:
     backbone_by_no = {int(r["No."]): (r["Barcode"], r["Sequence"])
                       for _, r in backbone_df.iterrows()}
     n_chem = len(chemistries)
@@ -471,7 +482,7 @@ def _stitch(merged_df: pd.DataFrame, backbone_df: pd.DataFrame,
             bc_name, bc_seq = backbone_by_no[nos[chem]]
             rows.append(_build_stitch_row(
                 chem, row, nos[chem], bc_name, bc_seq, ilock_flap,
-                backbone_file_name,
+                backbone_file_name, codebook,
             ))
     return pd.DataFrame(rows).sort_values("No.").reset_index(drop=True)
 
@@ -480,18 +491,7 @@ def _save_step3_outputs(combined: pd.DataFrame, workdir: Path,
                          experiment_dir: Path) -> tuple[Path, Path, int]:
     step3 = workdir / "step3_probe_stitch"
     step3.mkdir(parents=True, exist_ok=True)
-    ordered = [
-        "No.", "Probe_Name", "target_type", "chemistry", "iLock",
-        "gene_name", "position", "Chr", "Start", "End", "Ref", "Alt", "Strand",
-        "Mutation_Type", "tm_model", "mutation_position",
-        "arm_5prime", "arm_3prime", "arm5_len", "arm3_len", "plp_pos5_local",
-        "iLock_flap", "iLock_linker_nt",
-        "backbone_No.", "backbone_name", "backbone_sequence",
-        "Probe_Seq", "Probe_Length",
-        "tm", "tm_5prime", "tm_3prime", "g_content", "free_energy", "score",
-        "target_sequence", "blast_hits_count", "same_gene_exact", "backbone_file",
-    ]
-    combined = combined[ordered]
+    combined = apply_final_column_order(combined, kind="padlock")
     patient_prefix = experiment_dir.name.rsplit("_", 1)[0]
     patient_tag = patient_prefix.split("_")[-1] if "_" in patient_prefix else "BZ"
     out_stem = f"{patient_tag}_mut_final_probes"
@@ -508,14 +508,14 @@ def _save_step3_outputs(combined: pd.DataFrame, workdir: Path,
                 "Genes": sub["gene_name"].nunique(),
                 "Tm_model": sub["tm_model"].iloc[0] if len(sub) else "",
                 "Mutation_position": sub["mutation_position"].iloc[0] if len(sub) else "",
-                "Avg Length": f"{sub['Probe_Length'].mean():.1f}" if len(sub) else "",
+                "Avg Length": f"{sub['probe_length'].mean():.1f}" if len(sub) else "",
                 "No. range": f"{sub['No.'].min()}-{sub['No.'].max()}" if len(sub) else "",
             })
         pd.DataFrame(summary_rows).to_excel(w, sheet_name="Summary", index=False)
     fasta = step3 / f"{out_stem}.fasta"
     with open(fasta, "w") as f:
         for _, r in combined.iterrows():
-            f.write(f">{r['Probe_Name']}\n{r['Probe_Seq']}\n")
+            f.write(f">{r['probe_name']}\n{r['probe_sequence']}\n")
     # Mirror to workdir root for legacy scripts that look there
     shutil.copy2(xlsx, workdir / xlsx.name)
     shutil.copy2(fasta, workdir / fasta.name)
@@ -547,12 +547,13 @@ def _run_rt_primers(combined: pd.DataFrame, cfg: MutationConfig,
     for _, row in cdna.iterrows():
         gene = row["gene_name"]
         no = row["No."]
+        position = int(row["genomic_start"])
         primer = design_rt_primer(
-            chrom=row["Chr"],
-            mut_start=int(row["Start"]),
-            mut_end=int(row["End"]),
-            strand=row.get("Strand", 1),
-            probe_arm5_len=len(str(row.get("arm_5prime", ""))),
+            chrom=row["chr"],
+            mut_start=position,
+            mut_end=int(row["genomic_end"]),
+            strand=row.get("strand", 1),
+            probe_arm5_len=len(str(row.get("probe_arm5", ""))),
             genome_accessor=genome_accessor,
             gap=cfg.rt_primer_gap,
             min_primer_len=cfg.rt_primer_min_len,
@@ -562,23 +563,28 @@ def _run_rt_primers(combined: pd.DataFrame, cfg: MutationConfig,
             tm_max=cfg.rt_primer_tm_range[1],
         )
         rows.append({
-            "No.": no, "Gene": gene, "Chr": row["Chr"],
-            "Mut_Start": row["Start"], "Mut_End": row["End"],
-            "Ref": row["Ref"], "Alt": row["Alt"],
-            "Strand": primer["strand"],
-            "Mutation_Type": row.get("Mutation_Type", ""),
-            "Padlock_Probe_Name": row["Probe_Name"],
-            "RT_Primer_Name": f"{gene}_RT_{int(row['Start'])}_SP_{no}",
-            "RT_Primer_Sequence": primer["primer_seq"],
-            "RT_Primer_Length": primer["primer_length"],
-            "Tm": primer["tm"],
-            "GC_Percent": primer["gc_percent"],
-            "Gap_nt": primer["gap_nt"],
-            "Primer_Genomic_Start": primer["primer_genomic_start"],
-            "Primer_Genomic_End": primer["primer_genomic_end"],
-            "Notes": primer["notes"],
+            "order": pd.NA,
+            "probe_name": make_rt_primer_name(name=str(gene), position=position),
+            "probe_sequence": primer["primer_seq"],
+            "gene_name": gene, "clone_id": "",
+            "chemistry": CHEM_RT,
+            "position": position, "target_sequence": pd.NA,
+            "probe_length": primer["primer_length"],
+            "gc_content": primer["gc_percent"],
+            "tm": primer["tm"],
+            "paired_padlock_probe_name": row["probe_name"],
+            "paired_padlock_no": no,
+            "notes": primer["notes"],
+            "chr": row["chr"],
+            "genomic_start": row["genomic_start"], "genomic_end": row["genomic_end"],
+            "ref": row["ref"], "alt": row["alt"],
+            "strand": primer["strand"],
+            "mutation_type": row.get("mutation_type", ""),
+            "primer_genomic_start": primer["primer_genomic_start"],
+            "primer_genomic_end": primer["primer_genomic_end"],
+            "gap_nt": primer["gap_nt"],
         })
-    res_df = pd.DataFrame(rows)
+    res_df = apply_final_column_order(pd.DataFrame(rows), kind="rt")
     xlsx = workdir / f"{patient_tag}_mut_cDNA_RT_primers.xlsx"
     fasta = workdir / f"{patient_tag}_mut_cDNA_RT_primers.fasta"
     with pd.ExcelWriter(xlsx, engine="openpyxl") as w:
@@ -592,18 +598,18 @@ def _run_rt_primers(combined: pd.DataFrame, cfg: MutationConfig,
             ],
             "Value": [
                 len(res_df),
-                f"{res_df['Tm'].min():.1f} - {res_df['Tm'].max():.1f} C",
-                f"{res_df['RT_Primer_Length'].min()} - {res_df['RT_Primer_Length'].max()} nt",
-                int((res_df["Tm"] < cfg.rt_primer_tm_range[0]).sum()),
-                int((res_df["Tm"] > cfg.rt_primer_tm_range[1]).sum()),
-                int((res_df["Notes"] != "").sum()),
+                f"{res_df['tm'].min():.1f} - {res_df['tm'].max():.1f} C",
+                f"{res_df['probe_length'].min()} - {res_df['probe_length'].max()} nt",
+                int((res_df["tm"] < cfg.rt_primer_tm_range[0]).sum()),
+                int((res_df["tm"] > cfg.rt_primer_tm_range[1]).sum()),
+                int((res_df["notes"].fillna("") != "").sum()),
             ],
         })
         summary.to_excel(w, sheet_name="Summary", index=False)
     with open(fasta, "w") as f:
         for _, r in res_df.iterrows():
-            if r["RT_Primer_Sequence"]:
-                f.write(f">{r['RT_Primer_Name']}\n{r['RT_Primer_Sequence']}\n")
+            if r["probe_sequence"]:
+                f.write(f">{r['probe_name']}\n{r['probe_sequence']}\n")
     logger.info("RT primers: %s (%d primers)", xlsx.name, len(res_df))
     return xlsx
 
@@ -698,8 +704,9 @@ def run_mutation_pipeline(cfg: MutationConfig) -> MutationResult:
         )
     backbone_df = _load_backbone(cfg.backbone_file)
     start_no = cfg.resolve_start_no()
+    codebook = cfg.resolve_codebook()
     combined = _stitch(merged_df, backbone_df, start_no, cfg.chemistries,
-                        cfg.ilock_flap, cfg.backbone_file.name)
+                        cfg.ilock_flap, cfg.backbone_file.name, codebook)
     xlsx, fasta, last_no = _save_step3_outputs(combined, workdir, experiment_dir)
 
     # Phase 4 — RT primers (cDNA only)

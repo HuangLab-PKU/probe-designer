@@ -138,8 +138,8 @@ class TcrProbeDesigner:
             target_rc = _reverse_complement(target_seq)
 
             # mRNA chemistry: probe binds mRNA directly; arms = RC of target
-            arm_3prime_mRNA = target_rc[:arm_len]
-            arm_5prime_mRNA = target_rc[arm_len:]
+            arm_3prime_dRNA = target_rc[:arm_len]
+            arm_5prime_dRNA = target_rc[arm_len:]
             # cDNA chemistry: probe binds RT-derived cDNA; arms = literal target
             # The two chemistries have arms that are reverse-complements of each other
             arm_3prime_cDNA = target_seq[:arm_len]
@@ -176,12 +176,12 @@ class TcrProbeDesigner:
                 "ligation_point": pos + arm_len,
                 "target_sequence": target_seq,
                 # mRNA chemistry
-                "arm_3prime_mRNA": arm_3prime_mRNA.lower(),
-                "arm_5prime_mRNA": arm_5prime_mRNA.lower(),
-                "tm_mRNA": round(tm_full_rna, 2),
-                "tm_5prime_mRNA": round(tm_5prime_rna, 2),
-                "tm_3prime_mRNA": round(tm_3prime_rna, 2),
-                "tm_diff_mRNA": round(abs(tm_5prime_rna - tm_3prime_rna), 2),
+                "arm_3prime_dRNA": arm_3prime_dRNA.lower(),
+                "arm_5prime_dRNA": arm_5prime_dRNA.lower(),
+                "tm_dRNA": round(tm_full_rna, 2),
+                "tm_5prime_dRNA": round(tm_5prime_rna, 2),
+                "tm_3prime_dRNA": round(tm_3prime_rna, 2),
+                "tm_diff_dRNA": round(abs(tm_5prime_rna - tm_3prime_rna), 2),
                 # cDNA chemistry
                 "arm_3prime_cDNA": arm_3prime_cDNA.lower(),
                 "arm_5prime_cDNA": arm_5prime_cDNA.lower(),
@@ -214,8 +214,8 @@ class TcrProbeDesigner:
         ``[min_arm_tm, max_arm_tm]`` window."""
         return [
             s for s in candidates
-            if self.min_arm_tm <= s["tm_5prime_mRNA"] <= self.max_arm_tm
-            and self.min_arm_tm <= s["tm_3prime_mRNA"] <= self.max_arm_tm
+            if self.min_arm_tm <= s["tm_5prime_dRNA"] <= self.max_arm_tm
+            and self.min_arm_tm <= s["tm_3prime_dRNA"] <= self.max_arm_tm
         ]
 
     def select_non_overlapping_sites(
