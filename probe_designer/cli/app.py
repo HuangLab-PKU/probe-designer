@@ -15,6 +15,7 @@ from probe_designer.cli import score as score_cmd
 from probe_designer.cli import select as select_cmd
 from probe_designer.cli import validate as validate_cmd
 from probe_designer.ext.mutation.cli import command as mutation_cmd
+from probe_designer.ext.tcr.cli import command as tcr_cmd
 
 
 app = typer.Typer(
@@ -31,6 +32,7 @@ app.command("merge", help="Merge filtered_binding_sites.xlsx files from multiple
 app.command("assemble", help="Attach backbones to binding sites to produce final probe sequences.")(assemble_cmd.assemble)
 app.command("validate", help="Load and validate a YAML config (with env-var expansion).")(validate_cmd.validate)
 app.command("mutation", help="Design padlock probes for somatic mutations (iLock / mRNA_noiLock / cDNA chemistries).")(mutation_cmd)
+app.command("tcr", help="Design padlock probes for TCR clone CDR3 regions (mRNA / cDNA chemistries; default mRNA only).")(tcr_cmd)
 
 
 @app.callback()

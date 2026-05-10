@@ -94,3 +94,50 @@ def test_out_of_range_tm_records_warning_in_notes():
     assert out["primer_seq"] != ""
     assert out["tm"] < 90.0
     assert "below" in out["notes"]
+
+
+# ---------------------------------------------------------------------------
+# design_rt_primer_from_target — TCR entry point
+# ---------------------------------------------------------------------------
+
+
+from probe_designer.rt_primer import design_rt_primer_from_target  # noqa: E402
+
+
+def test_from_target_basic_primer_in_tm_range():
+    """A balanced TRB-like sequence yields a primer in [50, 65]."""
+    # 50% GC repeating motif, plenty of length
+    target = ("ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGC"  # 40 nt BDS region
+              "AAAATTTTAAAA"                              # 12 nt gap region
+              "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGC")  # 40 nt primer region
+    out = design_rt_primer_from_target(
+        target_seq=target, target_end=40, gap=12,
+    )
+    assert out["primer_seq"]
+    assert 50.0 <= out["tm"] <= 65.0
+    assert out["primer_length"] >= 15
+    # primer is RC of target slice → should NOT equal the target slice
+    slice_taken = target[40 + 12: 40 + 12 + out["primer_length"]]
+    assert out["primer_seq"] != slice_taken
+
+
+def test_from_target_fails_when_target_too_short():
+    """If target_end + gap + min_primer_len > len(target), fail gracefully."""
+    target = "ATGCATGCATGCATGCATGCATGCATGCATGC"  # 32 nt
+    out = design_rt_primer_from_target(
+        target_seq=target, target_end=20, gap=15,
+    )
+    # 20 + 15 + 15 = 50 > 32 ⇒ no primer fits
+    assert out["primer_seq"] == ""
+    assert "FAILED" in out["notes"]
+
+
+def test_from_target_returns_target_offsets_in_record():
+    """The result records the (start, end) the primer occupies on target_seq."""
+    target = "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGC" * 4
+    out = design_rt_primer_from_target(
+        target_seq=target, target_end=40, gap=15,
+    )
+    assert out["primer_target_start"] == 55     # 40 + 15
+    assert out["primer_target_end"] == 55 + out["primer_length"]
+    assert out["strand"] == 1                   # always +1 for TCR target
