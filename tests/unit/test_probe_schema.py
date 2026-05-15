@@ -54,12 +54,16 @@ def test_final_padlock_columns_keep_no_dot_and_drop_legacy_aliases():
     assert "No." in cols
     # iLock is no longer a separate column — it lives inside `chemistry`.
     assert "iLock" not in cols
-    # Legacy alternates are gone.
+    # Legacy capitalised aliases are gone.
     assert "Probe_Name" not in cols
     assert "Probe_Seq" not in cols
-    assert "g_content" not in cols
     assert "GC_Percent" not in cols
     assert "backbone_No." not in cols
+    # Schema-v2 (Phase 0, 2026-05-14): gc_content (G+C) is the primary metric
+    # but g_content (G-only) is preserved alongside it as a legacy reporting
+    # field. The two are distinct measurements; do not collapse them.
+    assert "gc_content" in cols
+    assert "g_content" in cols
 
 
 def test_final_padlock_columns_have_no_duplicates():
@@ -228,7 +232,9 @@ def test_apply_final_column_order_rejects_unknown_kind():
     ("RT_Primer_Length", "probe_length"),
     ("arm_5prime", "probe_arm5"),
     ("arm_3prime", "probe_arm3"),
-    ("g_content", "gc_content"),
+    # Schema-v2 keeps `g_content` and `gc_content` as DISTINCT columns
+    # (G-only vs G+C). `g_content → gc_content` would silently change the
+    # column's meaning and must NOT be in LEGACY_RENAMES — see Phase 0 notes.
     ("GC_Percent", "gc_content"),
     ("Tm", "tm"),
     ("blast_hits_count", "blast_hit_count"),

@@ -58,17 +58,27 @@ class SequenceFilter:
         Returns:
             Dictionary containing filter results and thermodynamic parameters
         """
-        # Get filter parameters, prioritize parameters in kwargs
-        min_g_content = kwargs.get('min_g_content', self.filter_config.min_g_content)
-        max_g_content = kwargs.get('max_g_content', self.filter_config.max_g_content)
+        # Get filter parameters, prioritize parameters in kwargs.
+        # Schema-v2 (Phase 0): gate on gc_content; g_content is computed for legacy
+        # reporting but does NOT gate. See FilterConfig docstring for rationale.
+        min_gc_content = kwargs.get('min_gc_content', getattr(self.filter_config, 'min_gc_content', 0.35))
+        max_gc_content = kwargs.get('max_gc_content', getattr(self.filter_config, 'max_gc_content', 0.65))
         max_consecutive_g = kwargs.get('max_consecutive_g', self.filter_config.max_consecutive_g)
+        max_consecutive_a = kwargs.get('max_consecutive_a', getattr(self.filter_config, 'max_consecutive_a', 5))
+        max_consecutive_t = kwargs.get('max_consecutive_t', getattr(self.filter_config, 'max_consecutive_t', 5))
+        max_consecutive_c = kwargs.get('max_consecutive_c', getattr(self.filter_config, 'max_consecutive_c', 5))
         min_tm = kwargs.get('min_tm', self.filter_config.min_tm)
         max_tm = kwargs.get('max_tm', self.filter_config.max_tm)
         max_tm_diff = kwargs.get('max_tm_diff', getattr(self.filter_config, 'max_tm_diff', 10.0))
         min_free_energy = kwargs.get('min_free_energy', self.filter_config.min_free_energy)
         check_rna_structure = kwargs.get('check_rna_structure', getattr(self.filter_config, 'check_rna_structure', False))
-        
-        
+        # Phase 1A: callers can pass a pre-computed per-window accessibility
+        # (mean p_unpaired from RNAplfold) here. When present, it replaces
+        # the self-fold MFE check; when absent, the legacy MFE path runs.
+        target_accessibility = kwargs.get('target_accessibility', None)
+        min_accessibility = kwargs.get('min_accessibility', getattr(self.filter_config, 'min_accessibility', 0.0))
+
+
         # Initialize result dictionary
         result = {
             'arm_3prime': arm_3prime,
@@ -77,7 +87,8 @@ class SequenceFilter:
             'sequence_type': sequence_type,
             'target_type': target_type,
             'passed': False,
-            'g_content': 0.0,
+            'g_content': 0.0,        # legacy, informational only (Schema-v2 gates on gc_content)
+            'gc_content': 0.0,       # Schema-v2 primary metric
             'tm': 0.0,
             'tm_3prime': 0.0,
             'tm_5prime': 0.0,
@@ -88,45 +99,77 @@ class SequenceFilter:
             'arm_3prime_length': len(arm_3prime),
             'arm_5prime_length': len(arm_5prime)
         }
-        
-        # 1. Check G content per arm (padlock arms evaluated分别)
+
+        # 1. Compute G-only and GC content per arm. Gate on GC (Schema-v2);
+        #    G-only is recorded for backward compat but is not a gate.
+        def frac_base(seq: str, bases: str) -> float:
+            if not seq:
+                return 0.0
+            s = seq.upper()
+            return sum(s.count(b) for b in bases) / len(s)
         def frac_g(seq: str) -> float:
-            return (seq.upper().count('G') / len(seq)) if seq else 0.0
+            return frac_base(seq, 'G')
+        def frac_gc(seq: str) -> float:
+            return frac_base(seq, 'GC')
         g_content_arm3 = frac_g(arm_3prime)
         g_content_arm5 = frac_g(arm_5prime)
-        # Backward-compat summary as均值
+        gc_content_arm3 = frac_gc(arm_3prime)
+        gc_content_arm5 = frac_gc(arm_5prime)
+        # Summary (mean across arms) for back-compat with existing consumers.
         result['g_content'] = (g_content_arm3 + g_content_arm5) / 2.0
+        result['gc_content'] = (gc_content_arm3 + gc_content_arm5) / 2.0
         result['g_content_arm3'] = g_content_arm3
         result['g_content_arm5'] = g_content_arm5
-        if not (min_g_content <= g_content_arm3 <= max_g_content):
-            result['failed_checks'].append('g_content_arm3')
-        if not (min_g_content <= g_content_arm5 <= max_g_content):
-            result['failed_checks'].append('g_content_arm5')
-        
-        # 2. Check consecutive Gs (G-quadruplex risk) on each component separately
-        def has_g_run(seq: str, threshold: int) -> bool:
+        result['gc_content_arm3'] = gc_content_arm3
+        result['gc_content_arm5'] = gc_content_arm5
+        if not (min_gc_content <= gc_content_arm3 <= max_gc_content):
+            result['failed_checks'].append('gc_content_arm3')
+        if not (min_gc_content <= gc_content_arm5 <= max_gc_content):
+            result['failed_checks'].append('gc_content_arm5')
+
+        # 2. Homopolymer runs on each arm AND target sequence, for all four bases.
+        #    Gate threshold per-base (G defaults to 5 to match A/T/C).
+        def max_run(seq: str, base: str) -> int:
             if not seq:
-                return False
-            run = 0
+                return 0
+            best = run = 0
             for ch in seq.upper():
-                if ch == 'G':
+                if ch == base:
                     run += 1
-                    if run >= threshold:
-                        return True
+                    if run > best:
+                        best = run
                 else:
                     run = 0
-            return False
+            return best
 
-        has_g_arm3 = has_g_run(arm_3prime, max_consecutive_g)
-        has_g_arm5 = has_g_run(arm_5prime, max_consecutive_g)
-        has_g_target = has_g_run(target_sequence, max_consecutive_g) if target_sequence else False
+        homopoly_thresholds = {
+            'A': max_consecutive_a, 'T': max_consecutive_t,
+            'C': max_consecutive_c, 'G': max_consecutive_g,
+        }
+        homopoly_failed = False
+        for arm_label, arm_seq in (('arm3', arm_3prime), ('arm5', arm_5prime)):
+            for base, thresh in homopoly_thresholds.items():
+                run_len = max_run(arm_seq, base)
+                result[f'homopoly_{base}_{arm_label}'] = run_len
+                if run_len >= thresh:
+                    result['failed_checks'].append(f'consecutive_{base.lower()}_{arm_label}')
+                    homopoly_failed = True
+        # Target seq is RNA context; only the G-run matters there (G-quadruplex)
+        target_g_run = max_run(target_sequence, 'G') if target_sequence else 0
+        result['homopoly_G_target'] = target_g_run
+        if target_g_run >= max_consecutive_g:
+            result['failed_checks'].append('consecutive_g_target')
+            homopoly_failed = True
 
-        result['has_consecutive_g'] = any([has_g_arm3, has_g_arm5, has_g_target])
-        result['has_consecutive_g_arm3'] = has_g_arm3
-        result['has_consecutive_g_arm5'] = has_g_arm5
-        result['has_consecutive_g_target'] = has_g_target
-        if result['has_consecutive_g']:
-            result['failed_checks'].append('consecutive_g')
+        # Legacy summary field; True iff any G-run hit the gate anywhere
+        result['has_consecutive_g'] = (
+            result['homopoly_G_arm3'] >= max_consecutive_g
+            or result['homopoly_G_arm5'] >= max_consecutive_g
+            or target_g_run >= max_consecutive_g
+        )
+        result['has_consecutive_g_arm3'] = result['homopoly_G_arm3'] >= max_consecutive_g
+        result['has_consecutive_g_arm5'] = result['homopoly_G_arm5'] >= max_consecutive_g
+        result['has_consecutive_g_target'] = target_g_run >= max_consecutive_g
         
         # 3-5. Compute padlock thermodynamic parameters (full and arm Tm) via helper
         thermo = self._compute_padlock_thermo(
@@ -153,8 +196,15 @@ class SequenceFilter:
         if result['tm_diff'] > max_tm_diff:
             result['failed_checks'].append('tm_diff')
         
-        # 6. Check RNA secondary structure (if enabled and target sequence provided)
-        if check_rna_structure and target_sequence and target_type == "RNA":
+        # 6. Target accessibility / RNA structure gate.
+        #    Phase 1A: when the caller supplies a pre-computed `target_accessibility`
+        #    (RNAplfold mean p_unpaired aggregated across relevant isoforms), use
+        #    that. Otherwise fall back to the legacy per-window self-fold MFE.
+        result['target_accessibility'] = target_accessibility
+        if target_accessibility is not None:
+            if target_accessibility < min_accessibility:
+                result['failed_checks'].append('accessibility')
+        elif check_rna_structure and target_sequence and target_type == "RNA":
             if not _HAS_VIENNARNA:
                 warnings.warn("ViennaRNA not installed; skipping RNA structure check")
             else:
@@ -244,9 +294,13 @@ class SequenceFilter:
                 )
                 
                 if thermal_result['passed']:
-                    # Update site dictionary with thermodynamic parameters
+                    # Update site dictionary with thermodynamic parameters.
+                    # Schema-v2 emits both g_content (legacy, mean of arms) and
+                    # gc_content (primary GC% metric) so downstream consumers
+                    # see both during the migration window.
                     site.update({
                         'g_content': thermal_result['g_content'],
+                        'gc_content': thermal_result['gc_content'],
                         'tm': thermal_result['tm'],
                         'tm_3prime': thermal_result['tm_3prime'],
                         'tm_5prime': thermal_result['tm_5prime'],
@@ -1091,7 +1145,8 @@ class SequenceFilter:
         all_sites = []
         for gene_name, sites in filtered_sites.items():
             for site in sites:
-                # Build site_data with ordered fields for better Excel readability
+                # Build site_data with ordered fields for better Excel readability.
+                # Schema-v2: gc_content is the primary GC metric; g_content kept for legacy.
                 site_data = {
                     'gene_name': gene_name,
                     'sequence': site['sequence'],
@@ -1100,6 +1155,7 @@ class SequenceFilter:
                     'tm3': site['tm_3'],
                     'tm5': site['tm_5'],
                     'target_seq': site['target_sequence'],
+                    'gc_content': site.get('gc_content'),
                     'g_content': site['g_content'],
                     'tm': site['tm'],
                     'strategy': site['strategy'],

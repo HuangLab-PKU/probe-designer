@@ -15,9 +15,15 @@ search:
   genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file)
 
 filter:
-  min_g_content: 0.3
-  max_g_content: 0.7
+  # Schema-v2 (2026-05-14): gate on GC%; legacy G-only fields kept for back-compat
+  min_gc_content: 0.35
+  max_gc_content: 0.65
+  min_g_content: 0.3    # DEPRECATED
+  max_g_content: 0.7    # DEPRECATED
   max_consecutive_g: 5
+  max_consecutive_a: 5
+  max_consecutive_t: 5
+  max_consecutive_c: 5
   min_tm: 50.0
   max_tm: 70.0
   max_tm_diff: 10.0
@@ -25,6 +31,11 @@ filter:
   check_rna_structure: true
   require_specificity: true
   final_probes_per_gene: 3
+  # Phase 1A: target-accessibility gate (RNAplfold). 0 disables; set to 0.30 to enable.
+  min_accessibility: 0.0
+  plfold_window: 70
+  plfold_span: 40
+  plfold_temperature: 37.0
 
 blast:
   blast_type: "local"

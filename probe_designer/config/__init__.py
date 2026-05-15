@@ -32,17 +32,47 @@ class SearchConfig:
 
 @dataclass
 class FilterConfig:
-    """Sequence filtering configuration."""
+    """Sequence filtering configuration.
+
+    Schema-v2 (Phase 0, 2026-05-14) distinguishes G-only content from GC content.
+    Historically `min_g_content` / `max_g_content` counted only G nucleotides,
+    which under-rejects cDNA-chemistry arms (G is depleted by mRNA→cDNA strand
+    flip) and over-rejects when GC is normal. The new gate is GC fraction
+    (G+C), with defaults anchored to a 2026-05-13 audit of BZ23/TNBC panels
+    (`experiments/20260513_gc_content_audit/FINDINGS.md`).
+
+    The legacy G-only fields are accepted for backward-compatibility and emit
+    a DeprecationWarning when used; new pipelines should set `min/max_gc_content`.
+    """
     # Pre-BLAST rules (thermal properties)
-    min_g_content: float = 0.3  # min G fraction per arm
-    max_g_content: float = 0.7  # max G fraction
-    max_consecutive_g: int = 4  # max consecutive Gs allowed
+    # --- GC-content gate (Schema-v2, Phase 0) ---
+    min_gc_content: float = 0.35  # min G+C fraction per arm (audit-anchored compromise)
+    max_gc_content: float = 0.65  # max G+C fraction per arm
+    # --- legacy G-only gate (kept for backward compat; emits deprecation warning) ---
+    min_g_content: float = 0.3  # DEPRECATED — counts only G nucleotides; prefer min_gc_content
+    max_g_content: float = 0.7  # DEPRECATED — counts only G nucleotides; prefer max_gc_content
+    # --- homopolymer gates: all four bases now checked ---
+    max_consecutive_g: int = 5  # max consecutive G; default raised to 5 to align with A/T/C
+    max_consecutive_a: int = 5  # max consecutive A
+    max_consecutive_t: int = 5  # max consecutive T
+    max_consecutive_c: int = 5  # max consecutive C
+    # --- Tm + structure ---
     min_tm: float = 45.0  # min melting temperature
     max_tm: float = 65.0  # max melting temperature
     max_tm_diff: float = 10.0  # max Tm difference between 3' and 5' halves
     min_free_energy: float = -10.0  # min free energy (kcal/mol)
     check_rna_structure: bool = False  # whether to check RNA secondary structure
-    
+    # --- Phase 1A: target-accessibility gate (RNAplfold) ---
+    # When min_accessibility > 0, the search strategy computes per-base
+    # unpaired probability via RNAplfold over the FULL transcript and
+    # gates each candidate window on its mean accessibility. When
+    # min_accessibility == 0 (default), the legacy check_rna_structure
+    # self-fold path runs instead. See filtering/accessibility.py.
+    min_accessibility: float = 0.0  # 0 disables; recommended 0.30 when on
+    plfold_window: int = 70         # RNAplfold W (sliding window size)
+    plfold_span: int = 40           # RNAplfold L (max bp span within window)
+    plfold_temperature: float = 37.0  # °C; raise to 47-55 to approximate formamide
+
     # Post-BLAST rules
     max_alignments: int = 5  # max allowed alignments (specificity)
     require_specificity: bool = True  # enforce specificity in BLAST filter
@@ -296,9 +326,14 @@ class ConfigManager:
                 'step_size': self.search.step_size
             },
             'filter': {
-                'min_g_content': self.filter.min_g_content,
-                'max_g_content': self.filter.max_g_content,
+                'min_gc_content': self.filter.min_gc_content,
+                'max_gc_content': self.filter.max_gc_content,
+                'min_g_content': self.filter.min_g_content,  # deprecated
+                'max_g_content': self.filter.max_g_content,  # deprecated
                 'max_consecutive_g': self.filter.max_consecutive_g,
+                'max_consecutive_a': self.filter.max_consecutive_a,
+                'max_consecutive_t': self.filter.max_consecutive_t,
+                'max_consecutive_c': self.filter.max_consecutive_c,
                 'min_tm': self.filter.min_tm,
                 'max_tm': self.filter.max_tm,
                 'max_tm_diff': self.filter.max_tm_diff,
@@ -350,7 +385,14 @@ class ConfigManager:
         if self.search.max_binding_sites <= 0:
             errors.append("max_binding_sites must be > 0")
         
-        # filters
+        # filters: GC% gate (Schema-v2)
+        if not (0 <= self.filter.min_gc_content <= 1):
+            errors.append("min_gc_content must be between 0 and 1")
+        if not (0 <= self.filter.max_gc_content <= 1):
+            errors.append("max_gc_content must be between 0 and 1")
+        if self.filter.min_gc_content >= self.filter.max_gc_content:
+            errors.append("min_gc_content must be < max_gc_content")
+        # filters: legacy G-only gate (kept for backward compat)
         if not (0 <= self.filter.min_g_content <= 1):
             errors.append("min_g_content must be between 0 and 1")
         if not (0 <= self.filter.max_g_content <= 1):

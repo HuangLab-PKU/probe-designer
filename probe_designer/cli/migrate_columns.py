@@ -223,9 +223,28 @@ def _regenerate_rt_primer_names(
 def _migrate_one(
     fp: Path, *, kind: str, codebook: Optional[str], dry_run: bool,
 ) -> dict:
-    """Migrate a single Excel file. Returns a stats dict."""
+    """Migrate a single Excel file. Returns a stats dict.
+
+    Schema-v2 (Phase 0) keeps ``g_content`` (G-only) and ``gc_content`` (G+C)
+    as distinct columns. Legacy files have only ``g_content`` and store
+    G-only values there; migration preserves them and emits an empty
+    ``gc_content`` column (the user must re-run design to populate it). We
+    log a one-line warning per such file so this is not silently missed.
+    """
     df = pd.read_excel(fp)
     original_cols = df.columns.tolist()
+    has_legacy_g_only = (
+        kind == "padlock"
+        and "g_content" in original_cols
+        and "gc_content" not in original_cols
+    )
+    if has_legacy_g_only:
+        logger.warning(
+            "%s: legacy file has g_content but no gc_content. The migrated file "
+            "will contain g_content (G-only fraction, kept for back-compat) plus "
+            "an empty gc_content column. Re-run probe-design to populate gc_content.",
+            fp,
+        )
     # Legacy mutation RT primer files use the standalone `No.` column to
     # store the *paired* padlock's number (RT primers don't get their own
     # codebook slot). Rewrite it before the generic renames run, so we

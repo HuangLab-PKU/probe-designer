@@ -18,6 +18,17 @@ ipython>=8.0.0
 # ViennaRNA is now available on Windows, Linux, and macOS
 ViennaRNA>=2.7.0
 
+# Phase 3 (2026-05-14) — scRNA-seq panel-level QC (anndata + scanpy adapters).
+# The QC core works on raw NumPy matrices without these; install only if
+# you use compute_expression_qc_from_anndata or the --scrna-seq CLI flag.
+anndata>=0.10
+scanpy>=1.10
+
+# Phase 2D (2026-05-14) — NUPACK pool ensemble (Tier 3 cross-ligation).
+# Requires academic registration at nupack.org + manual pip install from
+# their tarball. NOT installed by default; gated behind `has_nupack()`.
+# nupack>=4.0
+
 # Optional: Enhanced performance
 # bottleneck>=1.3.0
 # numexpr>=2.8.0

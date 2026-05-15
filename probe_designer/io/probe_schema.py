@@ -59,8 +59,10 @@ FINAL_PADLOCK_COLUMNS: list[str] = [
     "probe_arm5", "probe_arm3", "probe_length",
     # 6. encoding
     "No.", "codebook", "backbone_name", "backbone_sequence", "backbone_file",
-    # 7. thermodynamics
-    "gc_content", "tm", "tm_5prime", "tm_3prime",
+    # 7. thermodynamics (Schema-v2 keeps both for back-compat:
+    #    gc_content = G+C fraction (the primary gate, set by Phase 0 thermal_filter);
+    #    g_content  = G-only fraction (legacy; informational only).
+    "gc_content", "g_content", "tm", "tm_5prime", "tm_3prime",
     # 8. quality
     "score", "free_energy",
     # 9. BLAST
@@ -115,7 +117,10 @@ LEGACY_RENAMES: dict[str, str] = {
     "arm_5prime": "probe_arm5",
     "arm_3prime": "probe_arm3",
     # GC + Tm
-    "g_content": "gc_content",
+    # Schema-v2 keeps g_content and gc_content as distinct columns (one counts
+    # G only, the other G+C). DO NOT rename g_content → gc_content; the values
+    # are not interchangeable. Legacy `GC_Percent` columns, in contrast, are
+    # unambiguously G+C and can be safely mapped to gc_content.
     "GC_Percent": "gc_content",
     "Tm": "tm",
     # BLAST

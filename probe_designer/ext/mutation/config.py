@@ -106,7 +106,14 @@ class MutationConfig:
     # Probe geometry knobs (shared across chemistries via FilterConfig)
     arm_len_range: Tuple[int, int] = (10, 30)
     ini_arm_len: int = 20
-    g_content_range: Tuple[float, float] = (0.1, 0.9)
+    # Schema-v2 (Phase 0, 2026-05-14): mutation pipeline gates on GC%; the
+    # legacy g_content_range field is kept for back-compat but does not gate.
+    # Mutation arms are length-variable (10–30 nt) and tightly constrained
+    # by mutation context, so the default GC window mirrors the legacy
+    # G-only permissiveness (essentially "anything goes"). Tightened only
+    # when a specific panel needs it via YAML override.
+    gc_content_range: Tuple[float, float] = (0.10, 0.90)
+    g_content_range: Tuple[float, float] = (0.1, 0.9)  # DEPRECATED — informational only
     g_consecutive_max: int = 7
     mfe_min: float = -15.0
     max_tm_diff: float = 20.0

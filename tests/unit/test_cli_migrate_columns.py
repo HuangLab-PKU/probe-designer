@@ -125,8 +125,9 @@ class TestMigrateColumns:
         # Schema-v2 leading three columns + every schema column present.
         assert df.columns.tolist()[:3] == ["order", "probe_name", "probe_sequence"]
         assert set(FINAL_PADLOCK_COLUMNS).issubset(df.columns)
-        # legacy columns gone
-        for legacy in ("Probe_Name", "Probe_Seq", "arm_5prime", "g_content",
+        # legacy columns gone. Schema-v2 keeps g_content as a distinct
+        # legacy-reporting column (G-only fraction), so it is NOT in this list.
+        for legacy in ("Probe_Name", "Probe_Seq", "arm_5prime",
                         "iLock", "Chr", "Start", "backbone_No."):
             assert legacy not in df.columns
 

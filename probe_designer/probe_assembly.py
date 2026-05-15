@@ -282,7 +282,11 @@ class ProbeAssembler:
             "No.": no, "codebook": codebook,
             "backbone_name": pd.NA,
             "backbone_sequence": backbone,
-            "gc_content": site.get("g_content"),
+            # Schema-v2 keeps both metrics as distinct columns. The thermal
+            # filter (Phase 0+) populates both; pre-Phase-0 binding-site dicts
+            # only have g_content, so gc_content stays NaN for those.
+            "gc_content": site.get("gc_content"),
+            "g_content": site.get("g_content"),
             "tm": site.get("tm"),
             "tm_5prime": site.get("tm_5prime"),
             "tm_3prime": site.get("tm_3prime"),

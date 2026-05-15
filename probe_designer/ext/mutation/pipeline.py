@@ -112,10 +112,22 @@ _DESIGNER_DISPATCH = {
 
 def _build_filter_config(cfg: MutationConfig, chemistry: str) -> FilterConfig:
     chem = cfg.chemistry_params[chemistry]
+    # Schema-v2 (Phase 0): GC% is the active gate; the legacy G-only fields
+    # are kept for back-compat but no longer gate. The mutation pipeline
+    # historically gated only G-runs (via g_consecutive_max) — A/T/C runs
+    # were never gated for mutation probes (their length is constrained by
+    # mutation context, not free design). Keep A/T/C effectively disabled
+    # here so Phase 0's new homopolymer rule doesn't silently shed legacy
+    # mutation probes; mRNA pipeline does enable the full ATCG gate.
     return FilterConfig(
+        min_gc_content=cfg.gc_content_range[0],
+        max_gc_content=cfg.gc_content_range[1],
         min_g_content=cfg.g_content_range[0],
         max_g_content=cfg.g_content_range[1],
         max_consecutive_g=cfg.g_consecutive_max,
+        max_consecutive_a=999,   # effectively off — mutation didn't gate A/T/C historically
+        max_consecutive_t=999,
+        max_consecutive_c=999,
         min_tm=chem.tm_range[0],
         max_tm=chem.tm_range[1],
         max_tm_diff=cfg.max_tm_diff,
@@ -226,6 +238,7 @@ def _save_step1_outputs(results: List[Dict], chemistry: str,
             "tm_3prime": best.get("tm_3prime"),
             "tm_diff": best.get("tm_diff"),
             "g_content": best.get("g_content"),
+            "gc_content": best.get("gc_content"),  # Schema-v2 (Phase 0)
             "free_energy": best.get("free_energy"),
             "score": best.get("score"),
             "target_sequence": best.get("target_sequence", ""),
@@ -442,7 +455,14 @@ def _build_stitch_row(chemistry: str, merged_row, no: int,
         "No.": no, "codebook": codebook,
         "backbone_name": bc_name, "backbone_sequence": bc_seq,
         "backbone_file": backbone_file_name,
-        "gc_content": merged_row.get(f"g_content{suffix}"),
+        # Schema-v2 (Phase 0): prefer the real gc_content column; fall back to
+        # legacy g_content only for old step1 files that pre-date the fix.
+        "gc_content": (
+            merged_row.get(f"gc_content{suffix}")
+            if pd.notna(merged_row.get(f"gc_content{suffix}", pd.NA))
+            else merged_row.get(f"g_content{suffix}")
+        ),
+        "g_content": merged_row.get(f"g_content{suffix}"),
         "tm": merged_row.get(f"tm{suffix}"),
         "tm_5prime": merged_row.get(f"tm_5prime{suffix}"),
         "tm_3prime": merged_row.get(f"tm_3prime{suffix}"),

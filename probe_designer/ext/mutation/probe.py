@@ -304,6 +304,7 @@ class MutationProbeDesigner:
                     'tm_3prime': thermal_result['tm_3prime'],
                     'tm_diff': thermal_result['tm_diff'],
                     'g_content': thermal_result['g_content'],
+                    'gc_content': thermal_result.get('gc_content'),  # Schema-v2
                     'free_energy': thermal_result['free_energy'],
                     'passed_thermal_filter': thermal_result['passed'],
                     'failed_thermal_checks': thermal_result.get('failed_checks', [])
