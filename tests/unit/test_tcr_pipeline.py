@@ -74,7 +74,9 @@ def test_pipeline_smoke_bz23_drna_only_skip_blast(tmp_path: Path):
 
 
 def test_pipeline_smoke_bz23_dual_chemistry(tmp_path: Path):
-    """--chemistries dRNA,cDNA -> 2 probes per site + RT primers auto-run."""
+    """--chemistries dRNA,cDNA — dRNA + cDNA each independently selected;
+    Nos are SHARED per (clone, site_index) across chemistries.
+    """
     _require_assets()
 
     fake_experiment = tmp_path / "20260510_ZCH_BZ23_TCR_dual"
@@ -95,9 +97,155 @@ def test_pipeline_smoke_bz23_dual_chemistry(tmp_path: Path):
     )
     result = run_tcr_pipeline(cfg)
 
-    assert result.probes_total == result.sites_selected * 2  # 2 chemistries
     assert result.rt_primers_xlsx is not None
     assert result.rt_primers_xlsx.exists()
 
     df = pd.read_excel(result.final_probes_xlsx)
     assert set(df["chemistry"]) == {"dRNA", "cDNA"}
+    # Shared-No. policy: within a clone, dRNA + cDNA rows of site_index 0
+    # share the same `No.` AND the same `backbone_sequence`.
+    for clone_id, sub in df.groupby("clone_id"):
+        drna = sub[sub["chemistry"] == "dRNA"].sort_values("position")
+        cdna = sub[sub["chemistry"] == "cDNA"].sort_values("position")
+        if len(drna) > 0 and len(cdna) > 0:
+            assert drna.iloc[0]["No."] == cdna.iloc[0]["No."], (
+                f"{clone_id}: site#0 dRNA No.{drna.iloc[0]['No.']} != "
+                f"cDNA No.{cdna.iloc[0]['No.']}"
+            )
+            assert drna.iloc[0]["backbone_sequence"] == cdna.iloc[0]["backbone_sequence"]
+
+
+# ---------------------------------------------------------------------------
+# Per-chemistry independent selection — the architectural change
+# ---------------------------------------------------------------------------
+
+
+def test_dual_chemistry_gates_applied_independently(tmp_path: Path):
+    """The dRNA Tm gate and cDNA Tm gate are applied INDEPENDENTLY in phase 1.
+
+    Set the dRNA gate to a window no real site can satisfy; only cDNA
+    chemistry should produce probes. Architectural proof that the two
+    chemistries are not piggybacking on a shared selection.
+    """
+    _require_assets()
+
+    fake_experiment = tmp_path / "independent_gates"
+    (fake_experiment / "input").mkdir(parents=True)
+    (fake_experiment / "output").mkdir()
+    input_xlsx = fake_experiment / "input" / "BZ23_tcr_clones.xlsx"
+    shutil.copy2(BZ23_TCR_INPUT, input_xlsx)
+
+    cfg = TcrConfig(
+        input_xlsx=input_xlsx,
+        output_dir=fake_experiment / "output",
+        backbone_file=BACKBONE,
+        chemistries=["dRNA", "cDNA"],
+        start_no=200,
+        sites_per_clone=2,
+        tm_range=(200.0, 300.0),       # impossible — drops all dRNA candidates
+        cdna_tm_range=(50.0, 80.0),    # permissive — keeps cDNA
+        skip_blast=True,
+        plot_tm_landscape=False,
+        codebook="SP369",
+    )
+    result = run_tcr_pipeline(cfg)
+    df = pd.read_excel(result.final_probes_xlsx)
+    assert set(df["chemistry"]) == {"cDNA"}, (
+        f"Expected ONLY cDNA probes when dRNA gate is impossible; got "
+        f"{set(df['chemistry'])}"
+    )
+    assert result.sites_selected_per_chem["dRNA"] == 0
+    assert result.sites_selected_per_chem["cDNA"] > 0
+
+
+# ---------------------------------------------------------------------------
+# Shared-No. policy: dRNA + cDNA share No. per (clone, site_index)
+# ---------------------------------------------------------------------------
+
+
+def test_shared_no_simple_one_site_per_clone(tmp_path: Path):
+    """One clone, both chemistries pick one site each — same No. + backbone."""
+    _require_assets()
+
+    fake_experiment = tmp_path / "shared_no_simple"
+    (fake_experiment / "input").mkdir(parents=True)
+    (fake_experiment / "output").mkdir()
+    input_xlsx = fake_experiment / "input" / "BZ23_tcr_clones.xlsx"
+    shutil.copy2(BZ23_TCR_INPUT, input_xlsx)
+
+    cfg = TcrConfig(
+        input_xlsx=input_xlsx,
+        output_dir=fake_experiment / "output",
+        backbone_file=BACKBONE,
+        chemistries=["dRNA", "cDNA"],
+        start_no=200,
+        sites_per_clone=1,
+        skip_blast=True,
+        plot_tm_landscape=False,
+        codebook="SP369",
+    )
+    result = run_tcr_pipeline(cfg)
+    df = pd.read_excel(result.final_probes_xlsx)
+
+    # For every clone with both chemistries, the two rows share No. and backbone.
+    for clone_id, sub in df.groupby("clone_id"):
+        chems = set(sub["chemistry"])
+        if chems == {"dRNA", "cDNA"}:
+            assert len(set(sub["No."])) == 1, (
+                f"{clone_id}: dRNA + cDNA rows should share No.; got {sorted(sub['No.'])}"
+            )
+            assert len(set(sub["backbone_sequence"])) == 1
+
+
+def test_shared_no_multi_site_pairs_by_index(tmp_path: Path):
+    """Multi-site clone: dRNA[0] pairs with cDNA[0] on one No., dRNA[1] (no
+    cDNA partner) takes the next No. alone."""
+    import pandas as pd
+
+    # Synthetic clone with a long enough allowed region that 2 non-overlapping
+    # sites can be selected per chemistry.
+    cdr3 = ("ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
+            "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT")
+    flank = "AAAA" * 30
+    chain = flank + cdr3 + flank
+
+    input_xlsx = tmp_path / "input" / "syn.xlsx"
+    input_xlsx.parent.mkdir(parents=True)
+    pd.DataFrame([{
+        "Clone_name": "SynClone",
+        "consensus_id": "syn1",
+        "cdr3_nt": cdr3,
+        "TRB_nt": chain,
+    }]).to_excel(input_xlsx, index=False)
+    out_dir = tmp_path / "output"
+    out_dir.mkdir()
+
+    cfg = TcrConfig(
+        input_xlsx=input_xlsx,
+        output_dir=out_dir,
+        backbone_file=BACKBONE,
+        chemistries=["dRNA", "cDNA"],
+        start_no=200,
+        sites_per_clone=2,
+        tm_range=(30.0, 90.0),
+        cdna_tm_range=(30.0, 90.0),
+        skip_blast=True,
+        plot_tm_landscape=False,
+        codebook="SP369",
+    )
+    result = run_tcr_pipeline(cfg)
+    df = pd.read_excel(result.final_probes_xlsx).sort_values(["chemistry", "position"])
+
+    # Worked-pairing check: per chemistry, sites sorted by position get
+    # site_index 0, 1. Site index 0 across both chemistries → same No.
+    drna = df[df["chemistry"] == "dRNA"].sort_values("position").reset_index(drop=True)
+    cdna = df[df["chemistry"] == "cDNA"].sort_values("position").reset_index(drop=True)
+    if len(drna) >= 1 and len(cdna) >= 1:
+        assert drna.iloc[0]["No."] == cdna.iloc[0]["No."]
+    # Whenever both chemistries have a second site, those share too.
+    if len(drna) >= 2 and len(cdna) >= 2:
+        assert drna.iloc[1]["No."] == cdna.iloc[1]["No."]
+    # Numbering is contiguous starting from start_no.
+    nos = sorted(set(df["No."]))
+    assert nos == list(range(min(nos), max(nos) + 1))
+    assert min(nos) == 200

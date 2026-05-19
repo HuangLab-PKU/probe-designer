@@ -145,16 +145,16 @@ class TcrProbeDesigner:
             arm_3prime_cDNA = target_seq[:arm_len]
             arm_5prime_cDNA = target_seq[arm_len:]
 
-            try:
-                tm_full_rna = mt.Tm_NN(target_seq, nn_table=mt.R_DNA_NN1)
-                tm_5prime_rna = mt.Tm_NN(target_seq[arm_len:], nn_table=mt.R_DNA_NN1)
-                tm_3prime_rna = mt.Tm_NN(target_seq[:arm_len], nn_table=mt.R_DNA_NN1)
-                tm_full_dna = mt.Tm_NN(target_seq, nn_table=mt.DNA_NN4)
-                tm_5prime_dna = mt.Tm_NN(target_seq[arm_len:], nn_table=mt.DNA_NN4)
-                tm_3prime_dna = mt.Tm_NN(target_seq[:arm_len], nn_table=mt.DNA_NN4)
-            except Exception:
-                tm_full_rna = tm_5prime_rna = tm_3prime_rna = 0.0
-                tm_full_dna = tm_5prime_dna = tm_3prime_dna = 0.0
+            # dRNA Tm uses target_rc (= the actual probe-arm DNA strand)
+            # because R_DNA_NN1 is asymmetric in DNA vs RNA strand
+            # (Sugimoto 1995). cDNA Tm uses target_seq directly because
+            # DNA_NN4 is symmetric. See test_drna_tm_computed_on_actual_probe_arm_dna_strand.
+            tm_full_rna = mt.Tm_NN(target_rc, nn_table=mt.R_DNA_NN1)
+            tm_5prime_rna = mt.Tm_NN(target_rc[arm_len:], nn_table=mt.R_DNA_NN1)
+            tm_3prime_rna = mt.Tm_NN(target_rc[:arm_len], nn_table=mt.R_DNA_NN1)
+            tm_full_dna = mt.Tm_NN(target_seq, nn_table=mt.DNA_NN4)
+            tm_5prime_dna = mt.Tm_NN(target_seq[arm_len:], nn_table=mt.DNA_NN4)
+            tm_3prime_dna = mt.Tm_NN(target_seq[:arm_len], nn_table=mt.DNA_NN4)
 
             g_5 = target_seq[:arm_len].count("G") / arm_len
             g_3 = target_seq[arm_len:].count("G") / arm_len
@@ -188,6 +188,7 @@ class TcrProbeDesigner:
                 "tm_cDNA": round(tm_full_dna, 2),
                 "tm_5prime_cDNA": round(tm_5prime_dna, 2),
                 "tm_3prime_cDNA": round(tm_3prime_dna, 2),
+                "tm_diff_cDNA": round(abs(tm_5prime_dna - tm_3prime_dna), 2),
                 # G content (computed on target → same for both chemistries)
                 "g_content": round((g_5 + g_3) / 2, 3),
                 "g_content_5prime": round(g_5, 3),
@@ -207,16 +208,21 @@ class TcrProbeDesigner:
     # Filtering + selection
     # ------------------------------------------------------------------
 
-    def filter_by_mrna_tm(
-        self, candidates: List[Dict[str, Any]],
+    def filter_by_chemistry_tm(
+        self,
+        candidates: List[Dict[str, Any]],
+        *,
+        chemistry: str,
+        tm_range: Optional[tuple] = None,
     ) -> List[Dict[str, Any]]:
-        """Keep only sites whose 5' AND 3' mRNA arm Tms fall in the configured
-        ``[min_arm_tm, max_arm_tm]`` window."""
-        return [
-            s for s in candidates
-            if self.min_arm_tm <= s["tm_5prime_dRNA"] <= self.max_arm_tm
-            and self.min_arm_tm <= s["tm_3prime_dRNA"] <= self.max_arm_tm
-        ]
+        """Keep only sites whose chemistry-specific 5' AND 3' arm Tms fall
+        in the gate. ``chemistry`` is ``"dRNA"`` or ``"cDNA"``. If
+        ``tm_range`` is None, falls back to ``[min_arm_tm, max_arm_tm]``
+        (originally set on the designer)."""
+        lo, hi = tm_range if tm_range is not None else (self.min_arm_tm, self.max_arm_tm)
+        k5 = f"tm_5prime_{chemistry}"
+        k3 = f"tm_3prime_{chemistry}"
+        return [s for s in candidates if lo <= s[k5] <= hi and lo <= s[k3] <= hi]
 
     def select_non_overlapping_sites(
         self,

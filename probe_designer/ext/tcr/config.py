@@ -57,8 +57,16 @@ class TcrConfig:
     arm_len: int = 20
     sites_per_clone: int = 3
 
-    # mRNA arm Tm filter (cDNA Tm is informational, not gated)
-    tm_range: Tuple[float, float] = (50.0, 60.0)
+    # Per-chemistry arm Tm filters. Each chemistry's BDS selection is gated
+    # by ITS OWN Tm window — the two chemistries are designed independently
+    # (different physical targets: mRNA vs RT-cDNA) and may pick different
+    # BDS positions per clone.
+    #
+    # Default window is [50, 60] for BOTH chemistries (lab preference). If a
+    # rescue pass is needed, lower the floor toward 45 rather than raising
+    # the ceiling — high Tm raises off-target risk.
+    tm_range: Tuple[float, float] = (50.0, 60.0)         # dRNA gate
+    cdna_tm_range: Tuple[float, float] = (50.0, 60.0)    # cDNA gate
 
     # Numbering / backbone
     start_no: Optional[int] = None
@@ -106,6 +114,7 @@ class TcrConfig:
 
         # Validate Tm ranges
         for label, lo_hi in (("tm_range", self.tm_range),
+                             ("cdna_tm_range", self.cdna_tm_range),
                              ("rt_primer_tm_range", self.rt_primer_tm_range)):
             lo, hi = lo_hi
             if lo >= hi:
@@ -123,6 +132,13 @@ class TcrConfig:
     def has_cdna(self) -> bool:
         """True if cDNA chemistry is in the selection (RT primer phase will run)."""
         return "cDNA" in self.chemistries
+
+    def tm_gate_for(self, chemistry: str) -> Tuple[float, float]:
+        """Return the (low, high) arm-Tm gate for a chemistry. KeyError on
+        an unrecognised chemistry — callers should pass one of
+        ``ALL_CHEMISTRIES``."""
+        gates = {"dRNA": self.tm_range, "cDNA": self.cdna_tm_range}
+        return gates[chemistry]
 
     def resolve_start_no(self) -> int:
         """Return the No. to assign to the first probe in the panel."""
@@ -164,7 +180,7 @@ class TcrConfig:
             data = yaml.safe_load(f) or {}
 
         # Coerce list-style ranges to tuples
-        for key in ("tm_range", "rt_primer_tm_range"):
+        for key in ("tm_range", "cdna_tm_range", "rt_primer_tm_range"):
             if key in data and not isinstance(data[key], tuple):
                 v = data[key]
                 data[key] = (float(v[0]), float(v[1]))

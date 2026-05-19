@@ -138,13 +138,13 @@ def test_returns_empty_when_cdr3_not_in_trb():
 # ---------------------------------------------------------------------------
 
 
-def test_filter_by_mrna_tm_drops_outside_window(trb_cdr3_pair):
+def test_filter_by_chemistry_tm_drops_outside_window(trb_cdr3_pair):
     d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=200.0, max_arm_tm=300.0)
     sites = d.find_cdr3_binding_sites(
         trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "X",
     )
     # impossible window ⇒ filter drops everything
-    assert d.filter_by_mrna_tm(sites) == []
+    assert d.filter_by_chemistry_tm(sites, chemistry="dRNA") == []
 
 
 def test_select_non_overlapping_respects_min_gap():
@@ -161,3 +161,98 @@ def test_select_non_overlapping_respects_min_gap():
     # But 10 and 50 differ by 40 = bds_len ≥ min_gap ⇒ both kept.
     # Then 100 - 50 = 50 ≥ 40 ⇒ kept.
     assert starts == [10, 50, 100]
+
+
+# ---------------------------------------------------------------------------
+# Tm input convention — independent per chemistry
+# ---------------------------------------------------------------------------
+
+def test_drna_tm_computed_on_actual_probe_arm_dna_strand(trb_cdr3_pair):
+    """dRNA Tm must come from passing the ACTUAL probe-arm DNA strand
+    (= RC of the target half) into R_DNA_NN1 — not the target half itself.
+
+    R_DNA_NN1 is asymmetric in which strand is DNA vs RNA (Sugimoto 1995),
+    so Tm(DNA=X) != Tm(DNA=RC(X)). Passing target_seq halves gives the wrong
+    Tm because target_seq half is the mRNA-sense (RNA-equivalent) strand,
+    not the actual probe DNA arm.
+    """
+    from Bio.SeqUtils import MeltingTemp as mt
+
+    d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=0.0, max_arm_tm=200.0)
+    sites = d.find_cdr3_binding_sites(
+        trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "TestClone1",
+    )
+    s = sites[0]
+    target = s["target_sequence"]
+    target_rc = _reverse_complement(target)
+
+    # 5'-arm probe DNA = RC of target's 5' half = target_rc[arm_len:]
+    expected_5p = round(mt.Tm_NN(target_rc[20:], nn_table=mt.R_DNA_NN1), 2)
+    # 3'-arm probe DNA = RC of target's 3' half = target_rc[:arm_len]
+    expected_3p = round(mt.Tm_NN(target_rc[:20], nn_table=mt.R_DNA_NN1), 2)
+    expected_full = round(mt.Tm_NN(target_rc, nn_table=mt.R_DNA_NN1), 2)
+
+    assert s["tm_5prime_dRNA"] == expected_5p, (
+        f"tm_5prime_dRNA should come from RC(target[:20]); got "
+        f"{s['tm_5prime_dRNA']}, expected {expected_5p}"
+    )
+    assert s["tm_3prime_dRNA"] == expected_3p
+    assert s["tm_dRNA"] == expected_full
+
+
+def test_cdna_tm_uses_target_half_directly(trb_cdr3_pair):
+    """cDNA arm = target half (sense DNA, since cDNA = RC(mRNA) and the
+    padlock arms read sense again). DNA_NN4 is symmetric so this matches."""
+    from Bio.SeqUtils import MeltingTemp as mt
+
+    d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=0.0, max_arm_tm=200.0)
+    sites = d.find_cdr3_binding_sites(
+        trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "TestClone1",
+    )
+    s = sites[0]
+    target = s["target_sequence"]
+    assert s["tm_5prime_cDNA"] == round(mt.Tm_NN(target[20:], nn_table=mt.DNA_NN4), 2)
+    assert s["tm_3prime_cDNA"] == round(mt.Tm_NN(target[:20], nn_table=mt.DNA_NN4), 2)
+    assert s["tm_cDNA"] == round(mt.Tm_NN(target, nn_table=mt.DNA_NN4), 2)
+
+
+def test_per_chemistry_tm_diff_and_score_present(trb_cdr3_pair):
+    """Each site carries chemistry-specific tm_diff and score columns so the
+    pipeline can filter/select per chemistry."""
+    d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=0.0, max_arm_tm=200.0)
+    sites = d.find_cdr3_binding_sites(
+        trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "TestClone1",
+    )
+    s = sites[0]
+    for key in ("tm_diff_dRNA", "tm_diff_cDNA"):
+        assert key in s and isinstance(s[key], float)
+
+
+# ---------------------------------------------------------------------------
+# Per-chemistry filter helper
+# ---------------------------------------------------------------------------
+
+def test_filter_by_chemistry_tm_drna_gate(trb_cdr3_pair):
+    """filter_by_chemistry_tm with chemistry='dRNA' uses the dRNA arm Tms."""
+    d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=200.0, max_arm_tm=300.0)
+    sites = d.find_cdr3_binding_sites(
+        trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "X",
+    )
+    # impossible window ⇒ drops everything
+    assert d.filter_by_chemistry_tm(sites, chemistry="dRNA") == []
+
+
+def test_filter_by_chemistry_tm_cdna_gate_independent():
+    """Synthetic sites with very different dRNA vs cDNA Tms — filter passes
+    one chemistry but not the other."""
+    d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=50.0, max_arm_tm=60.0)
+    sites = [
+        {"tm_5prime_dRNA": 55.0, "tm_3prime_dRNA": 55.0,
+         "tm_5prime_cDNA": 80.0, "tm_3prime_cDNA": 80.0},  # passes dRNA, fails cDNA
+        {"tm_5prime_dRNA": 80.0, "tm_3prime_dRNA": 80.0,
+         "tm_5prime_cDNA": 55.0, "tm_3prime_cDNA": 55.0},  # passes cDNA, fails dRNA
+    ]
+    passed_drna = d.filter_by_chemistry_tm(sites, chemistry="dRNA")
+    passed_cdna = d.filter_by_chemistry_tm(sites, chemistry="cDNA")
+    assert len(passed_drna) == 1 and passed_drna[0]["tm_5prime_dRNA"] == 55.0
+    assert len(passed_cdna) == 1 and passed_cdna[0]["tm_5prime_cDNA"] == 55.0

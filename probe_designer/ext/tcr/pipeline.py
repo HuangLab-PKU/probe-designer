@@ -50,7 +50,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class TcrResult:
-    """In-memory summary of a finished TCR pipeline run."""
+    """In-memory summary of a finished TCR pipeline run.
+
+    Each chemistry is selected independently. Probes share ``No.`` per
+    ``(clone, site_index)`` — so ``probes_total`` can exceed the number of
+    unique Nos when dual-chemistry pairs collapse. ``first_no`` / ``last_no``
+    bound the contiguous No. range actually consumed.
+    """
     workdir: Path
     run_dir: Path
     chemistries: List[str]
@@ -58,12 +64,14 @@ class TcrResult:
     clones_with_sites: int
     sites_selected: int
     probes_total: int
+    first_no: int
     last_no: int
     final_probes_xlsx: Path
     final_probes_fasta: Path
     rt_primers_xlsx: Optional[Path] = None
     landscape_pdf: Optional[Path] = None
     skipped_clones: List[str] = field(default_factory=list)
+    sites_selected_per_chem: Dict[str, int] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -115,14 +123,32 @@ def _load_clones(input_xlsx: Path) -> pd.DataFrame:
 
 def _phase1_find_select(
     clones_df: pd.DataFrame, cfg: TcrConfig, run_dir: Path,
-) -> tuple[Dict[str, List[Dict]], Dict[str, List[Dict]], List[str]]:
-    """Returns (all_sites_per_clone, selected_per_clone, skipped_clones)."""
+) -> tuple[Dict[str, List[Dict]], Dict[str, Dict[str, List[Dict]]], List[str]]:
+    """Independent BDS selection per chemistry.
+
+    Returns
+    -------
+    all_sites
+        ``{clone_name: [site_dict, ...]}`` — every scanned position with
+        both chemistries' Tm/arm data attached. Used by the Tm landscape PDF.
+    selected_per_chem
+        ``{chemistry: {clone_name: [selected_site, ...]}}``. Each chemistry's
+        site list is filtered + scored + non-overlap-selected ON ITS OWN
+        target (mRNA for dRNA, RT-cDNA for cDNA). The two chemistries may
+        emit DIFFERENT BDS positions on the same clone — by design.
+    skipped
+        Clones that produced no candidates (CDR3 not found, empty scan, etc).
+    """
     designer = TcrProbeDesigner(
         bds_len=cfg.bds_len, arm_len=cfg.arm_len,
+        # min/max_arm_tm on the designer object are unused — pipeline calls
+        # filter_by_chemistry_tm with per-chemistry tm_range from cfg.
         min_arm_tm=cfg.tm_range[0], max_arm_tm=cfg.tm_range[1],
     )
     all_sites: Dict[str, List[Dict]] = {}
-    selected_per_clone: Dict[str, List[Dict]] = {}
+    selected_per_chem: Dict[str, Dict[str, List[Dict]]] = {
+        chem: {} for chem in cfg.chemistries
+    }
     skipped: List[str] = []
 
     for _, row in clones_df.iterrows():
@@ -143,47 +169,70 @@ def _phase1_find_select(
             logger.warning("[%s] no scan candidates produced", clone_name)
             skipped.append(clone_name)
             continue
+        for s in sites:
+            s["clone_id"] = clone_id
         all_sites[clone_name] = sites
 
-        passed = designer.filter_by_mrna_tm(sites)
-        if not passed:
-            logger.warning("[%s] %d candidates but none passed Tm filter %s",
-                           clone_name, len(sites), cfg.tm_range)
-            continue
-        # Score = mfe - tm_diff_mRNA (higher is better; less negative MFE OR
-        # smaller arm-Tm-imbalance both raise the score).
-        for s in passed:
-            s["score"] = round(s.get("mfe", 0.0) - s.get("tm_diff_mRNA", 0.0), 3)
-            s["tm_cDNA_warning"] = not (50.0 <= s["tm_cDNA"] <= 75.0)
-            s["clone_id"] = clone_id
+        for chem in cfg.chemistries:
+            gate = cfg.tm_gate_for(chem)
+            passed = designer.filter_by_chemistry_tm(
+                sites, chemistry=chem, tm_range=gate,
+            )
+            if not passed:
+                logger.warning("[%s/%s] %d candidates but none passed Tm filter %s",
+                               clone_name, chem, len(sites), gate)
+                continue
+            # Score = mfe - tm_diff_<chem>. Each chemistry-pass is independent,
+            # so we score+select per-chemistry on a COPY of the site dicts
+            # (a single position appears in both chemistries' candidate pool
+            # but carries chemistry-specific score after this step).
+            ranked = []
+            for src in passed:
+                s = dict(src)  # shallow copy so per-chem fields don't leak
+                s["chemistry"] = chem
+                s["score"] = round(
+                    s.get("mfe", 0.0) - s.get(f"tm_diff_{chem}", 0.0), 3,
+                )
+                # tm_cDNA_warning kept for downstream readers (informational)
+                s["tm_cDNA_warning"] = not (50.0 <= s["tm_cDNA"] <= 75.0)
+                ranked.append(s)
+            selected = designer.select_non_overlapping_sites(
+                ranked, max_sites=cfg.sites_per_clone,
+            )
+            if selected:
+                selected_per_chem[chem][clone_name] = selected
+                logger.info("[%s/%s] %d candidates → %d passed Tm → %d sites at %s",
+                            clone_name, chem, len(sites), len(passed),
+                            len(selected), [s["st"] for s in selected])
 
-        selected = designer.select_non_overlapping_sites(
-            passed, max_sites=cfg.sites_per_clone,
-        )
-        if selected:
-            selected_per_clone[clone_name] = selected
-            logger.info("[%s] %d candidates → %d passed Tm → %d selected sites at %s",
-                        clone_name, len(sites), len(passed), len(selected),
-                        [s["st"] for s in selected])
-
-    # Save bds_candidate.xlsx (all scanned positions)
+    # Save bds_candidate.xlsx (all scanned positions; chemistry-agnostic)
     flat_all = [s for sites in all_sites.values() for s in sites]
     if flat_all:
         pd.DataFrame(flat_all).to_excel(
             run_dir / "bds_candidate.xlsx", index=False, engine="openpyxl",
         )
-    # Save bds_selected.xlsx
-    flat_sel = [s for sites in selected_per_clone.values() for s in sites]
-    if flat_sel:
-        pd.DataFrame(flat_sel).to_excel(
-            run_dir / "bds_selected.xlsx", index=False, engine="openpyxl",
-        )
-        logger.info("Phase 1: %d clones, %d selected sites → bds_selected.xlsx",
-                    len(selected_per_clone), len(flat_sel))
-    else:
-        raise RuntimeError("No sites selected across all clones — check input + Tm window.")
 
-    return all_sites, selected_per_clone, skipped
+    # Save bds_selected.xlsx — flatten per-chemistry selections, tagged.
+    flat_sel = [
+        s
+        for chem in cfg.chemistries
+        for sites in selected_per_chem[chem].values()
+        for s in sites
+    ]
+    if not flat_sel:
+        raise RuntimeError(
+            "No sites selected across all clones/chemistries — check input + Tm windows."
+        )
+    pd.DataFrame(flat_sel).to_excel(
+        run_dir / "bds_selected.xlsx", index=False, engine="openpyxl",
+    )
+    per_chem_counts = {chem: sum(len(v) for v in selected_per_chem[chem].values())
+                       for chem in cfg.chemistries}
+    logger.info("Phase 1: %d sites selected → bds_selected.xlsx (%s)",
+                len(flat_sel),
+                ", ".join(f"{c}: {n}" for c, n in per_chem_counts.items()))
+
+    return all_sites, selected_per_chem, skipped
 
 
 # ---------------------------------------------------------------------------
@@ -192,52 +241,65 @@ def _phase1_find_select(
 
 
 def _phase2_blast(
-    selected_per_clone: Dict[str, List[Dict]], cfg: TcrConfig, run_dir: Path,
-) -> pd.DataFrame:
-    """Run BLAST on mRNA arms, annotate hit count + top hits, write
-    bds_selected_blast.xlsx. Does not drop sites — TCR clonotypes are
-    patient-specific and BLAST is informational only.
+    selected_per_chem: Dict[str, Dict[str, List[Dict]]],
+    cfg: TcrConfig, run_dir: Path,
+) -> Dict[str, pd.DataFrame]:
+    """Run BLAST per chemistry. Each chemistry BLASTs its OWN selected arms
+    against the transcriptome; annotations are written back onto the
+    chemistry-specific site dicts. Informational only — no rejections.
+
+    Returns a ``{chemistry: bds_df}`` mapping for phase 3 to assemble from.
     """
-    flat = [s for sites in selected_per_clone.values() for s in sites]
+    out: Dict[str, pd.DataFrame] = {}
+
     if cfg.skip_blast:
         logger.info("Phase 2: --skip-blast set, leaving BLAST annotations empty")
-        for s in flat:
-            s.setdefault("blast_hit_count", 0)
-            s.setdefault("blast_top_hits", "")
-        df = pd.DataFrame(flat)
-        return df
+        for chem in cfg.chemistries:
+            flat = [s for sites in selected_per_chem[chem].values() for s in sites]
+            for s in flat:
+                s.setdefault("blast_hit_count", 0)
+                s.setdefault("blast_top_hits", "")
+            out[chem] = pd.DataFrame(flat)
+        return out
 
     blast_dir = run_dir / "blast_results"
     blast_dir.mkdir(parents=True, exist_ok=True)
 
-    # Build BLAST queries: one per selected site, using the mRNA arm
-    # concatenation as the binding sequence.
-    seqs = []
-    for s in flat:
-        binding = (s["arm_3prime_dRNA"] + s["arm_5prime_dRNA"]).upper()
-        seqs.append({
-            "probe_id": s["gene_name"] + f"_pos{s['pos']}",
-            "binding_sequence": binding,
-            "gene": s["gene_name"],
-        })
-    logger.info("Phase 2: BLAST QC on %d selected sites", len(seqs))
-    run_batch_blast_search(seqs, blast_dir, label="TCR")
-    blast = parse_blast_results(seqs, blast_dir)
+    for chem in cfg.chemistries:
+        flat = [s for sites in selected_per_chem[chem].values() for s in sites]
+        if not flat:
+            out[chem] = pd.DataFrame()
+            continue
+        # BLAST the actual arm DNA strands of this chemistry against the
+        # human transcriptome reference. For dRNA, the arms are RC(target);
+        # for cDNA, they are sense target. Either way, BLAST against the
+        # mRNA reference detects off-target hybridization risk.
+        seqs = []
+        for s in flat:
+            binding = (s[f"arm_3prime_{chem}"] + s[f"arm_5prime_{chem}"]).upper()
+            seqs.append({
+                "probe_id": f"{s['gene_name']}_pos{s['pos']}_{chem}",
+                "binding_sequence": binding,
+                "gene": s["gene_name"],
+            })
+        logger.info("Phase 2 [%s]: BLAST QC on %d selected sites", chem, len(seqs))
+        run_batch_blast_search(seqs, blast_dir, label=f"TCR_{chem}")
+        blast = parse_blast_results(seqs, blast_dir)
+        for s, q in zip(flat, seqs):
+            hits = blast.get(q["probe_id"], [])
+            s["blast_hit_count"] = len(hits)
+            s["blast_top_hits"] = "; ".join(
+                h.get("subject_id", "")[:60] for h in hits[:3]
+            )
+        out[chem] = pd.DataFrame(flat)
 
-    # Annotate (informational)
-    for s, q in zip(flat, seqs):
-        hits = blast.get(q["probe_id"], [])
-        s["blast_hit_count"] = len(hits)
-        # Keep the top 3 subject IDs (truncated) for quick diagnostic
-        s["blast_top_hits"] = "; ".join(
-            h.get("subject_id", "")[:60] for h in hits[:3]
-        )
-
-    df = pd.DataFrame(flat)
-    df.to_excel(run_dir / "bds_selected_blast.xlsx",
-                index=False, engine="openpyxl")
-    logger.info("Phase 2: bds_selected_blast.xlsx written")
-    return df
+    # Combined bds_selected_blast.xlsx with chemistry-tagged rows.
+    combined = pd.concat([df for df in out.values() if not df.empty], ignore_index=True)
+    if not combined.empty:
+        combined.to_excel(run_dir / "bds_selected_blast.xlsx",
+                          index=False, engine="openpyxl")
+        logger.info("Phase 2: bds_selected_blast.xlsx written")
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -291,24 +353,65 @@ def _assemble_one(chemistry: str, bds_row: Dict, no: int,
 
 
 def _phase3_assemble(
-    bds_df: pd.DataFrame, cfg: TcrConfig, run_dir: Path, experiment_dir: Path,
+    bds_per_chem: Dict[str, pd.DataFrame], clones_df: pd.DataFrame,
+    cfg: TcrConfig, run_dir: Path, experiment_dir: Path,
 ) -> tuple[pd.DataFrame, Path, Path, int]:
+    """Assemble probes per clone, pairing chemistries by site_index.
+
+    For each clone (in input order), assign one ``No.`` per ``site_index``
+    that the clone has across its chemistries. Within each (clone, site_idx),
+    every chemistry that has a site at that index emits a probe row, all
+    sharing the SAME ``No.`` + backbone barcode — they decode to the same
+    codebook ID (different physical probes, redundant readout).
+
+    Worked example — clonotype106 with dRNA=[256, 301], cDNA=[279]:
+        No.X:   dRNA pos256 (site#0) + cDNA pos279 (site#0)  — paired
+        No.X+1: dRNA pos301 (site#1) alone (no cDNA at site#1)
+    """
     backbone_map = _load_backbone_map(cfg.backbone_file)
-    start_no = cfg.resolve_start_no()
+    next_no = cfg.resolve_start_no()
     codebook = cfg.resolve_codebook()
-    n_chem = len(cfg.chemistries)
+
+    # Group each chemistry's bds rows by clone (= gene_name in this codebase).
+    # Within a clone, the rows are already sorted by `pos` ascending from
+    # select_non_overlapping_sites — preserve that order for stable site_index.
+    per_chem_per_clone: Dict[str, Dict[str, List[Dict]]] = {}
+    for chem in cfg.chemistries:
+        df = bds_per_chem.get(chem, pd.DataFrame())
+        per_chem_per_clone[chem] = {}
+        if df.empty:
+            continue
+        for clone_name, sub in df.groupby("gene_name", sort=False):
+            per_chem_per_clone[chem][str(clone_name)] = (
+                sub.sort_values("pos").to_dict("records")
+            )
+
+    clones_ordered = list(clones_df["consensus_id"].astype(str))
     rows: List[Dict] = []
-    for i, r in bds_df.reset_index(drop=True).iterrows():
-        for offset, chem in enumerate(cfg.chemistries):
-            no = start_no + n_chem * i + offset
+    for clone_name in clones_ordered:
+        per_chem_sites = {
+            chem: per_chem_per_clone[chem].get(clone_name, [])
+            for chem in cfg.chemistries
+        }
+        max_idx = max((len(v) for v in per_chem_sites.values()), default=0)
+        for site_idx in range(max_idx):
+            no = next_no
             if no not in backbone_map:
                 raise ValueError(
                     f"Backbone No. {no} not found in {cfg.backbone_file.name}"
                 )
             bc_name, bc_seq = backbone_map[no]
-            rows.append(_assemble_one(chem, r.to_dict(), no, bc_name, bc_seq,
-                                       cfg.backbone_file.name, codebook))
+            for chem in cfg.chemistries:
+                sites = per_chem_sites[chem]
+                if site_idx < len(sites):
+                    rows.append(_assemble_one(
+                        chem, sites[site_idx], no, bc_name, bc_seq,
+                        cfg.backbone_file.name, codebook,
+                    ))
+            next_no += 1
 
+    if not rows:
+        raise RuntimeError("No probes assembled — check phase 1/2 outputs.")
     combined = pd.DataFrame(rows).sort_values("No.").reset_index(drop=True)
     combined = apply_final_column_order(combined, kind="padlock")
 
@@ -318,7 +421,6 @@ def _phase3_assemble(
     with open(fasta, "w") as f:
         for _, r in combined.iterrows():
             f.write(f">{r['probe_name']}\n{r['probe_sequence']}\n")
-    # probe_info mirrors at run_dir AND experiment_dir
     combined.to_excel(run_dir / "probe_info.xlsx", index=False, engine="openpyxl")
     combined.to_excel(experiment_dir / "probe_info.xlsx",
                        index=False, engine="openpyxl")
@@ -441,12 +543,13 @@ def run_tcr_pipeline(cfg: TcrConfig) -> TcrResult:
                 len(clones_df), cfg.input_xlsx.name,
                 clones_df["_chain_col_used"].iloc[0])
 
-    # Phase 1 — find + select
-    all_sites, selected_per_clone, skipped = _phase1_find_select(
+    # Phase 1 — find + select (independent per chemistry)
+    all_sites, selected_per_chem, skipped = _phase1_find_select(
         clones_df, cfg, run_dir,
     )
 
-    # Phase 1b — Tm landscape PDF (optional)
+    # Phase 1b — Tm landscape PDF (optional). Uses dRNA selection for the
+    # marker overlay when present; cDNA-only panels overlay cDNA instead.
     landscape_pdf: Optional[Path] = None
     if cfg.plot_tm_landscape:
         clone_metadata = {
@@ -455,19 +558,27 @@ def run_tcr_pipeline(cfg: TcrConfig) -> TcrResult:
             }
             for _, row in clones_df.iterrows()
         }
+        marker_chem = "dRNA" if "dRNA" in cfg.chemistries else cfg.chemistries[0]
+        if not selected_per_chem[marker_chem]:
+            logger.warning(
+                "Phase 1b: marker chemistry %r has zero selected sites; "
+                "Tm landscape will be drawn without selected-site overlays.",
+                marker_chem,
+            )
         landscape_pdf = plot_tm_landscape(
-            all_sites, selected_per_clone,
+            all_sites, selected_per_chem[marker_chem],
             pdf_path=run_dir / "tm_landscape.pdf",
-            tm_min=cfg.tm_range[0], tm_max=cfg.tm_range[1],
+            tm_min=cfg.tm_gate_for(marker_chem)[0],
+            tm_max=cfg.tm_gate_for(marker_chem)[1],
             clone_metadata=clone_metadata,
         )
 
-    # Phase 2 — BLAST QC (informational)
-    bds_df = _phase2_blast(selected_per_clone, cfg, run_dir)
+    # Phase 2 — BLAST QC per chemistry (informational)
+    bds_per_chem = _phase2_blast(selected_per_chem, cfg, run_dir)
 
-    # Phase 3 — assemble
+    # Phase 3 — assemble per clone, pairing chemistries by site_index
     combined, xlsx, fasta, last_no = _phase3_assemble(
-        bds_df, cfg, run_dir, experiment_dir,
+        bds_per_chem, clones_df, cfg, run_dir, experiment_dir,
     )
 
     # Phase 4 — RT primers (only when cDNA in chemistries)
@@ -475,14 +586,26 @@ def run_tcr_pipeline(cfg: TcrConfig) -> TcrResult:
     if cfg.has_cdna():
         rt_xlsx = _phase4_rt_primers(combined, clones_df, cfg, run_dir)
 
+    clones_with_any_site = {
+        clone for chem in cfg.chemistries
+        for clone in selected_per_chem[chem].keys()
+    }
     return TcrResult(
         workdir=workdir,
         run_dir=run_dir,
         chemistries=cfg.chemistries,
         clones_total=len(clones_df),
-        clones_with_sites=len(selected_per_clone),
-        sites_selected=sum(len(s) for s in selected_per_clone.values()),
+        clones_with_sites=len(clones_with_any_site),
+        sites_selected=sum(
+            len(s) for chem in cfg.chemistries
+            for s in selected_per_chem[chem].values()
+        ),
+        sites_selected_per_chem={
+            chem: sum(len(s) for s in selected_per_chem[chem].values())
+            for chem in cfg.chemistries
+        },
         probes_total=len(combined),
+        first_no=int(combined["No."].min()),
         last_no=last_no,
         final_probes_xlsx=xlsx,
         final_probes_fasta=fasta,
