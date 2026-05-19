@@ -31,6 +31,13 @@ from probe_designer.qc.report import (
     render_panel_qc_markdown,
     write_panel_qc_json,
 )
+from probe_designer.qc.viz import (
+    IsoformMeta,
+    ProbeAnnotation,
+    plot_accessibility_tracks,
+    plot_accessibility_heatmap,
+    plot_rnafold_structure,
+)
 
 
 __all__ = [
@@ -42,4 +49,7 @@ __all__ = [
     "compute_expression_qc_from_anndata",
     "render_panel_qc_markdown",
     "write_panel_qc_json",
+    "IsoformMeta", "ProbeAnnotation",
+    "plot_accessibility_tracks", "plot_accessibility_heatmap",
+    "plot_rnafold_structure",
 ]

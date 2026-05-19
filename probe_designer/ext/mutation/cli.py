@@ -118,6 +118,34 @@ def command(
         None, "--genome", exists=True, dir_okay=False, readable=True,
         help="Local genome FASTA (default: <repo>/data/genome/GRCh38.fa)."
     ),
+    check_cross_lig: bool = typer.Option(
+        False, "--check-cross-lig",
+        help="Run primer3 DNA cross-ligation screen on the final probes. "
+             "Pair with --target-pool to also screen against an existing pool. "
+             "Writes cross_lig_report.tsv next to the final probes xlsx.",
+    ),
+    target_pool: Optional[str] = typer.Option(
+        None, "--target-pool",
+        help="Pool ID (e.g. `TNBCmarker_main_v1`) to screen new candidates "
+             "against. Requires --check-cross-lig.",
+    ),
+    repo_root: Optional[Path] = typer.Option(
+        None, "--repo-root",
+        help="Project root containing pools/ and probes/. Defaults to cwd.",
+    ),
+    reject_cross_lig: bool = typer.Option(
+        False, "--reject-cross-lig",
+        help="Drop flagged probes from the final xlsx (saved to dropped_cross_lig.tsv). "
+             "Requires --check-cross-lig.",
+    ),
+    xlig_tm_threshold: float = typer.Option(
+        27.0, "--xlig-tm-threshold",
+        help="Minimum overall dimer Tm (°C) to flag a pair.",
+    ),
+    xlig_end_dg_threshold: float = typer.Option(
+        -5.0, "--xlig-end-dg-threshold",
+        help="Maximum end-stability ΔG (kcal/mol) for 3'-end-annealed flag.",
+    ),
 ) -> None:
     """Run the mutation padlock probe design pipeline (4 phases)."""
     if config_path is not None:
@@ -161,6 +189,11 @@ def command(
             codebook=codebook,
         )
 
+    if target_pool and not check_cross_lig:
+        raise typer.BadParameter("--target-pool requires --check-cross-lig")
+    if reject_cross_lig and not check_cross_lig:
+        raise typer.BadParameter("--reject-cross-lig requires --check-cross-lig")
+
     logger.info("Running mutation pipeline with chemistries=%s", cfg.chemistries)
     result = run_mutation_pipeline(cfg)
     typer.echo(
@@ -168,3 +201,17 @@ def command(
         f"{result.probes_total} probes (Nos {result.last_no - result.probes_total + 1}-"
         f"{result.last_no}); -> {result.final_probes_xlsx}"
     )
+
+    if check_cross_lig:
+        from probe_designer.qc.assemble_hook import apply_cross_lig_check_to_xlsx
+
+        n_hits, n_dropped = apply_cross_lig_check_to_xlsx(
+            result.final_probes_xlsx,
+            pool_id=target_pool, repo_root=repo_root, reject=reject_cross_lig,
+            tm_threshold_c=xlig_tm_threshold,
+            end_dg_threshold_kcal=xlig_end_dg_threshold,
+        )
+        typer.echo(
+            f"Cross-lig: {n_hits} pair(s) flagged; {n_dropped} probe(s) dropped"
+            f" (pool={target_pool or '(within-batch only)'})"
+        )

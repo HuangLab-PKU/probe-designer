@@ -15,6 +15,7 @@ from probe_designer.cli import migrate_columns as migrate_columns_cmd
 from probe_designer.cli import score as score_cmd
 from probe_designer.cli import select as select_cmd
 from probe_designer.cli import validate as validate_cmd
+from probe_designer.cli.pool import pool_app
 from probe_designer.ext.mutation.cli import command as mutation_cmd
 from probe_designer.ext.tcr.cli import command as tcr_cmd
 
@@ -35,6 +36,7 @@ app.command("validate", help="Load and validate a YAML config (with env-var expa
 app.command("migrate-columns", help="Upgrade legacy probe Excel files to Schema v2 (.bak written alongside).")(migrate_columns_cmd.migrate_columns)
 app.command("mutation", help="Design padlock probes for somatic mutations (iLock / dRNA / cDNA chemistries).")(mutation_cmd)
 app.command("tcr", help="Design padlock probes for TCR clone CDR3 regions (dRNA / cDNA chemistries; default dRNA only).")(tcr_cmd)
+app.add_typer(pool_app, name="pool", help="Pool-level operations (cross-ligation audit).")
 
 
 @app.callback()

@@ -47,6 +47,38 @@ def assemble(
              "and the `codebook` column. If omitted, inferred from the backbone "
              "filename (e.g. backbone_SP369.xlsx -> SP369)."
     ),
+    check_cross_lig: bool = typer.Option(
+        False, "--check-cross-lig",
+        help="Run primer3 DNA cross-ligation screen on the assembled probes. "
+             "Always screens within-batch; pair with --target-pool to also "
+             "screen against an existing pool. Writes `cross_lig_report.tsv` "
+             "and adds a `cross_lig_partners` column to the output xlsx.",
+    ),
+    target_pool: Optional[str] = typer.Option(
+        None, "--target-pool",
+        help="Pool ID (e.g. `TNBCmarker_main_v1`) whose existing probes the "
+             "new candidates will be screened against. Requires --check-cross-lig. "
+             "Reads from `pools/<pool_id>/manifest.yaml` and `probes/registry.tsv` "
+             "under the current working directory (or --repo-root).",
+    ),
+    repo_root: Optional[Path] = typer.Option(
+        None, "--repo-root",
+        help="Project root containing pools/ and probes/. Defaults to cwd.",
+    ),
+    reject_cross_lig: bool = typer.Option(
+        False, "--reject-cross-lig",
+        help="Drop flagged probes from the assembled output. Dropped rows are "
+             "saved to `dropped_cross_lig.tsv`. Requires --check-cross-lig.",
+    ),
+    xlig_tm_threshold: float = typer.Option(
+        27.0, "--xlig-tm-threshold",
+        help="Minimum overall dimer Tm (°C) to flag a pair (primer3 default).",
+    ),
+    xlig_end_dg_threshold: float = typer.Option(
+        -5.0, "--xlig-end-dg-threshold",
+        help="Maximum end-stability ΔG (kcal/mol) below which the 3'-end is "
+             "considered annealed (ligase-actionable).",
+    ),
 ) -> None:
     """Attach backbones to binding sites and save the assembled probes."""
     if ilock and ilock not in ("3prime", "5prime", "both"):
@@ -71,6 +103,41 @@ def assemble(
 
     if ilock:
         probes_df = assembler.add_ilock_modification(probes_df, position=ilock)
+
+    # Cross-ligation screen (opt-in via --check-cross-lig).
+    if target_pool and not check_cross_lig:
+        raise typer.BadParameter("--target-pool requires --check-cross-lig")
+    if reject_cross_lig and not check_cross_lig:
+        raise typer.BadParameter("--reject-cross-lig requires --check-cross-lig")
+
+    if check_cross_lig:
+        from probe_designer.qc.assemble_hook import apply_cross_lig_check
+
+        annotated, dropped, report = apply_cross_lig_check(
+            probes_df,
+            pool_id=target_pool,
+            repo_root=repo_root,
+            reject=reject_cross_lig,
+            tm_threshold_c=xlig_tm_threshold,
+            end_dg_threshold_kcal=xlig_end_dg_threshold,
+        )
+        # Always write the report; non-empty even with zero hits is fine.
+        output.mkdir(parents=True, exist_ok=True)
+        report.to_csv(output / "cross_lig_report.tsv", sep="\t", index=False)
+        n_hits = len(report)
+        n_dropped = len(dropped)
+        if n_dropped:
+            dropped.to_csv(output / "dropped_cross_lig.tsv", sep="\t", index=False)
+        logger.info(
+            "Cross-lig screen: %d confirmed pair(s); %d probe(s) dropped; pool=%s",
+            n_hits, n_dropped, target_pool or "(within-batch only)",
+        )
+        typer.echo(
+            f"Cross-lig: {n_hits} pair(s) flagged; "
+            f"{n_dropped} probe(s) dropped"
+            f" (report: {output / 'cross_lig_report.tsv'})"
+        )
+        probes_df = annotated
 
     assembler.save_probes(probes_df, str(output))
     logger.info("Assembled %d probes across %d genes -> %s",
