@@ -15,7 +15,7 @@ from probe_designer.cli import migrate_columns as migrate_columns_cmd
 from probe_designer.cli import score as score_cmd
 from probe_designer.cli import select as select_cmd
 from probe_designer.cli import validate as validate_cmd
-from probe_designer.cli.pool import pool_app
+from probe_designer.ext.pool import pool_app
 from probe_designer.ext.mutation.cli import command as mutation_cmd
 from probe_designer.ext.tcr.cli import command as tcr_cmd
 
