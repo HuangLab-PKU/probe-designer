@@ -595,25 +595,32 @@ def verify_iLock_probe(probe_seq: str, plp_arm5: str, plp_arm3: str,
     """Hard runtime guard for iLock probe stitching.
 
     Raises ValueError if the assembled probe does not match the canonical
-    iLock invader layout `flap + arm3[-1] + plp_arm5 + backbone + plp_arm3`.
+    iLock invader layout `flap + plp_arm5 + backbone + plp_arm3`.
 
     The two failure modes the lab has actually shipped (and that this guard
     must catch before any future panel goes to a synthesis vendor):
 
     1. **Swapped stitch geometry** (BZ09 / BZ09_sup / BZ10 / BZ12 era):
-       the probe was assembled as `flap + arm5[-1] + plp_arm3 + bb + plp_arm5`,
+       the probe was assembled as `flap + plp_arm3 + bb + plp_arm5`,
        i.e. plp_arm3 at the 5' body and plp_arm5 at the 3' end. Because
        mutation_probe.py defines plp_arm5 = "arm binding mRNA 5' side" (whose
        5' tip lands at the ligation junction on target), this swap places
        both probe tips at the FAR ENDS of the binding region — the probe
        binds but cannot ligate. ALL such probes are non-functional.
 
-    2. **Invader invariant violation**: linker is not the SNP-complement
-       (i.e. plp_arm5[0] != plp_arm3[-1]). The probe ligates fine but FEN1
-       cleavage is no longer SNP-discriminating; SNP specificity reduces to
-       hybridization fidelity at arm5[0]. To fix at the design level, step1
-       must use `MutationProbeDesignerInvader` (which makes arm5 and arm3
-       overlap by 1 nt at the SNP).
+    2. **Invader invariant violation**: plp_arm5[0] != plp_arm3[-1]. With
+       invader-overlap chemistry the same SNP-complement base sits at both
+       arm tips so they compete for the target SNP nucleotide; if they
+       differ, FEN1 cleavage is no longer SNP-discriminating. To fix at
+       the design level, step1 must use `MutationProbeDesignerInvader`.
+
+    Layout note (2026-06-08 update): the canonical iLock no longer has a
+    separate 1-nt linker between flap and arm5. The earlier convention
+    duplicated arm3[-1] right after the flap, which left an extra
+    SNP-complement base at the junction (probe ended up 1 nt longer with
+    XX at flap–arm5 boundary). The invader designer's overlap already
+    puts the SNP-complement at arm5[0], so the linker insertion was
+    redundant and pushed the FEN1 cleavage site out of register.
 
     Parameters
     ----------
@@ -621,7 +628,7 @@ def verify_iLock_probe(probe_seq: str, plp_arm5: str, plp_arm3: str,
         The fully-assembled iLock probe sequence (5'->3', case-insensitive).
     plp_arm5 : str
         The arm binding mRNA's 5' side (= mutation_probe.py's plp_arm5 column).
-        MUST end up at the probe's 5' body, just after flap+linker.
+        MUST end up at the probe's 5' body, immediately after the flap.
     plp_arm3 : str
         The arm binding mRNA's 3' side (= plp_arm3 column). MUST end up at
         the probe's 3' end, after the backbone.
@@ -644,31 +651,29 @@ def verify_iLock_probe(probe_seq: str, plp_arm5: str, plp_arm3: str,
             f"Got prefix {probe_seq[:len(flap)]!r}. Did you pass the right flap?"
         )
     rest = p[len(f):]
-    if len(rest) < 1:
-        raise ValueError("iLock probe too short — no linker / body after flap.")
-    linker = rest[0]
-    after_linker = rest[1:]
+    if len(rest) < len(a5):
+        raise ValueError("iLock probe too short — no arm5 body after flap.")
 
     # Geometry guards — the key check.
-    body_arm = after_linker[:len(a5)]
+    body_arm = rest[:len(a5)]
     if body_arm != a5:
         # Detect specifically the BZ09-style swap so the error message points
         # the user at the actual bug.
-        if after_linker.startswith(a3) and after_linker.endswith(a5):
+        if rest.startswith(a3) and rest.endswith(a5):
             raise ValueError(
                 "iLock STITCH GEOMETRY SWAPPED (BZ09-style bug): probe places "
                 "plp_arm3 at the 5' body and plp_arm5 at the 3' end. "
                 "mutation_probe.py defines plp_arm5 = 'arm binding mRNA 5'-side' "
                 "and that arm MUST sit at the probe's 5' body so its 5' tip "
                 "lands at the ligation junction on the target. Swap them: use "
-                "`flap + arm3[-1] + plp_arm5 + backbone + plp_arm3`. With this "
+                "`flap + plp_arm5 + backbone + plp_arm3`. With this "
                 "stitch the resulting probe binds the target but cannot "
                 "circularize/ligate."
             )
         raise ValueError(
             f"iLock probe 5'-body arm does not match plp_arm5. Expected "
             f"{plp_arm5!r}, got {body_arm!r}. The probe layout must be "
-            f"`flap + 1nt-linker + plp_arm5 + backbone + plp_arm3`."
+            f"`flap + plp_arm5 + backbone + plp_arm3`."
         )
     if not p.endswith(a3):
         raise ValueError(
@@ -681,29 +686,27 @@ def verify_iLock_probe(probe_seq: str, plp_arm5: str, plp_arm3: str,
             raise ValueError(
                 f"iLock invader invariant violated: plp_arm5[0]={plp_arm5[0]!r} "
                 f"!= plp_arm3[-1]={plp_arm3[-1]!r}. Both must be RC(SNP_alt) so "
-                f"the duplicated linker carries the SNP complement and FEN1 "
-                f"cleavage is SNP-discriminating. Step1 must use "
+                f"the SNP-complement base sits at both arm tips and competes "
+                f"for the target SNP nucleotide. Step1 must use "
                 f"`MutationProbeDesignerInvader` to make arm5 and arm3 overlap "
                 f"by 1 nt at the SNP. (Pass check_invader=False only for "
                 f"intentional flap-padlock panels with no invader chemistry.)"
-            )
-        if linker != a3[-1:]:
-            raise ValueError(
-                f"iLock linker does not match arm3[-1]: got {linker!r}, "
-                f"expected {plp_arm3[-1]!r}. The 1-nt linker right after the "
-                f"flap must be a duplicate of the 3'-tip nucleotide."
             )
 
 
 def assemble_ilock(arm5: str, arm3: str, backbone: str, flap: str) -> str:
     """Assemble a canonical iLock probe.
 
-    Layout: ``flap + arm3[-1].upper() + arm5.lower() + backbone.upper() + arm3.lower()``.
+    Layout: ``flap + arm5.lower() + backbone.upper() + arm3.lower()``.
 
-    The 1-nt linker right after the flap is a duplicate of ``arm3[-1]``; under
-    invader-overlap chemistry this also equals ``arm5[0]`` and ``RC(SNP)``,
-    so the duplicated linker carries the SNP complement and gates FEN1
-    cleavage on SNP base pairing.
+    No separate 1-nt linker between flap and arm5: the invader-overlap
+    designer (:class:`MutationProbeDesignerInvader`) already shifts arm5 so
+    that ``arm5[0] == arm3[-1] == RC(SNP)``. ``arm5[0]`` itself sits right
+    after the flap and is the SNP-complement base that competes with
+    ``arm3[-1]`` for the target SNP nucleotide — FEN1 cleaves the flap +
+    arm5[0] block off when the pairing is correct. Inserting an additional
+    linker would double the SNP-complement at the flap–arm5 boundary and
+    push the FEN1 cleavage site out of register.
 
     Calls :func:`verify_iLock_probe` on the result; raises ``ValueError`` if
     the assembled probe violates canonical layout or the invader invariant.
@@ -712,8 +715,7 @@ def assemble_ilock(arm5: str, arm3: str, backbone: str, flap: str) -> str:
         raise ValueError("assemble_ilock: arm3 must not be empty")
     arm5_l = arm5.lower()
     arm3_l = arm3.lower()
-    linker = arm3[-1].upper()
-    probe = flap + linker + arm5_l + backbone.upper() + arm3_l
+    probe = flap + arm5_l + backbone.upper() + arm3_l
     verify_iLock_probe(probe, plp_arm5=arm5_l, plp_arm3=arm3_l, flap=flap)
     return probe
 

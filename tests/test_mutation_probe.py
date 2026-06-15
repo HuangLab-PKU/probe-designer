@@ -234,13 +234,14 @@ class TestVerifyILockProbe:
     @pytest.fixture
     def good_probe(self):
         """A geometrically-correct, invader-overlap-correct iLock probe.
-        arm5 = RC(mRNA 5' side), arm3 = RC(mRNA 3' side), arm5[0] == arm3[-1]."""
+        arm5 = RC(mRNA 5' side), arm3 = RC(mRNA 3' side), arm5[0] == arm3[-1].
+        No separate linker — arm5[0] sits right after the flap and is the
+        SNP-complement (invader designer's shifted arm5 ensures this)."""
         flap = 'CGTTGCTGTGGCG'
-        arm5 = 'CTTTT'         # arm5[0] = C
+        arm5 = 'CTTTT'         # arm5[0] = C, this is the X at the flap-arm5 junction
         arm3 = 'GGGGC'         # arm3[-1] = C; arm3[-1] == arm5[0] ✓
         backbone = 'TCCCTACACGAC'
-        linker = arm3[-1].upper()    # 'C'
-        probe = flap + linker + arm5 + backbone + arm3
+        probe = flap + arm5 + backbone + arm3
         return {'probe': probe, 'flap': flap, 'arm5': arm5, 'arm3': arm3}
 
     def test_passes_for_correct_probe(self, verify, good_probe):
@@ -253,8 +254,8 @@ class TestVerifyILockProbe:
         Must raise ValueError with a 'geometry' / 'swap' clue in the message."""
         flap = good_probe['flap']
         arm5 = good_probe['arm5']; arm3 = good_probe['arm3']
-        bad_linker = arm5[-1].upper()     # BZ09 uses arm5[-1] (= last nt of arm5)
-        bad_probe = flap + bad_linker + arm3 + 'TCCCTACACGAC' + arm5
+        # Swapped layout: arm3 at body, arm5 at tail (no linker — new convention)
+        bad_probe = flap + arm3 + 'TCCCTACACGAC' + arm5
         with pytest.raises(ValueError, match=r"(?i)swap|geom|wrong"):
             verify(bad_probe, arm5, arm3, flap=flap)
 
@@ -266,13 +267,12 @@ class TestVerifyILockProbe:
                    flap=good_probe['flap'])
 
     def test_rejects_invader_invariant_violation(self, verify):
-        """arm5[0] != arm3[-1] -> linker isn't SNP_compl -> reject."""
+        """arm5[0] != arm3[-1] -> SNP-discrimination broken -> reject."""
         flap = 'CGTTGCTGTGGCG'
         arm5 = 'AAAAA'         # arm5[0] = A
         arm3 = 'GGGGT'         # arm3[-1] = T (≠ A)
         backbone = 'TCCCTACACGAC'
-        linker = arm3[-1].upper()
-        probe = flap + linker + arm5 + backbone + arm3
+        probe = flap + arm5 + backbone + arm3
         with pytest.raises(ValueError, match=r"(?i)invader|snp"):
             verify(probe, arm5, arm3, flap=flap)
 
@@ -281,18 +281,17 @@ class TestVerifyILockProbe:
         flap = 'TATATCCCTATAT'
         arm5 = 'CTTTT'; arm3 = 'GGGGC'
         backbone = 'TCCCTACACGAC'
-        probe = flap + arm3[-1].upper() + arm5 + backbone + arm3
+        probe = flap + arm5 + backbone + arm3
         verify(probe, arm5, arm3, flap=flap)  # no exception
 
     def test_does_not_silently_match_arm_swap(self, verify):
         """If arm5 and arm3 happen to be each other's reverse, the swap might
         accidentally parse — guard MUST still reject based on column identity."""
         flap = 'CGTTGCTGTGGCG'
-        # Construct arm5 / arm3 such that swap places different sequences at body/end
         arm5 = 'CAAAA'   # arm5[0] = C
         arm3 = 'TTTTC'   # arm3[-1] = C; invader OK
         backbone = 'TCCCTACACGAC'
-        # BZ09 swap probe — body is arm3, end is arm5
-        bad_probe = flap + arm5[-1].upper() + arm3 + backbone + arm5
+        # Swapped: arm3 at body, arm5 at tail
+        bad_probe = flap + arm3 + backbone + arm5
         with pytest.raises(ValueError):
             verify(bad_probe, arm5, arm3, flap=flap)

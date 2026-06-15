@@ -142,9 +142,10 @@ def command(
         27.0, "--xlig-tm-threshold",
         help="Minimum overall dimer Tm (°C) to flag a pair.",
     ),
-    xlig_end_dg_threshold: float = typer.Option(
-        -5.0, "--xlig-end-dg-threshold",
-        help="Maximum end-stability ΔG (kcal/mol) for 3'-end-annealed flag.",
+    xlig_end_dg_threshold: Optional[float] = typer.Option(
+        None, "--xlig-end-dg-threshold",
+        help="DEPRECATED — v2 uses junction-geometry instead of end-stability. "
+             "Accepted as a no-op; will be removed in a future release.",
     ),
 ) -> None:
     """Run the mutation padlock probe design pipeline (4 phases)."""
@@ -202,16 +203,36 @@ def command(
         f"{result.last_no}); -> {result.final_probes_xlsx}"
     )
 
+    if xlig_end_dg_threshold is not None:
+        import warnings
+        warnings.warn(
+            "--xlig-end-dg-threshold is deprecated in v2 (junction-geometry "
+            "criterion replaces end-stability). Accepted as no-op.",
+            DeprecationWarning, stacklevel=2,
+        )
+
     if check_cross_lig:
         from probe_designer.qc.assemble_hook import apply_cross_lig_check_to_xlsx
 
+        splint_probes = None
+        if target_pool:
+            from pathlib import Path as _Path
+            from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
+            root = (repo_root or _Path.cwd()).resolve()
+            try:
+                splint_probes = load_pool_as_probes_for_screen(target_pool, root)
+            except (ImportError, FileNotFoundError) as exc:
+                raise typer.BadParameter(str(exc)) from exc
+            logger.info("Loaded %d splint probes from pool %s.",
+                         len(splint_probes), target_pool)
+
         n_hits, n_dropped = apply_cross_lig_check_to_xlsx(
             result.final_probes_xlsx,
-            pool_id=target_pool, repo_root=repo_root, reject=reject_cross_lig,
+            splint_probes=splint_probes,
+            reject=reject_cross_lig,
             tm_threshold_c=xlig_tm_threshold,
-            end_dg_threshold_kcal=xlig_end_dg_threshold,
         )
         typer.echo(
-            f"Cross-lig: {n_hits} pair(s) flagged; {n_dropped} probe(s) dropped"
+            f"Cross-lig v2: {n_hits} pair(s) flagged; {n_dropped} probe(s) dropped"
             f" (pool={target_pool or '(within-batch only)'})"
         )
