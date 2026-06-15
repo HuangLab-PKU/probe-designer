@@ -46,10 +46,12 @@ def valid_invader_arms():
 
 def test_assemble_ilock_canonical_layout(valid_invader_arms):
     probe = assemble_ilock(**valid_invader_arms)
-    # Layout: flap + linker(arm3[-1].upper()) + arm5.lower() + backbone.upper() + arm3.lower()
+    # Layout: flap + arm5.lower() + backbone.upper() + arm3.lower()
+    # No separate 1-nt linker — the invader designer already shifts arm5 so
+    # that arm5[0] == arm3[-1] == RC(SNP). Inserting an extra linker would
+    # double the SNP-complement base at the flap–arm5 junction.
     expected = (
         valid_invader_arms["flap"]
-        + valid_invader_arms["arm3"][-1].upper()
         + valid_invader_arms["arm5"].lower()
         + valid_invader_arms["backbone"].upper()
         + valid_invader_arms["arm3"].lower()

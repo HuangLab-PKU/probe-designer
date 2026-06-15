@@ -74,10 +74,10 @@ def assemble(
         27.0, "--xlig-tm-threshold",
         help="Minimum overall dimer Tm (°C) to flag a pair (primer3 default).",
     ),
-    xlig_end_dg_threshold: float = typer.Option(
-        -5.0, "--xlig-end-dg-threshold",
-        help="Maximum end-stability ΔG (kcal/mol) below which the 3'-end is "
-             "considered annealed (ligase-actionable).",
+    xlig_end_dg_threshold: Optional[float] = typer.Option(
+        None, "--xlig-end-dg-threshold",
+        help="DEPRECATED — v2 uses junction-geometry instead of end-stability. "
+             "Accepted as a no-op; will be removed in a future release.",
     ),
 ) -> None:
     """Attach backbones to binding sites and save the assembled probes."""
@@ -110,18 +110,34 @@ def assemble(
     if reject_cross_lig and not check_cross_lig:
         raise typer.BadParameter("--reject-cross-lig requires --check-cross-lig")
 
+    if xlig_end_dg_threshold is not None:
+        import warnings
+        warnings.warn(
+            "--xlig-end-dg-threshold is deprecated in v2 (junction-geometry "
+            "criterion replaces end-stability). Flag accepted as no-op.",
+            DeprecationWarning, stacklevel=2,
+        )
+
     if check_cross_lig:
         from probe_designer.qc.assemble_hook import apply_cross_lig_check
 
+        splint_probes = None
+        if target_pool:
+            from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
+            root = (repo_root or Path.cwd()).resolve()
+            try:
+                splint_probes = load_pool_as_probes_for_screen(target_pool, root)
+            except (ImportError, FileNotFoundError) as exc:
+                raise typer.BadParameter(str(exc)) from exc
+            logger.info("Loaded %d splint probes from pool %s.",
+                         len(splint_probes), target_pool)
+
         annotated, dropped, report = apply_cross_lig_check(
             probes_df,
-            pool_id=target_pool,
-            repo_root=repo_root,
+            splint_probes=splint_probes,
             reject=reject_cross_lig,
             tm_threshold_c=xlig_tm_threshold,
-            end_dg_threshold_kcal=xlig_end_dg_threshold,
         )
-        # Always write the report; non-empty even with zero hits is fine.
         output.mkdir(parents=True, exist_ok=True)
         report.to_csv(output / "cross_lig_report.tsv", sep="\t", index=False)
         n_hits = len(report)
@@ -129,7 +145,7 @@ def assemble(
         if n_dropped:
             dropped.to_csv(output / "dropped_cross_lig.tsv", sep="\t", index=False)
         logger.info(
-            "Cross-lig screen: %d confirmed pair(s); %d probe(s) dropped; pool=%s",
+            "Cross-lig screen v2: %d confirmed pair(s); %d probe(s) dropped; pool=%s",
             n_hits, n_dropped, target_pool or "(within-batch only)",
         )
         typer.echo(

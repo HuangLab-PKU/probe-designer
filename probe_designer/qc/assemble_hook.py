@@ -1,33 +1,32 @@
 """Cross-ligation hook for the assembled-probes DataFrame.
 
-The ``probe-design assemble`` CLI calls this AFTER ``ProbeAssembler``
-produces the final probes DataFrame and BEFORE writing the xlsx. The
-hook:
+The design CLIs (``probe-design assemble`` and the mutation/tcr CLIs)
+call this hook AFTER the pipeline produces the final probes DataFrame
+and BEFORE writing the xlsx. The hook:
 
 1. Converts the DataFrame to a list of :class:`CandidateProbe` records.
-2. Runs :func:`screen_candidates_against_pool` (within-batch + optional
-   pool screen).
-3. Returns three DataFrames — annotated probes, dropped (if reject), and
-   the full cross-lig report.
+2. Runs :func:`screen_candidates` (within-batch + optional external splint pool).
+3. Returns three DataFrames — annotated, dropped (if reject=True), and
+   the full v2 dimer report.
 
-Callers decide what to do with the three frames (write to disk, present
-to the user, etc.). This separation lets us reuse the same hook for the
-mutation + TCR design CLIs.
+The hook is **bank-free** — pool-loading happens in the CLI layer (via
+``probe_designer.ext.pool.loader``) and the resolved splint probes are
+passed in as ``splint_probes``.
 """
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, List, Optional
 
 import pandas as pd
 
 from probe_designer.qc.cross_lig_check import (
     CandidateProbe,
     CrossLigHit,
-    screen_candidates_against_pool,
     DEFAULT_TM_THRESHOLD_C,
-    DEFAULT_END_DG_THRESHOLD_KCAL,
+    screen_candidates,
 )
+from probe_designer.qc.cross_ligation import ProbeForScreen
 
 
 def probes_df_to_candidates(df: pd.DataFrame) -> list[CandidateProbe]:
@@ -50,69 +49,106 @@ def probes_df_to_candidates(df: pd.DataFrame) -> list[CandidateProbe]:
 
 
 def _format_partner_summary(hits: list[CrossLigHit], me: str) -> str:
-    """Compact ``other:Tm=XX:dG=YY`` strings, ;-separated."""
-    parts = []
+    """Compact ``<other>[:POOL]:Tm=XX.X:lig=A|B|AB`` strings, ;-separated.
+
+    Each hit is a one-direction (a-as-ligator → b-as-splint) confirmed v2 dimer.
+    The ``lig=`` token indicates whether ``me`` is the ligator (A), splint (B),
+    or both directions for the same partner — collapsed across hits.
+    """
+    # Group hits by partner; record whether me is ligator and/or splint
+    partner_info: dict[str, dict] = {}
     for h in hits:
-        other = h.probe_b_id if h.probe_a_id == me else h.probe_a_id
-        tag = ":POOL" if (h.a_is_existing_pool or h.b_is_existing_pool) else ""
-        parts.append(f"{other}{tag}:Tm={h.overall_tm_c:.1f}:dG={h.overall_dg_kcal:.1f}")
-    return ";".join(sorted(set(parts)))
+        other = h.partner_id(me)
+        is_pool_partner = (
+            (h.probe_a_id == other and h.a_is_existing_pool)
+            or (h.probe_b_id == other and h.b_is_existing_pool)
+        )
+        info = partner_info.setdefault(other, {
+            "is_pool": is_pool_partner,
+            "me_is_ligator": False, "me_is_splint": False,
+            "max_tm": h.overall_tm_c,
+        })
+        info["max_tm"] = max(info["max_tm"], h.overall_tm_c)
+        if h.probe_a_id == me:
+            info["me_is_ligator"] = True
+        else:
+            info["me_is_splint"] = True
+
+    parts: list[str] = []
+    for partner, info in partner_info.items():
+        if info["me_is_ligator"] and info["me_is_splint"]:
+            lig = "AB"
+        elif info["me_is_ligator"]:
+            lig = "A"
+        else:
+            lig = "B"
+        tag = ":POOL" if info["is_pool"] else ""
+        parts.append(f"{partner}{tag}:Tm={info['max_tm']:.1f}:lig={lig}")
+    return ";".join(sorted(parts))
+
+
+REPORT_COLUMNS: tuple[str, ...] = (
+    "probe_a_id", "probe_b_id", "probe_a_gene", "probe_b_gene",
+    "direction",
+    "overall_tm_c", "arm3_tm_c", "arm3_dg_kcal",
+    "arm5_tm_c", "arm5_dg_kcal",
+    "a_can_ligate_on_b", "vicinity_contiguous",
+    "b_3oh_pos", "b_5p_pos",
+    "a_is_existing_pool", "b_is_existing_pool",
+)
 
 
 def _hits_to_report_df(hits: Iterable[CrossLigHit]) -> pd.DataFrame:
-    rows = [{
-        "probe_a_id": h.probe_a_id, "probe_b_id": h.probe_b_id,
-        "probe_a_gene": h.a_target, "probe_b_gene": h.b_target,
-        "kind": h.kind,
-        "overall_tm_c": h.overall_tm_c,
-        "overall_dg_kcal": h.overall_dg_kcal,
-        "a_end_dg_kcal": h.a_end_dg_kcal,
-        "b_end_dg_kcal": h.b_end_dg_kcal,
-        "flagged_end_a": h.flagged_end_a,
-        "flagged_end_b": h.flagged_end_b,
-        "a_is_existing_pool": h.a_is_existing_pool,
-        "b_is_existing_pool": h.b_is_existing_pool,
-    } for h in hits]
+    rows = []
+    for h in hits:
+        b3 = h.b_3oh_pos if h.b_3oh_pos is not None else ""
+        b5 = h.b_5p_pos if h.b_5p_pos is not None else ""
+        rows.append({
+            "probe_a_id": h.probe_a_id, "probe_b_id": h.probe_b_id,
+            "probe_a_gene": h.a_target, "probe_b_gene": h.b_target,
+            "direction": h.direction,
+            "overall_tm_c": h.overall_tm_c,
+            "arm3_tm_c": h.arm3_tm_c, "arm3_dg_kcal": h.arm3_dg_kcal,
+            "arm5_tm_c": h.arm5_tm_c, "arm5_dg_kcal": h.arm5_dg_kcal,
+            "a_can_ligate_on_b": h.a_can_ligate_on_b,
+            "vicinity_contiguous": h.vicinity_contiguous,
+            "b_3oh_pos": b3, "b_5p_pos": b5,
+            "a_is_existing_pool": h.a_is_existing_pool,
+            "b_is_existing_pool": h.b_is_existing_pool,
+        })
+    if not rows:
+        return pd.DataFrame(columns=list(REPORT_COLUMNS))
     return pd.DataFrame(rows).sort_values(
         "overall_tm_c", ascending=False, ignore_index=True,
-    ) if rows else pd.DataFrame(columns=[
-        "probe_a_id", "probe_b_id", "probe_a_gene", "probe_b_gene", "kind",
-        "overall_tm_c", "overall_dg_kcal", "a_end_dg_kcal", "b_end_dg_kcal",
-        "flagged_end_a", "flagged_end_b", "a_is_existing_pool", "b_is_existing_pool",
-    ])
+    )
 
 
 def apply_cross_lig_check(
     probes_df: pd.DataFrame,
     *,
-    pool_id: Optional[str] = None,
-    repo_root: Optional[Path] = None,
+    splint_probes: Optional[List[ProbeForScreen]] = None,
     reject: bool = False,
     tm_threshold_c: float = DEFAULT_TM_THRESHOLD_C,
-    end_dg_threshold_kcal: float = DEFAULT_END_DG_THRESHOLD_KCAL,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Run cross-lig screen on the assembled probes; annotate / optionally reject.
+    """Run v2 cross-lig screen on the assembled probes; annotate / optionally reject.
 
-    Returns:
-        ``(annotated_df, dropped_df, report_df)``.
+    Args:
+        probes_df: assembled probes (Schema-v2 with probe_arm5, probe_arm3,
+            probe_sequence, chemistry, probe_name, gene_name columns).
+        splint_probes: optional list of :class:`ProbeForScreen` from an
+            external pool to screen candidates against. Loaded by the CLI
+            layer (``ext.pool.loader``); this function does not import bank.
+        reject: when True, flagged probes are removed from ``annotated_df``
+            and returned in ``dropped_df``.
+        tm_threshold_c: overall dimer Tm cutoff (matches v2 default 27 °C).
 
-        * ``annotated_df`` always contains every row from ``probes_df``
-          plus a new ``cross_lig_partners`` column with semicolon-separated
-          ``<partner_id>[:POOL]:Tm=XX.X:dG=YY.Y`` summaries (empty when
-          there's no flagged partner). When ``reject=True``, the
-          flagged rows have been removed.
-        * ``dropped_df`` contains the removed rows when ``reject=True``
-          (empty otherwise). The same cross_lig_partners column is set.
-        * ``report_df`` contains every confirmed pair (the deduplicated
-          screen output), sorted by Tm descending.
+    Returns ``(annotated_df, dropped_df, report_df)`` — see module docstring.
     """
     cands = probes_df_to_candidates(probes_df)
-    hits, by_cand = screen_candidates_against_pool(
+    hits, by_cand = screen_candidates(
         cands,
-        pool_id=pool_id,
-        repo_root=repo_root,
+        splint_probes=splint_probes,
         tm_threshold_c=tm_threshold_c,
-        end_dg_threshold_kcal=end_dg_threshold_kcal,
     )
 
     annotated = probes_df.copy()
@@ -135,13 +171,11 @@ def apply_cross_lig_check(
 def apply_cross_lig_check_to_xlsx(
     xlsx_path: Path,
     *,
-    pool_id: Optional[str] = None,
-    repo_root: Optional[Path] = None,
+    splint_probes: Optional[List[ProbeForScreen]] = None,
     reject: bool = False,
     tm_threshold_c: float = DEFAULT_TM_THRESHOLD_C,
-    end_dg_threshold_kcal: float = DEFAULT_END_DG_THRESHOLD_KCAL,
 ) -> tuple[int, int]:
-    """In-place screen on an existing probes xlsx (mutation / TCR post-pipeline).
+    """In-place v2 screen on an existing probes xlsx (mutation / TCR post-pipeline).
 
     Reads ``xlsx_path``, applies :func:`apply_cross_lig_check`, then writes:
 
@@ -155,11 +189,9 @@ def apply_cross_lig_check_to_xlsx(
     df = pd.read_excel(xlsx_path)
     annotated, dropped, report = apply_cross_lig_check(
         df,
-        pool_id=pool_id,
-        repo_root=repo_root,
+        splint_probes=splint_probes,
         reject=reject,
         tm_threshold_c=tm_threshold_c,
-        end_dg_threshold_kcal=end_dg_threshold_kcal,
     )
     out_dir = xlsx_path.parent
     report.to_csv(out_dir / "cross_lig_report.tsv", sep="\t", index=False)

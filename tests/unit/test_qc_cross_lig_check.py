@@ -1,114 +1,127 @@
-"""Unit tests for ``probe_designer.qc.cross_lig_check``.
+"""Unit tests for v2 ``probe_designer.qc.cross_lig_check.screen_candidates``.
 
-Tests the thin wrapper that lazy-imports ``bank.probe_book.pool.*`` to
-run cross-ligation screening against (a) the candidate batch itself and
-optionally (b) an existing pool. The bank package is editable-installed
-in our env so we can drive the real screen end-to-end with a tiny mock
-pool.
+Tests the within-batch + splint-pool screening path used by the design CLIs.
+Bank-free — splint probes are passed in as ``ProbeForScreen`` directly
+(the CLI layer's ``ext.pool.loader`` constructs them from bank data).
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-
 pytest.importorskip("primer3")
-pytest.importorskip("probe_book")
 
 
 from probe_designer.qc.cross_lig_check import (
     CandidateProbe,
-    screen_candidates_against_pool,
+    screen_candidates,
 )
+from probe_designer.qc.cross_ligation import ProbeForScreen
 
 
-# A safe (no cross-lig) candidate pair — random 20-mers that share no
-# meaningful k-mer with their reverse complement.
-SAFE_A = CandidateProbe(
-    probe_id="cand_safe_A", chemistry="dRNA", target="GENE_A",
-    probe_arm5="GCATAGCAGCAGCAGCATAG", probe_arm3="TGTGTGTGCACGCACGCATG",
-)
-SAFE_B = CandidateProbe(
-    probe_id="cand_safe_B", chemistry="dRNA", target="GENE_B",
-    probe_arm5="AAGAAGAAGAAGAAGAAGAA", probe_arm3="TTCTTCTTCTTCTTCTTCTT",
-)
+_BB = "TCCCTACACGACGCTCTTCCG"   # 21-nt neutral backbone for fixtures
 
 
-# A clear cross-lig pair. CROSSLIG_A's wrap-around junction
-# arm3[-3:] + arm5[:3] = "TCG|GCA" — and CROSSLIG_B's arm5 contains the RC
-# of that ("TGC|CGA"). Their full duplex Tm should exceed 40 °C.
-CROSSLIG_A = CandidateProbe(
-    probe_id="cand_xlig_A", chemistry="dRNA", target="GENE_X",
-    probe_arm5="GCAGCAGCAGCAGCAGCAGC", probe_arm3="TGCTGCTGCTGCTGCTGCTG",
-)
-CROSSLIG_B = CandidateProbe(
-    probe_id="cand_xlig_B", chemistry="dRNA", target="GENE_Y",
-    probe_arm5="CAGCAGCAGCAGCAGCAGCA", probe_arm3="GCTGCTGCTGCTGCTGCTGC",
-)
-
-
-def test_within_batch_no_pool_no_hits():
-    hits, by_cand = screen_candidates_against_pool([SAFE_A, SAFE_B])
-    assert hits == []
-    assert by_cand == {}
-
-
-def test_within_batch_detects_obvious_dimer():
-    hits, by_cand = screen_candidates_against_pool([CROSSLIG_A, CROSSLIG_B])
-    assert len(hits) >= 1
-    pair_ids = {(h.probe_a_id, h.probe_b_id) for h in hits}
-    expected = {("cand_xlig_A", "cand_xlig_B"), ("cand_xlig_B", "cand_xlig_A")}
-    assert pair_ids & expected
-    # by_candidate index should list this hit under both endpoints
-    assert "cand_xlig_A" in by_cand and "cand_xlig_B" in by_cand
-
-
-def test_with_pool_marks_existing_side(tmp_path: Path):
-    """Mock a tiny pool registry; verify pool-vs-candidate hits get marked."""
-    # Build a fake project root with one pool + matching probe registry.
-    (tmp_path / "probes").mkdir()
-    registry_tsv = tmp_path / "probes" / "registry.tsv"
-    # Make 1 pool probe that will cross-lig with CROSSLIG_B
-    registry_tsv.write_text(
-        "probe_id\tcodebook\tchemistry\tprobe_arm5\tprobe_arm3\tsequence\ttarget\n"
-        f"pool_xlig_A\tSP369\tdRNA\t{CROSSLIG_A.probe_arm5}\t{CROSSLIG_A.probe_arm3}\t\tGENE_X\n",
-        encoding="utf-8",
-    )
-    pool_dir = tmp_path / "pools" / "test_pool_v1"
-    pool_dir.mkdir(parents=True)
-    (pool_dir / "manifest.yaml").write_text(
-        "pool_id: test_pool_v1\n"
-        "pool_name: test\n"
-        "codebook: SP369\n"
-        "target_well_volume_uL: 10.0\n"
-        "recipe:\n"
-        "- order_id: ORD1\n"
-        "  probe_id: pool_xlig_A\n"
-        "  concentration_M: 1.0e-08\n",
-        encoding="utf-8",
+def _candidate(probe_id: str, arm5: str, arm3: str, *,
+                chemistry: str = "dRNA", target: str = "TEST") -> CandidateProbe:
+    return CandidateProbe(
+        probe_id=probe_id, chemistry=chemistry,
+        probe_arm5=arm5, probe_arm3=arm3,
+        sequence=(arm5 + _BB + arm3).upper(),
+        target=target,
     )
 
-    hits, by_cand = screen_candidates_against_pool(
-        [CROSSLIG_B],
-        pool_id="test_pool_v1",
-        repo_root=tmp_path,
+
+def _pfs(probe_id: str, arm5: str, arm3: str, *,
+         chemistry: str = "dRNA", target: str = "POOL") -> ProbeForScreen:
+    return ProbeForScreen(
+        probe_id=probe_id, chemistry=chemistry,
+        probe_arm5=arm5, probe_arm3=arm3,
+        sequence=(arm5 + _BB + arm3).upper(),
+        target=target,
     )
-    assert len(hits) >= 1
-    # Each hit involves exactly one candidate and one pool probe.
-    for h in hits:
-        endpoints = {(h.probe_a_id, h.a_is_existing_pool),
-                       (h.probe_b_id, h.b_is_existing_pool)}
-        assert ("cand_xlig_B", False) in endpoints
-        assert ("pool_xlig_A", True) in endpoints
-    assert "cand_xlig_B" in by_cand
+
+
+# Safe pair — no junction-templating overlap
+SAFE_A = _candidate("safe_A", "GCATAGCAGCAGCAGCATAG", "TGTGTGTGCACGCACGCATG", target="G1")
+SAFE_B = _candidate("safe_B", "AAGAAGAAGAAGAAGAAGAA", "TTCTTCTTCTTCTTCTTCTT", target="G2")
+
+
+# True v2 cross-lig: B's arm5 is RC of A's rotated arm3+arm5 (40 nt) so the
+# full A ligator pairs contiguously inside B's arm5 (no bb-spanning).
+_A_ARM3 = "GGGGGAAAATTTCCCAAGGG"
+_A_ARM5 = "CCCAATTGCGCAATATCATG"
+_B_ARM5_FROM_A = "CATGATATTGCGCAATTGGGCCCTTGGGAAATTTTCCCCC"  # = RC(arm3_A + arm5_A)
+
+XLIG_A = _candidate("xlig_A", _A_ARM5, _A_ARM3, target="GX")
+XLIG_B = CandidateProbe(
+    probe_id="xlig_B", chemistry="dRNA",
+    probe_arm5=_B_ARM5_FROM_A, probe_arm3="AAGCTTAACTGGCCATAAGT",
+    sequence=(_B_ARM5_FROM_A + _BB + "AAGCTTAACTGGCCATAAGT").upper(),
+    target="GY",
+)
+
+
+# ----------------------------------------------------------------------
+# Within-batch only (no splint pool)
+# ----------------------------------------------------------------------
 
 
 def test_empty_candidates_returns_empty():
-    hits, by_cand = screen_candidates_against_pool([])
+    hits, by_cand = screen_candidates([])
     assert hits == [] and by_cand == {}
 
 
 def test_single_candidate_no_partner():
-    hits, by_cand = screen_candidates_against_pool([SAFE_A])
+    hits, by_cand = screen_candidates([SAFE_A])
     assert hits == [] and by_cand == {}
+
+
+def test_within_batch_safe_pair_unflagged():
+    hits, by_cand = screen_candidates([SAFE_A, SAFE_B])
+    assert hits == []
+    assert by_cand == {}
+
+
+def test_within_batch_xlig_pair_flagged():
+    """A's rotated arms RC-match B's arm5 contiguously → flag."""
+    hits, by_cand = screen_candidates([XLIG_A, XLIG_B])
+    assert len(hits) >= 1
+    # Both endpoints of any confirmed hit appear in by_cand
+    for h in hits:
+        assert h.a_can_ligate_on_b is True
+        assert h.probe_a_id in by_cand
+
+
+# ----------------------------------------------------------------------
+# Pool-aware (with splint_probes)
+# ----------------------------------------------------------------------
+
+
+def test_pool_partner_marks_existing_side():
+    """One candidate; the pool has a probe whose arm5 is RC of the candidate's
+    rotated arms. Hit should be flagged AND mark b_is_existing_pool=True.
+    """
+    splint = _pfs("pool_xlig_partner", _B_ARM5_FROM_A, "AAGCTTAACTGGCCATAAGT", target="POOL_G")
+    hits, by_cand = screen_candidates([XLIG_A], splint_probes=[splint])
+    confirmed = [h for h in hits if h.a_can_ligate_on_b]
+    assert confirmed, f"expected ≥1 confirmed hit; got {hits}"
+    for h in confirmed:
+        # XLIG_A is candidate (a_is_existing_pool=False); pool_xlig_partner is pool (b_is_existing_pool=True)
+        assert h.a_is_existing_pool is False
+        assert h.b_is_existing_pool is True
+        assert h.probe_a_id == "xlig_A"
+        assert h.probe_b_id == "pool_xlig_partner"
+    # by_cand keyed only by candidate side (= XLIG_A)
+    assert "xlig_A" in by_cand
+    assert "pool_xlig_partner" not in by_cand   # pool side not indexed
+
+
+def test_pool_vs_pool_pairs_are_dropped():
+    """Pool-vs-pool dimers must not appear in results (they're not this run's concern)."""
+    pool1 = _pfs("pool_1", _B_ARM5_FROM_A, "AAGCTTAACTGGCCATAAGT")
+    pool2 = _pfs("pool_2", _A_ARM5, _A_ARM3)   # XLIG_A's arms but as pool member
+    hits, by_cand = screen_candidates([SAFE_A], splint_probes=[pool1, pool2])
+    # SAFE_A doesn't cross-lig with either pool member → no candidate-involving hits
+    # Even though pool1 + pool2 form a dimer, it's filtered out (both endpoints in pool)
+    for h in hits:
+        assert not (h.a_is_existing_pool and h.b_is_existing_pool)
