@@ -59,6 +59,15 @@ class TestIsSameGeneHit:
     def test_unrelated_gene_does_not_match(self):
         assert not is_same_gene_hit("Homo sapiens TLR1 transcript", "TLR6")
 
+    def test_mixed_case_ortholog_symbol_matches(self):
+        # NCBI names rodent p53 "Tp53" and the human read-through locus
+        # "C12orf57"; case-insensitive matching must recognise both as same-gene.
+        assert is_same_gene_hit(
+            "PREDICTED: Marmota flaviventris tumor protein p53 (Tp53), mRNA", "TP53")
+        assert is_same_gene_hit(
+            "Homo sapiens chromosome 12 open reading frame 57 (C12orf57), mRNA",
+            "C12orf57")
+
     def test_empty_inputs_safe(self):
         assert not is_same_gene_hit("", "ACTB")
         assert not is_same_gene_hit("ACTB", "")

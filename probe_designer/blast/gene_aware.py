@@ -52,9 +52,12 @@ def is_same_gene_hit(subject_def: str, gene_symbol: str) -> bool:
         return False
     sym = gene_symbol.upper()
     subj_low = subject_def.lower()
-    patterns = [rf"\({sym}\)", rf"\b{sym.lower()}\b", rf"\b{sym}\b"]
+    # Case-insensitive: NCBI names orthologs / read-through loci with mixed case
+    # (e.g. rodent "Tp53", the human "C12orf57" locus); an exact-case match would
+    # miss the same-gene hit and falsely reject the probe as off-target.
+    patterns = [rf"\({sym}\)", rf"\b{sym}\b"]
     for pat in patterns:
-        if re.search(pat, subject_def):
+        if re.search(pat, subject_def, re.IGNORECASE):
             return True
     for syn in GENE_SYNONYMS.get(sym, []):
         if syn in subj_low:
