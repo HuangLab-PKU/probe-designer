@@ -77,7 +77,7 @@ class TcrConfig:
     rt_primer_target_len: int = 20
     rt_primer_min_len: int = 15
     rt_primer_max_len: int = 30
-    rt_primer_tm_range: Tuple[float, float] = (50.0, 65.0)
+    rt_primer_tm_range: Tuple[float, float] = (55.0, 75.0)  # RT (Maxima H Minus) 50 C + margin
 
     # Phase toggles
     skip_blast: bool = False

@@ -28,6 +28,16 @@ from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
 
 GenomeAccessor = Callable[[str, int, int], str]
 
+# Reverse-transcription buffer: Maxima H Minus RT, 50 °C, formamide-free.
+# 1X RT buffer from Thermo 5X (250 mM Tris-HCl pH 8.3, 375 mM KCl, 15 mM MgCl2,
+# 50 mM DTT) => 75 mM K+, 3 mM Mg2+ (Tris ~50 mM adds ~+25 mM Na-equivalent,
+# omitted here as a minor ~+0.1 °C term). Source recorded in
+# designer/docs/thermodynamics_parameters.md.
+MAXIMA_H_MINUS_RT = ReactionConditions(
+    monovalent_mM=75.0, mg_mM=3.0, strand_nM=100.0,
+    formamide_pct=0.0, lab_temp_c=50.0,
+)
+
 
 def _reverse_complement(seq: str) -> str:
     comp = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
@@ -98,8 +108,8 @@ def design_rt_primer(
     min_primer_len: int = 15,
     max_primer_len: int = 30,
     target_primer_len: int = 20,
-    tm_min: float = 50.0,
-    tm_max: float = 65.0,
+    tm_min: float = 55.0,
+    tm_max: float = 75.0,
     reaction: Optional[ReactionConditions] = None,
 ) -> Dict:
     """Design one RT primer for the given mutation.
@@ -114,14 +124,9 @@ def design_rt_primer(
     log / drop / retry as appropriate.
     """
     strand = _resolve_strand(strand)
-    # RT anneals in a formamide-free reverse-transcription buffer. The default
-    # reproduces the legacy Biopython salt (Na=50, Mg=0, 25 nM) so the strand-
-    # convention fix lands WITHOUT shifting the RT-primer Tm scale — the RT
-    # window is not yet re-anchored to the real RT buffer (needs the RT reaction
-    # temperature; a Phase-1 follow-up). Pass an explicit ``reaction`` to override.
-    reaction = reaction or ReactionConditions(
-        monovalent_mM=50.0, mg_mM=0.0, strand_nM=25.0, formamide_pct=0.0
-    )
+    # RT anneals in the Maxima H Minus buffer at 50 °C (formamide-free).
+    # Pass an explicit ``reaction`` to override.
+    reaction = reaction or MAXIMA_H_MINUS_RT
     notes: list[str] = []
 
     # Fetch the widest possible genomic window (max primer length) once,
@@ -209,8 +214,8 @@ def design_rt_primer_from_target(
     min_primer_len: int = 15,
     max_primer_len: int = 30,
     target_primer_len: int = 20,
-    tm_min: float = 50.0,
-    tm_max: float = 65.0,
+    tm_min: float = 55.0,
+    tm_max: float = 75.0,
     reaction: Optional[ReactionConditions] = None,
 ) -> Dict:
     """Design one RT primer for a probe whose target ends at ``target_end``
@@ -227,14 +232,9 @@ def design_rt_primer_from_target(
     keys carry the same target offsets (genomic semantics don't apply).
     """
     target_seq = target_seq.upper()
-    # RT anneals in a formamide-free reverse-transcription buffer. The default
-    # reproduces the legacy Biopython salt (Na=50, Mg=0, 25 nM) so the strand-
-    # convention fix lands WITHOUT shifting the RT-primer Tm scale — the RT
-    # window is not yet re-anchored to the real RT buffer (needs the RT reaction
-    # temperature; a Phase-1 follow-up). Pass an explicit ``reaction`` to override.
-    reaction = reaction or ReactionConditions(
-        monovalent_mM=50.0, mg_mM=0.0, strand_nM=25.0, formamide_pct=0.0
-    )
+    # RT anneals in the Maxima H Minus buffer at 50 °C (formamide-free).
+    # Pass an explicit ``reaction`` to override.
+    reaction = reaction or MAXIMA_H_MINUS_RT
     notes: list[str] = []
     best_in_range: Optional[tuple] = None
     best_fallback: Optional[tuple] = None
