@@ -10,6 +10,8 @@ from typing import List, Dict, Any, Optional
 import json
 import yaml
 
+from probe_designer.chemistry import ReactionConditions
+
 
 @dataclass
 class DatabaseConfig:
@@ -57,8 +59,12 @@ class FilterConfig:
     max_consecutive_t: int = 5  # max consecutive T
     max_consecutive_c: int = 5  # max consecutive C
     # --- Tm + structure ---
-    min_tm: float = 45.0  # min melting temperature
-    max_tm: float = 65.0  # max melting temperature
+    # Re-anchored 2026-07-17 to the reaction temperature: min = lab_temp_c +
+    # tm_margin_c (45 + 5 = 50), max = lab_temp_c + 25 (70). Computed at the
+    # reaction buffer incl. formamide. Impact on shipped marker arms: 0.4%
+    # (experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt).
+    min_tm: float = 50.0  # min melting temperature (°C); = lab_temp_c + tm_margin_c
+    max_tm: float = 70.0  # max melting temperature (°C); = lab_temp_c + 25
     max_tm_diff: float = 10.0  # max Tm difference between 3' and 5' halves
     min_free_energy: float = -10.0  # min free energy (kcal/mol)
     check_rna_structure: bool = False  # whether to check RNA secondary structure
@@ -73,10 +79,43 @@ class FilterConfig:
     plfold_span: int = 40           # RNAplfold L (max bp span within window)
     plfold_temperature: float = 37.0  # °C; raise to 47-55 to approximate formamide
 
+    # --- Reaction buffer (2026-07-17): the real hybridization conditions used
+    #     for every Tm/ΔG calculation. Flat fields so the generic YAML loader
+    #     round-trips them; build a ReactionConditions via reaction_conditions().
+    #     Defaults follow protocol rca.md v5.3 (see chemistry.ReactionConditions).
+    #     Before this change all Tm used Biopython defaults (Na=50, Mg=0, 50 nM),
+    #     understating arm Tm by ~10 °C — see experiments/20260715_tm_deltag_methods_audit/.
+    monovalent_mM: float = 75.0        # K+ (Ampligase 25 + added KCl 50)
+    mg_mM: float = 10.0                # Mg2+ (Ampligase)
+    dntp_mM: float = 0.0               # dNTP (chelates Mg2+)
+    strand_nM: float = 100.0           # 0.1 µM probe
+    formamide_pct: float = 20.0        # % formamide (depresses Tm)
+    formamide_deg_per_pct: float = 0.5  # °C Tm depression per % formamide
+    lab_temp_c: float = 45.0           # hyb anneal temperature; arm-Tm anchor
+    tm_margin_c: float = 5.0           # min arm Tm = lab_temp_c + tm_margin_c
+    saltcorr: int = 5                  # Biopython salt method (5 = SantaLucia'98 + von Ahsen Mg)
+
     # Post-BLAST rules
     max_alignments: int = 5  # max allowed alignments (specificity)
     require_specificity: bool = True  # enforce specificity in BLAST filter
     target_organisms: List[str] = None  # target organisms to allow
+
+    def reaction_conditions(self) -> ReactionConditions:
+        """Materialize the flat buffer fields into a ReactionConditions.
+
+        Validation (fail-fast) happens in ReactionConditions.__post_init__.
+        """
+        return ReactionConditions(
+            monovalent_mM=self.monovalent_mM,
+            mg_mM=self.mg_mM,
+            dntp_mM=self.dntp_mM,
+            strand_nM=self.strand_nM,
+            formamide_pct=self.formamide_pct,
+            formamide_deg_per_pct=self.formamide_deg_per_pct,
+            lab_temp_c=self.lab_temp_c,
+            tm_margin_c=self.tm_margin_c,
+            saltcorr=self.saltcorr,
+        )
 
 
 @dataclass
@@ -340,7 +379,17 @@ class ConfigManager:
                 'min_free_energy': self.filter.min_free_energy,
                 'check_rna_structure': self.filter.check_rna_structure,
                 'require_specificity': self.filter.require_specificity,
-                'final_probes_per_gene': getattr(self.filter, 'final_probes_per_gene', 3)
+                'final_probes_per_gene': getattr(self.filter, 'final_probes_per_gene', 3),
+                # Reaction buffer (2026-07-17)
+                'monovalent_mM': self.filter.monovalent_mM,
+                'mg_mM': self.filter.mg_mM,
+                'dntp_mM': self.filter.dntp_mM,
+                'strand_nM': self.filter.strand_nM,
+                'formamide_pct': self.filter.formamide_pct,
+                'formamide_deg_per_pct': self.filter.formamide_deg_per_pct,
+                'lab_temp_c': self.filter.lab_temp_c,
+                'tm_margin_c': self.filter.tm_margin_c,
+                'saltcorr': self.filter.saltcorr,
             },
             'blast': {
                 'blast_type': self.blast.blast_type,
