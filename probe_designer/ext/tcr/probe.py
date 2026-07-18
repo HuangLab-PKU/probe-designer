@@ -15,6 +15,8 @@ from typing import Any, Dict, List, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
+from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
+
 try:
     import RNA  # ViennaRNA bindings — provides MFE via RNA.fold
     _HAS_VIENNARNA = True
@@ -80,6 +82,7 @@ class TcrProbeDesigner:
         arm_len: Optional[int] = None,
         min_arm_tm: float = 50.0,
         max_arm_tm: float = 60.0,
+        reaction: Optional[ReactionConditions] = None,
     ):
         self.bds_len = bds_len
         self.arm_len = arm_len if arm_len is not None else bds_len // 2
@@ -89,6 +92,23 @@ class TcrProbeDesigner:
             )
         self.min_arm_tm = min_arm_tm
         self.max_arm_tm = max_arm_tm
+        self.reaction = reaction if reaction is not None else ReactionConditions()
+
+    def _tm_hybrid(self, dna_arm: str) -> float:
+        """Tm of a DNA probe arm hybridizing to mRNA.
+
+        ``R_DNA_NN1`` requires the RNA (target) strand, so the DNA arm is
+        reverse-complemented to its RNA-sense before the lookup. Buffer +
+        formamide come from ``self.reaction``.
+        """
+        rna = dna_revcomp_to_rna(dna_arm)
+        tm = mt.Tm_NN(rna, nn_table=mt.R_DNA_NN1, **self.reaction.tm_nn_kwargs())
+        return self.reaction.apply_formamide(tm)
+
+    def _tm_dna(self, seq: str) -> float:
+        """Tm of a DNA:DNA duplex (cDNA chemistry), ``DNA_NN4`` at the buffer."""
+        tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **self.reaction.tm_nn_kwargs())
+        return self.reaction.apply_formamide(tm)
 
     # ------------------------------------------------------------------
     # Core scan
@@ -145,16 +165,17 @@ class TcrProbeDesigner:
             arm_3prime_cDNA = target_seq[:arm_len]
             arm_5prime_cDNA = target_seq[arm_len:]
 
-            # dRNA Tm uses target_rc (= the actual probe-arm DNA strand)
-            # because R_DNA_NN1 is asymmetric in DNA vs RNA strand
-            # (Sugimoto 1995). cDNA Tm uses target_seq directly because
-            # DNA_NN4 is symmetric. See test_drna_tm_computed_on_actual_probe_arm_dna_strand.
-            tm_full_rna = mt.Tm_NN(target_rc, nn_table=mt.R_DNA_NN1)
-            tm_5prime_rna = mt.Tm_NN(target_rc[arm_len:], nn_table=mt.R_DNA_NN1)
-            tm_3prime_rna = mt.Tm_NN(target_rc[:arm_len], nn_table=mt.R_DNA_NN1)
-            tm_full_dna = mt.Tm_NN(target_seq, nn_table=mt.DNA_NN4)
-            tm_5prime_dna = mt.Tm_NN(target_seq[arm_len:], nn_table=mt.DNA_NN4)
-            tm_3prime_dna = mt.Tm_NN(target_seq[:arm_len], nn_table=mt.DNA_NN4)
+            # dRNA Tm: the probe binds mRNA, so R_DNA_NN1 must be fed the RNA
+            # (target) strand. _tm_hybrid reverse-complements each DNA arm back
+            # to its RNA-sense — Biopython's documented convention ("seq must be
+            # the RNA sequence"). cDNA Tm uses the target half directly (DNA_NN4,
+            # symmetric). Both at the reaction buffer + formamide.
+            tm_full_rna = self._tm_hybrid(target_rc)
+            tm_5prime_rna = self._tm_hybrid(arm_5prime_dRNA)
+            tm_3prime_rna = self._tm_hybrid(arm_3prime_dRNA)
+            tm_full_dna = self._tm_dna(target_seq)
+            tm_5prime_dna = self._tm_dna(arm_5prime_cDNA)
+            tm_3prime_dna = self._tm_dna(arm_3prime_cDNA)
 
             g_5 = target_seq[:arm_len].count("G") / arm_len
             g_3 = target_seq[arm_len:].count("G") / arm_len

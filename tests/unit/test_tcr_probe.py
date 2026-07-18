@@ -167,17 +167,19 @@ def test_select_non_overlapping_respects_min_gap():
 # Tm input convention — independent per chemistry
 # ---------------------------------------------------------------------------
 
-def test_drna_tm_computed_on_actual_probe_arm_dna_strand(trb_cdr3_pair):
-    """dRNA Tm must come from passing the ACTUAL probe-arm DNA strand
-    (= RC of the target half) into R_DNA_NN1 — not the target half itself.
+def test_drna_tm_computed_on_rna_target_strand(trb_cdr3_pair):
+    """dRNA Tm must feed R_DNA_NN1 the RNA (target) strand — the reverse
+    complement of each DNA probe arm — per Biopython's convention ("seq must be
+    the RNA sequence"), evaluated at the reaction buffer + formamide.
 
-    R_DNA_NN1 is asymmetric in which strand is DNA vs RNA (Sugimoto 1995),
-    so Tm(DNA=X) != Tm(DNA=RC(X)). Passing target_seq halves gives the wrong
-    Tm because target_seq half is the mRNA-sense (RNA-equivalent) strand,
-    not the actual probe DNA arm.
+    Before 2026-07-17 the code passed the DNA probe strand (the target_rc
+    halves) directly, which is the wrong convention for the asymmetric
+    R_DNA_NN1 table (see experiments/20260715_tm_deltag_methods_audit/).
     """
     from Bio.SeqUtils import MeltingTemp as mt
+    from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
 
+    rc = ReactionConditions()
     d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=0.0, max_arm_tm=200.0)
     sites = d.find_cdr3_binding_sites(
         trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "TestClone1",
@@ -186,34 +188,42 @@ def test_drna_tm_computed_on_actual_probe_arm_dna_strand(trb_cdr3_pair):
     target = s["target_sequence"]
     target_rc = _reverse_complement(target)
 
-    # 5'-arm probe DNA = RC of target's 5' half = target_rc[arm_len:]
-    expected_5p = round(mt.Tm_NN(target_rc[20:], nn_table=mt.R_DNA_NN1), 2)
-    # 3'-arm probe DNA = RC of target's 3' half = target_rc[:arm_len]
-    expected_3p = round(mt.Tm_NN(target_rc[:20], nn_table=mt.R_DNA_NN1), 2)
-    expected_full = round(mt.Tm_NN(target_rc, nn_table=mt.R_DNA_NN1), 2)
+    def expected(dna_arm):
+        tm = mt.Tm_NN(dna_revcomp_to_rna(dna_arm), nn_table=mt.R_DNA_NN1,
+                      **rc.tm_nn_kwargs())
+        return round(rc.apply_formamide(tm), 2)
 
-    assert s["tm_5prime_dRNA"] == expected_5p, (
-        f"tm_5prime_dRNA should come from RC(target[:20]); got "
-        f"{s['tm_5prime_dRNA']}, expected {expected_5p}"
+    # Probe arms are the RC of the target halves (target_rc halves).
+    assert s["tm_5prime_dRNA"] == expected(target_rc[20:]), (
+        f"tm_5prime_dRNA should be Tm of the RNA-sense strand; got "
+        f"{s['tm_5prime_dRNA']}, expected {expected(target_rc[20:])}"
     )
-    assert s["tm_3prime_dRNA"] == expected_3p
-    assert s["tm_dRNA"] == expected_full
+    assert s["tm_3prime_dRNA"] == expected(target_rc[:20])
+    assert s["tm_dRNA"] == expected(target_rc)
 
 
 def test_cdna_tm_uses_target_half_directly(trb_cdr3_pair):
-    """cDNA arm = target half (sense DNA, since cDNA = RC(mRNA) and the
-    padlock arms read sense again). DNA_NN4 is symmetric so this matches."""
+    """cDNA arm = target half (sense DNA, since cDNA = RC(mRNA) and the padlock
+    arms read sense again). DNA_NN4 is symmetric; computed at the reaction
+    buffer + formamide."""
     from Bio.SeqUtils import MeltingTemp as mt
+    from probe_designer.chemistry import ReactionConditions
 
+    rc = ReactionConditions()
     d = TcrProbeDesigner(bds_len=40, arm_len=20, min_arm_tm=0.0, max_arm_tm=200.0)
     sites = d.find_cdr3_binding_sites(
         trb_cdr3_pair["trb"], trb_cdr3_pair["cdr3"], "TestClone1",
     )
     s = sites[0]
     target = s["target_sequence"]
-    assert s["tm_5prime_cDNA"] == round(mt.Tm_NN(target[20:], nn_table=mt.DNA_NN4), 2)
-    assert s["tm_3prime_cDNA"] == round(mt.Tm_NN(target[:20], nn_table=mt.DNA_NN4), 2)
-    assert s["tm_cDNA"] == round(mt.Tm_NN(target, nn_table=mt.DNA_NN4), 2)
+
+    def expected(seq):
+        tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **rc.tm_nn_kwargs())
+        return round(rc.apply_formamide(tm), 2)
+
+    assert s["tm_5prime_cDNA"] == expected(target[20:])
+    assert s["tm_3prime_cDNA"] == expected(target[:20])
+    assert s["tm_cDNA"] == expected(target)
 
 
 def test_per_chemistry_tm_diff_and_score_present(trb_cdr3_pair):

@@ -23,6 +23,8 @@ from typing import Callable, Dict, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
+from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
+
 
 GenomeAccessor = Callable[[str, int, int], str]
 
@@ -38,8 +40,17 @@ def _gc_percent(seq: str) -> float:
     return round(sum(1 for b in seq.upper() if b in "GC") / len(seq) * 100, 1)
 
 
-def _compute_tm(seq: str) -> float:
-    return round(mt.Tm_NN(seq, nn_table=mt.R_DNA_NN1), 1)
+def _compute_tm(primer: str, reaction: ReactionConditions) -> float:
+    """Tm of a DNA RT primer annealed to its mRNA template.
+
+    The primer:template duplex is DNA:RNA, so ``R_DNA_NN1`` must be fed the RNA
+    (template) strand — the reverse complement of the primer — per Biopython's
+    convention. Salt/Mg conditions come from ``reaction``. Reverse transcription
+    carries no formamide, so the caller passes a formamide-free ReactionConditions.
+    """
+    rna_template = dna_revcomp_to_rna(primer)
+    tm = mt.Tm_NN(rna_template, nn_table=mt.R_DNA_NN1, **reaction.tm_nn_kwargs())
+    return round(reaction.apply_formamide(tm), 1)
 
 
 def _resolve_strand(strand) -> int:
@@ -89,6 +100,7 @@ def design_rt_primer(
     target_primer_len: int = 20,
     tm_min: float = 50.0,
     tm_max: float = 65.0,
+    reaction: Optional[ReactionConditions] = None,
 ) -> Dict:
     """Design one RT primer for the given mutation.
 
@@ -102,6 +114,14 @@ def design_rt_primer(
     log / drop / retry as appropriate.
     """
     strand = _resolve_strand(strand)
+    # RT anneals in a formamide-free reverse-transcription buffer. The default
+    # reproduces the legacy Biopython salt (Na=50, Mg=0, 25 nM) so the strand-
+    # convention fix lands WITHOUT shifting the RT-primer Tm scale — the RT
+    # window is not yet re-anchored to the real RT buffer (needs the RT reaction
+    # temperature; a Phase-1 follow-up). Pass an explicit ``reaction`` to override.
+    reaction = reaction or ReactionConditions(
+        monovalent_mM=50.0, mg_mM=0.0, strand_nM=25.0, formamide_pct=0.0
+    )
     notes: list[str] = []
 
     # Fetch the widest possible genomic window (max primer length) once,
@@ -139,8 +159,8 @@ def design_rt_primer(
         primer = (_reverse_complement(sub.upper())
                   if strand == 1 else sub.upper())
         try:
-            tm = _compute_tm(primer)
-        except Exception:
+            tm = _compute_tm(primer, reaction)
+        except ValueError:
             continue
         if tm_min <= tm <= tm_max:
             cand = (primer, tm, plen, f_start, f_end)
@@ -191,6 +211,7 @@ def design_rt_primer_from_target(
     target_primer_len: int = 20,
     tm_min: float = 50.0,
     tm_max: float = 65.0,
+    reaction: Optional[ReactionConditions] = None,
 ) -> Dict:
     """Design one RT primer for a probe whose target ends at ``target_end``
     (0-indexed exclusive) on ``target_seq``.
@@ -206,6 +227,14 @@ def design_rt_primer_from_target(
     keys carry the same target offsets (genomic semantics don't apply).
     """
     target_seq = target_seq.upper()
+    # RT anneals in a formamide-free reverse-transcription buffer. The default
+    # reproduces the legacy Biopython salt (Na=50, Mg=0, 25 nM) so the strand-
+    # convention fix lands WITHOUT shifting the RT-primer Tm scale — the RT
+    # window is not yet re-anchored to the real RT buffer (needs the RT reaction
+    # temperature; a Phase-1 follow-up). Pass an explicit ``reaction`` to override.
+    reaction = reaction or ReactionConditions(
+        monovalent_mM=50.0, mg_mM=0.0, strand_nM=25.0, formamide_pct=0.0
+    )
     notes: list[str] = []
     best_in_range: Optional[tuple] = None
     best_fallback: Optional[tuple] = None
@@ -220,8 +249,8 @@ def design_rt_primer_from_target(
             continue
         primer = _reverse_complement(region)
         try:
-            tm = _compute_tm(primer)
-        except Exception:
+            tm = _compute_tm(primer, reaction)
+        except ValueError:
             continue
         if tm_min <= tm <= tm_max:
             cand = (primer, tm, plen, start, end)

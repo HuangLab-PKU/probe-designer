@@ -27,6 +27,7 @@ except ImportError:
     _HAS_VIENNARNA = False
 
 from probe_designer.config import BlastConfig, FilterConfig
+from probe_designer.chemistry import dna_revcomp_to_rna
 
 
 logger = logging.getLogger(__name__)
@@ -229,51 +230,36 @@ class SequenceFilter:
         target_type: Literal["DNA", "RNA"],
         target_sequence: Optional[str]
     ) -> Dict[str, float]:
-        """Compute Tm for full padlock and its two arms under given hybridization model.
-        For DNA–RNA, we compute the RNA reverse-complement strand of DNA and use R_DNA_NN tables.
+        """Compute Tm for the full padlock and its two arms at the reaction buffer.
+
+        The buffer (monovalent / Mg2+ / oligo conc / formamide) comes from
+        ``self.filter_config.reaction_conditions()``. For a DNA:RNA hybrid the
+        RNA-sense strand (reverse complement of the DNA arm) is fed to
+        ``R_DNA_NN1`` — Biopython requires the RNA sequence for that table.
+        DNA:DNA uses ``DNA_NN4``; RNA:RNA uses ``RNA_NN1``. Formamide depression
+        is applied after the nearest-neighbor Tm.
         """
-        def dna_revcomp_to_rna(seq: str) -> str:
-            comp = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
-            return ''.join(comp.get(b, 'N') for b in reversed(seq.upper()))
+        rc = self.filter_config.reaction_conditions()
+        buffer = rc.tm_nn_kwargs()
 
-        # Assemble full probe sequence from arms
-        full_sequence = arm_3prime + arm_5prime
+        def arm_tm(seq: str) -> float:
+            try:
+                if sequence_type == "DNA" and target_type == "RNA":
+                    tm = mt.Tm_NN(dna_revcomp_to_rna(seq), nn_table=mt.R_DNA_NN1, **buffer)
+                elif sequence_type == "RNA" and target_type == "RNA":
+                    tm = mt.Tm_NN(seq, nn_table=mt.RNA_NN1, **buffer)
+                else:
+                    tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **buffer)
+            except ValueError as exc:
+                # Ambiguous/short arm (e.g. contains N): reject via 0.0, but surface it.
+                logger.warning("Tm computation failed for %r: %s", seq, exc)
+                return 0.0
+            return rc.apply_formamide(tm)
 
-        tm_full = 0.0
-        tm_3 = 0.0
-        tm_5 = 0.0
-        
-        try:
-            if sequence_type == "DNA" and target_type == "RNA":
-                rna_full = dna_revcomp_to_rna(full_sequence)
-                tm_full = mt.Tm_NN(rna_full, nn_table=mt.R_DNA_NN1)
-            elif sequence_type == "RNA" and target_type == "RNA":
-                tm_full = mt.Tm_NN(full_sequence, nn_table=mt.RNA_NN1)
-            else:
-                tm_full = mt.Tm_NN(full_sequence, nn_table=mt.DNA_NN4)
-        except Exception:
-            tm_full = 0.0
-        
-        try:
-            if sequence_type == "DNA" and target_type == "RNA":
-                rna_3 = dna_revcomp_to_rna(arm_3prime)
-                rna_5 = dna_revcomp_to_rna(arm_5prime)
-                tm_3 = mt.Tm_NN(rna_3, nn_table=mt.R_DNA_NN1)
-                tm_5 = mt.Tm_NN(rna_5, nn_table=mt.R_DNA_NN1)
-            elif sequence_type == "RNA" and target_type == "RNA":
-                tm_3 = mt.Tm_NN(arm_3prime, nn_table=mt.RNA_NN1)
-                tm_5 = mt.Tm_NN(arm_5prime, nn_table=mt.RNA_NN1)
-            else:
-                tm_3 = mt.Tm_NN(arm_3prime, nn_table=mt.DNA_NN4)
-                tm_5 = mt.Tm_NN(arm_5prime, nn_table=mt.DNA_NN4)
-        except Exception:
-            tm_3 = 0.0
-            tm_5 = 0.0
-        
         return {
-            'tm': tm_full,
-            'tm_3prime': tm_3,
-            'tm_5prime': tm_5
+            'tm': arm_tm(arm_3prime + arm_5prime),
+            'tm_3prime': arm_tm(arm_3prime),
+            'tm_5prime': arm_tm(arm_5prime),
         }
     
     def pre_blast_filter(self, binding_sites: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List[Dict[str, Any]]]:
