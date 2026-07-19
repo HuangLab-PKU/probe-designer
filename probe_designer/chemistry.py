@@ -163,3 +163,16 @@ class ReactionConditions:
             "magnesium": self.mg_mM / 1000.0,
             "celsius": self.effective_celsius,
         }
+
+    def signature(self) -> str:
+        """Compact, filesystem-safe key of the parameters that affect Tm.
+
+        Used to key precomputed per-position Tm profiles / reference annotations
+        (see filtering.thermo_profile). Excludes ``lab_temp_c`` / ``tm_margin_c``
+        (they set the gate/target, not the Tm value itself).
+        """
+        return (
+            f"mv{self.monovalent_mM:g}_mg{self.mg_mM:g}_dn{self.dntp_mM:g}"
+            f"_st{self.strand_nM:g}_fa{self.formamide_pct:g}"
+            f"_fd{self.formamide_deg_per_pct:g}_sc{self.saltcorr}"
+        )
