@@ -77,12 +77,16 @@ class Pipeline:
         existing_targets: Optional[ExistingTargetsHook] = None,
         isoform_provider: Optional[IsoformProvider] = None,
         output_dir: Optional[Path] = None,
+        annotations_dir: Optional[Path] = None,
     ) -> None:
         self.config = config
         self.progress: ProgressHook = progress or NULL_PROGRESS
         self.existing_targets: ExistingTargetsHook = existing_targets or NULL_EXISTING
         self.isoform_provider = isoform_provider  # may be None -> use DB default
         self.output_dir = Path(output_dir) if output_dir else None
+        # Opt-in: emit per-transcript thermodynamic annotation tracks (arm Tm +
+        # accessibility) at the current hyb conditions, e.g. to a NAS path.
+        self._annotations_dir = Path(annotations_dir) if annotations_dir else None
 
         self._db = DatabaseInterface(config.database)
         self._genome_accessor = None
@@ -209,6 +213,11 @@ class Pipeline:
                 result.errors.append("No reference sequence; skipping gene")
                 return result
 
+        # 1b. Emit reference thermodynamic annotations (opt-in) for this gene's
+        #     transcript(s), at the current hyb conditions. Never fatal to a run.
+        if self._annotations_dir is not None:
+            self._emit_annotations(gene, isoforms, sequences)
+
         # 2. Search binding sites
         self.progress.on_stage(gene, "search", {})
         try:
@@ -266,6 +275,45 @@ class Pipeline:
             site["peak_rank"] = idx
         result.sites = selected
         return result
+
+    def _emit_annotations(
+        self,
+        gene: str,
+        isoforms: Optional[Dict[str, List[Dict[str, Any]]]],
+        sequences: Optional[Dict[str, Any]],
+    ) -> None:
+        """Write Tm + accessibility bedGraph tracks for this gene's transcript(s)
+        into the annotations dir, at the config's hyb conditions. Opt-in and
+        best-effort: a failed isoform is skipped, never aborting the run."""
+        from probe_designer.annotate import emit_annotations_for_sequences
+        from probe_designer.search_strategies import IsoformAwareness
+
+        reaction = self.config.filter.reaction_conditions()
+        arm_len = max(1, int(self.config.search.binding_site_length) // 2)
+
+        seqs: Dict[str, str] = {}
+        if isoforms and isoforms.get(gene):
+            if not self._genome_accessor:
+                logger.warning("[%s] annotations: no genome accessor; skipped", gene)
+                return
+            awareness = IsoformAwareness(isoforms[gene], self._genome_accessor)
+            for iso in isoforms[gene]:
+                name = iso.get("display_name") or iso.get("id") or gene
+                try:
+                    seqs[name] = awareness.get_isoform_mrna(iso)
+                except Exception as exc:
+                    logger.warning("[%s] annotations: skip isoform %s: %s",
+                                   gene, name, exc)
+        elif sequences:
+            for sid, seq in sequences.items():
+                if isinstance(seq, str):
+                    seqs[str(sid)] = seq
+
+        written = emit_annotations_for_sequences(
+            seqs, reaction, self._annotations_dir, arm_length=arm_len,
+        )
+        logger.info("[%s] wrote %d annotation track(s) to %s",
+                    gene, len(written), self._annotations_dir)
 
     # ------------------------------------------------------------------
     # Isoform / sequence data access

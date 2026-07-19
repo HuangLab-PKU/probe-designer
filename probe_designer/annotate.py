@@ -102,4 +102,31 @@ def build_reference_annotations(
     return written
 
 
-__all__ = ["build_reference_annotations"]
+def emit_annotations_for_sequences(
+    seqs: dict,
+    reaction: ReactionConditions,
+    out_dir: Path,
+    *,
+    arm_length: int = 20,
+    chemistry: str = "dRNA",
+    accessibility: bool = True,
+) -> List[Path]:
+    """Write annotation tracks for many references (``{reference_id: seq}``).
+
+    A thin batch wrapper over :func:`build_reference_annotations`; used to emit a
+    design run's transcripts in one call. Non-string / empty sequences are
+    skipped. Returns all track paths written.
+    """
+    written: List[Path] = []
+    for reference_id, seq in seqs.items():
+        if not isinstance(seq, str) or not seq:
+            continue
+        written.extend(build_reference_annotations(
+            seq, str(reference_id), reaction,
+            out_dir=out_dir, arm_length=arm_length,
+            chemistry=chemistry, accessibility=accessibility,
+        ))
+    return written
+
+
+__all__ = ["build_reference_annotations", "emit_annotations_for_sequences"]

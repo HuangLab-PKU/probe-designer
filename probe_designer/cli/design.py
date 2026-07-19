@@ -152,6 +152,12 @@ def design(
         None, "--saltcorr", min=1, max=7,
         help="Biopython salt method (5=SantaLucia'98+vonAhsen Mg, 7=Owczarzy'08)."
     ),
+    annotations_dir: Optional[Path] = typer.Option(
+        None, "--annotations-dir",
+        help="If set, write per-transcript Tm + accessibility bedGraph tracks "
+             "(at the hyb conditions) here as a byproduct of the run, e.g. a NAS "
+             "path beside the genome."
+    ),
 ) -> None:
     """Run the end-to-end design pipeline and write scored/selected results."""
     if config_path is None:
@@ -209,6 +215,7 @@ def design(
         progress=_LoggingProgress(),
         isoform_provider=isoform_provider,
         output_dir=run_dir,
+        annotations_dir=annotations_dir,
     )
     result = pipeline.run(
         genes,

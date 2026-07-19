@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import pytest
 
-from probe_designer.annotate import build_reference_annotations
+from probe_designer.annotate import (
+    build_reference_annotations,
+    emit_annotations_for_sequences,
+)
 from probe_designer.chemistry import ReactionConditions
 
 # A short mRNA-sense reference.
@@ -50,3 +53,21 @@ class TestBuildReferenceAnnotations:
         assert len(acc) == 1
         vals = _read_values(acc[0])
         assert vals and all(0.0 <= v <= 1.0 for v in vals)  # p_unpaired in [0,1]
+
+
+class TestEmitForSequences:
+    def test_batch_writes_each_reference(self, tmp_path):
+        seqs = {"TX1": SEQ, "TX2": SEQ[:40]}
+        paths = emit_annotations_for_sequences(
+            seqs, ReactionConditions(), tmp_path, accessibility=False,
+        )
+        assert {p for p in paths if "TX1_armTm" in p.name}
+        assert {p for p in paths if "TX2_armTm" in p.name}
+
+    def test_skips_non_string_and_empty(self, tmp_path):
+        seqs = {"TX1": SEQ, "BAD": None, "EMPTY": ""}
+        paths = emit_annotations_for_sequences(
+            seqs, ReactionConditions(), tmp_path, accessibility=False,
+        )
+        names = " ".join(p.name for p in paths)
+        assert "TX1" in names and "BAD" not in names and "EMPTY" not in names
