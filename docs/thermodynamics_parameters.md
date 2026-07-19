@@ -90,9 +90,28 @@ formamide-effective). Phase 2 will point these at `ReactionConditions`.
 | RT primer window | **[55, 75]** °C | `rt_primer` defaults; `ext/*/config.py rt_primer_tm_range` | RT temp 50 °C + [5, 25] margin. |
 | Concentration term | Tm carries `R·ln(C_T/x)`, x=4 (non-self-comp.) | Biopython `Tm_NN` (`dnac1=dnac2=strand_nM`) | **SantaLucia & Hicks 2004**, Eq. 3. |
 
-**Impact of re-anchoring (Option B):** modelling Mg²⁺ (+~13 °C) and 20 % formamide
-(−10 °C) nets a **+3 °C** Tm shift; re-anchoring the mRNA window to [50, 70] drops
-only 0.4 % of shipped arms (`experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt`).
+**Impact of re-anchoring:** modelling Mg²⁺ (+~13 °C) and 20 % formamide (−10 °C)
+nets a **+3 °C** Tm shift; the anchored [50, 70] window fits 99.6 % of shipped
+arms (`experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt`).
+
+**Soft Tm scoring (2026-07-19).** The hard [min_tm, max_tm] gate is **off by
+default** (`FilterConfig.enforce_tm_gate = False`); absolute arm Tm is instead a
+**soft, two-sided** scoring term (`scoring.compute_target_score` `tm_proximity`)
+that peaks at the reaction-anchored target (`min_tm` = `lab_temp_c + tm_margin_c`,
+≈ 50 °C — a few °C above the 45 °C hyb temp so arms stay bound, per Krzywkowski
+2017) and falls off in both directions. Candidates rank by score rather than
+being dropped on Tm. `min_tm`/`max_tm` are the scoring target/reference; set
+`enforce_tm_gate = True` to restore the hard cutoff. TCR's per-clone selection
+(`ext/tcr/probe.filter_by_chemistry_tm`) still hard-gates — separate follow-up.
+
+## 7. Tm as a reference annotation
+
+`filtering/thermo_profile.py` (`compute_tm_profile` / `cached_tm_profile`)
+precomputes the per-position arm Tm along a genome/RNA reference under a given
+`ReactionConditions` + arm length + chemistry, cached to `.npy` keyed by
+`ReactionConditions.signature()`. Design / filtering / visualization can read
+this annotation instead of recomputing Tm per candidate. Mirrors the RNAplfold
+accessibility cache (`filtering/accessibility.cached_profile`).
 
 ## 6. Tool versions (env `probe-design`)
 
