@@ -127,6 +127,17 @@ flags default to rca.md v5.3): **arm Tm** and **accessibility** (RNAplfold
 p_unpaired from full-mRNA folding, at the formamide-effective temperature
 `effective_celsius`). Extensible — add more track builders to `annotate.py`.
 
+**Auto-emit from design runs.** `probe-design design --annotations-dir <NAS>`
+writes these per-transcript tracks as a byproduct of a run (the annotation
+library grows with the genes you design), plus a **canonical-transcript genome
+projection** under `<dir>/genome/` for IGV overlay on the assembly.
+`genome_projection.py` maps a per-transcript profile to genomic coordinates via
+the exon structure + strand and picks the representative transcript (canonical
+flag, else longest). Only the canonical transcript is projected — isoforms
+disagree at shared exon positions and accessibility is per-isoform; transcript
+space stays the lossless source of truth. Windowed metrics are placed at the
+window anchor (a junction-spanning arm is annotated at its anchor, not split).
+
 ## 6. Tool versions (env `probe-design`)
 
 Biopython **1.85** · primer3-py **2.3.0** · ViennaRNA **2.7.0** · NUPACK **4.0.1.8**.
