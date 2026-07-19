@@ -120,6 +120,13 @@ length + chemistry, named by the buffer signature). For genome-scale tracks
 convert to indexed **BigWig** (UCSC `bedGraphToBigWig` with a chrom.sizes, or
 `pyBigWig`). BigWig is the standard for dense per-base numeric tracks like Tm.
 
+**Generating the batch.** `probe_designer/annotate.build_reference_annotations`
+and the `probe-design annotate --fasta <ref> --out-dir <NAS>` CLI write the
+first-batch tracks for each reference at the current hyb conditions (buffer
+flags default to rca.md v5.3): **arm Tm** and **accessibility** (RNAplfold
+p_unpaired from full-mRNA folding, at the formamide-effective temperature
+`effective_celsius`). Extensible — add more track builders to `annotate.py`.
+
 ## 6. Tool versions (env `probe-design`)
 
 Biopython **1.85** · primer3-py **2.3.0** · ViennaRNA **2.7.0** · NUPACK **4.0.1.8**.
