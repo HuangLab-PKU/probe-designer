@@ -105,4 +105,54 @@ def cached_tm_profile(
     return arr
 
 
-__all__ = ["DEFAULT_ARM_LENGTH", "compute_tm_profile", "cached_tm_profile"]
+def write_bedgraph(
+    profile: np.ndarray,
+    chrom: str,
+    start: int,
+    path: Path,
+    *,
+    track_name: str = "arm_tm",
+) -> Path:
+    """Write a per-position Tm profile as a bedGraph — an IGV/UCSC-compatible
+    genome annotation to store on NAS alongside the reference.
+
+    Each non-NaN ``profile[i]`` becomes a single-base interval at
+    ``start + i`` carrying the arm Tm anchored there; equal adjacent values are
+    coalesced. NaN positions (no full window) are skipped.
+
+    Args:
+        profile: 1-D array from :func:`compute_tm_profile`.
+        chrom: chromosome / contig / transcript id the profile sits on.
+        start: 0-based reference start of ``profile[0]``.
+        path: output ``.bedgraph`` path.
+        track_name: bedGraph track name shown in IGV.
+
+    Returns:
+        ``path``. Convert to indexed **BigWig** for genome-scale tracks with
+        UCSC ``bedGraphToBigWig`` (needs a chrom.sizes) or ``pyBigWig``.
+    """
+    profile = np.asarray(profile, dtype=float)
+    n = len(profile)
+    lines = [f'track type=bedGraph name="{track_name}"']
+    i = 0
+    while i < n:
+        v = profile[i]
+        if np.isnan(v):
+            i += 1
+            continue
+        j = i + 1
+        while j < n and profile[j] == v:
+            j += 1
+        lines.append(f"{chrom}\t{start + i}\t{start + j}\t{v:.2f}")
+        i = j
+    path = Path(path)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+__all__ = [
+    "DEFAULT_ARM_LENGTH",
+    "compute_tm_profile",
+    "cached_tm_profile",
+    "write_bedgraph",
+]

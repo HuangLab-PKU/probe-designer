@@ -8,6 +8,7 @@ from probe_designer.chemistry import ReactionConditions
 from probe_designer.filtering.thermo_profile import (
     compute_tm_profile,
     cached_tm_profile,
+    write_bedgraph,
 )
 
 SEQ = "GCATTCAGGTCACCTTGATGCATTCAGGTCACCTTGATG"  # 39 nt, RNA-sense reference
@@ -68,3 +69,22 @@ class TestCachedTmProfile:
         cached_tm_profile(SEQ, "TX1", ReactionConditions(), cache_dir=tmp_path)
         cached_tm_profile(SEQ, "TX1", ReactionConditions(mg_mM=4.0), cache_dir=tmp_path)
         assert len(list(tmp_path.glob("*.npy"))) == 2   # keyed by buffer signature
+
+
+class TestWriteBedgraph:
+    def test_bedgraph_format_and_nan_skipped(self, tmp_path):
+        profile = np.array([55.0, 55.0, np.nan, 60.5])  # first two coalesce
+        path = write_bedgraph(profile, "chr1", 1000, tmp_path / "tm.bedgraph")
+        lines = path.read_text(encoding="utf-8").strip().splitlines()
+        assert lines[0].startswith("track type=bedGraph")
+        # coalesced run [0,2) at value 55.0, NaN at 2 skipped, single 60.5 at 3
+        assert lines[1] == "chr1\t1000\t1002\t55.00"
+        assert lines[2] == "chr1\t1003\t1004\t60.50"
+        assert len(lines) == 3
+
+    def test_igv_compatible_columns(self, tmp_path):
+        prof = compute_tm_profile(SEQ, ReactionConditions(), arm_length=20)
+        path = write_bedgraph(prof, "chr7", 500, tmp_path / "t.bedgraph")
+        for line in path.read_text(encoding="utf-8").splitlines()[1:]:
+            chrom, s, e, v = line.split("\t")
+            assert int(e) > int(s) and float(v) == float(v)  # value not NaN

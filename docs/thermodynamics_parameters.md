@@ -113,6 +113,13 @@ precomputes the per-position arm Tm along a genome/RNA reference under a given
 this annotation instead of recomputing Tm per candidate. Mirrors the RNAplfold
 accessibility cache (`filtering/accessibility.cached_profile`).
 
+**Genome-annotation format (IGV-compatible).** `write_bedgraph()` exports a
+profile as **bedGraph** (`chrom  start  end  value`), which IGV/UCSC read
+directly — store on NAS beside the reference (one track per condition + arm
+length + chemistry, named by the buffer signature). For genome-scale tracks
+convert to indexed **BigWig** (UCSC `bedGraphToBigWig` with a chrom.sizes, or
+`pyBigWig`). BigWig is the standard for dense per-base numeric tracks like Tm.
+
 ## 6. Tool versions (env `probe-design`)
 
 Biopython **1.85** · primer3-py **2.3.0** · ViennaRNA **2.7.0** · NUPACK **4.0.1.8**.
