@@ -4,6 +4,7 @@ from __future__ import annotations
 import pytest
 
 from probe_designer.annotate import (
+    build_canonical_genome_annotations,
     build_reference_annotations,
     emit_annotations_for_sequences,
 )
@@ -71,3 +72,25 @@ class TestEmitForSequences:
         )
         names = " ".join(p.name for p in paths)
         assert "TX1" in names and "BAD" not in names and "EMPTY" not in names
+
+
+class TestCanonicalGenomeProjection:
+    def test_genome_bedgraph_in_genomic_coords(self, tmp_path):
+        # 57-nt SEQ split across two exons (29 + 28 = 57) on chr7 + strand.
+        iso = {
+            "display_name": "ENST_demo", "seq_region_name": "chr7", "strand": 1,
+            "Exon": [{"start": 1000, "end": 1028}, {"start": 2000, "end": 2027}],
+        }
+        paths = build_canonical_genome_annotations(
+            iso, SEQ, ReactionConditions(), out_dir=tmp_path,
+            arm_length=20, accessibility=False, gene="DEMO",
+        )
+        assert len(paths) == 1 and paths[0].name.endswith(".genome.bedgraph")
+        lines = [l for l in paths[0].read_text(encoding="utf-8").splitlines()
+                 if not l.startswith("track")]
+        chroms = {l.split("\t")[0] for l in lines}
+        starts = [int(l.split("\t")[1]) for l in lines]
+        assert chroms == {"chr7"}
+        # first exon starts at genomic 1000 (0-based 999); values land there.
+        assert min(starts) == 999
+        assert any(s >= 1999 for s in starts)  # second exon block too

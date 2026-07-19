@@ -312,6 +312,25 @@ class Pipeline:
         written = emit_annotations_for_sequences(
             seqs, reaction, self._annotations_dir, arm_length=arm_len,
         )
+
+        # Canonical-transcript genome projection (for IGV overlay on the
+        # assembly). Only the representative transcript is projected.
+        if isoforms and isoforms.get(gene) and seqs:
+            from probe_designer.annotate import build_canonical_genome_annotations
+            from probe_designer.genome_projection import pick_canonical_isoform
+            canonical = pick_canonical_isoform(isoforms[gene])
+            cname = canonical.get("display_name") or gene
+            if cname in seqs and canonical.get("Exon"):
+                try:
+                    written += build_canonical_genome_annotations(
+                        canonical, seqs[cname], reaction,
+                        out_dir=self._annotations_dir / "genome",
+                        arm_length=arm_len, gene=gene,
+                    )
+                except Exception as exc:
+                    logger.warning("[%s] genome-projection annotation failed: %s",
+                                   gene, exc)
+
         logger.info("[%s] wrote %d annotation track(s) to %s",
                     gene, len(written), self._annotations_dir)
 

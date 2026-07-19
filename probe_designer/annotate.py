@@ -102,6 +102,60 @@ def build_reference_annotations(
     return written
 
 
+def build_canonical_genome_annotations(
+    iso: dict,
+    seq: str,
+    reaction: ReactionConditions,
+    *,
+    out_dir: Path,
+    arm_length: int = 20,
+    chemistry: str = "dRNA",
+    accessibility: bool = True,
+    gene: Optional[str] = None,
+) -> List[Path]:
+    """Genome-coordinate bedGraph tracks for ONE (canonical) transcript.
+
+    Computes the per-transcript profiles then projects them to genomic
+    coordinates through the isoform's exon structure + strand, for IGV overlay
+    on the assembly. Only the canonical/representative transcript should be
+    projected (isoforms disagree; accessibility is per-isoform). ``iso`` must
+    carry ``Exon`` (genomic 1-based inclusive), ``strand`` and
+    ``seq_region_name``. Windowed metrics are placed at the window anchor.
+    """
+    from probe_designer.genome_projection import (
+        project_profile_to_genome,
+        write_genome_bedgraph,
+    )
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    exons = iso.get("Exon", [])
+    strand = int(iso.get("strand", 1))
+    chrom = str(iso.get("seq_region_name") or iso.get("display_name") or "chr")
+    label = gene or iso.get("display_name") or "gene"
+    sig = reaction.signature()
+    written: List[Path] = []
+
+    tm = compute_tm_profile(seq, reaction, arm_length=arm_length, chemistry=chemistry)
+    tm_path = out_dir / f"{label}_armTm_L{arm_length}_{chemistry}_{sig}.genome.bedgraph"
+    write_genome_bedgraph(
+        project_profile_to_genome(tm, exons, strand), chrom, tm_path,
+        track_name=f"{label}_armTm",
+    )
+    written.append(tm_path)
+
+    if accessibility and _HAS_ACCESSIBILITY:
+        acc = compute_plfold_profile(seq, temperature=reaction.effective_celsius)
+        acc_path = out_dir / f"{label}_accessibility_T{reaction.effective_celsius:g}.genome.bedgraph"
+        write_genome_bedgraph(
+            project_profile_to_genome(acc, exons, strand), chrom, acc_path,
+            track_name=f"{label}_accessibility",
+        )
+        written.append(acc_path)
+
+    return written
+
+
 def emit_annotations_for_sequences(
     seqs: dict,
     reaction: ReactionConditions,
@@ -129,4 +183,8 @@ def emit_annotations_for_sequences(
     return written
 
 
-__all__ = ["build_reference_annotations", "emit_annotations_for_sequences"]
+__all__ = [
+    "build_reference_annotations",
+    "build_canonical_genome_annotations",
+    "emit_annotations_for_sequences",
+]
