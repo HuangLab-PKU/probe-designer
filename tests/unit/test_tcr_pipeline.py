@@ -120,16 +120,15 @@ def test_pipeline_smoke_bz23_dual_chemistry(tmp_path: Path):
 # ---------------------------------------------------------------------------
 
 
-def test_dual_chemistry_gates_applied_independently(tmp_path: Path):
-    """The dRNA Tm gate and cDNA Tm gate are applied INDEPENDENTLY in phase 1.
-
-    Set the dRNA gate to a window no real site can satisfy; only cDNA
-    chemistry should produce probes. Architectural proof that the two
-    chemistries are not piggybacking on a shared selection.
+def test_dual_chemistry_soft_selection_no_hard_gate(tmp_path: Path):
+    """Soft Tm design (2026-07-19): there is NO hard Tm gate — arm Tm enters the
+    per-chemistry score instead. An impossible tm_range no longer drops a
+    chemistry; both dRNA and cDNA still produce probes, scored + selected
+    INDEPENDENTLY per chemistry (not piggybacking a shared selection).
     """
     _require_assets()
 
-    fake_experiment = tmp_path / "independent_gates"
+    fake_experiment = tmp_path / "soft_selection"
     (fake_experiment / "input").mkdir(parents=True)
     (fake_experiment / "output").mkdir()
     input_xlsx = fake_experiment / "input" / "BZ23_tcr_clones.xlsx"
@@ -142,19 +141,19 @@ def test_dual_chemistry_gates_applied_independently(tmp_path: Path):
         chemistries=["dRNA", "cDNA"],
         start_no=200,
         sites_per_clone=2,
-        tm_range=(200.0, 300.0),       # impossible — drops all dRNA candidates
-        cdna_tm_range=(50.0, 80.0),    # permissive — keeps cDNA
+        tm_range=(200.0, 300.0),       # 2026-07-19: no longer a hard gate — ignored
+        cdna_tm_range=(50.0, 80.0),
         skip_blast=True,
         plot_tm_landscape=False,
         codebook="SP369",
     )
     result = run_tcr_pipeline(cfg)
     df = pd.read_excel(result.final_probes_xlsx)
-    assert set(df["chemistry"]) == {"cDNA"}, (
-        f"Expected ONLY cDNA probes when dRNA gate is impossible; got "
-        f"{set(df['chemistry'])}"
+    # The impossible dRNA "gate" no longer drops dRNA probes under soft design.
+    assert set(df["chemistry"]) == {"dRNA", "cDNA"}, (
+        f"Expected BOTH chemistries under soft Tm design; got {set(df['chemistry'])}"
     )
-    assert result.sites_selected_per_chem["dRNA"] == 0
+    assert result.sites_selected_per_chem["dRNA"] > 0
     assert result.sites_selected_per_chem["cDNA"] > 0
 
 

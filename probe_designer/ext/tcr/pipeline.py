@@ -173,25 +173,23 @@ def _phase1_find_select(
             s["clone_id"] = clone_id
         all_sites[clone_name] = sites
 
+        # Soft Tm design (2026-07-19): no hard Tm gate. Every scanned site is a
+        # candidate; arm-Tm proximity to the reaction-anchored target enters the
+        # SCORE (two-sided) and select_non_overlapping_sites picks the score
+        # peaks (min_gap = bds_len => non-overlapping). Each chemistry-pass is
+        # independent, so we score+select per-chemistry on COPIES of the sites.
+        target_tm = designer.reaction.min_arm_tm
         for chem in cfg.chemistries:
-            gate = cfg.tm_gate_for(chem)
-            passed = designer.filter_by_chemistry_tm(
-                sites, chemistry=chem, tm_range=gate,
-            )
-            if not passed:
-                logger.warning("[%s/%s] %d candidates but none passed Tm filter %s",
-                               clone_name, chem, len(sites), gate)
-                continue
-            # Score = mfe - tm_diff_<chem>. Each chemistry-pass is independent,
-            # so we score+select per-chemistry on a COPY of the site dicts
-            # (a single position appears in both chemistries' candidate pool
-            # but carries chemistry-specific score after this step).
             ranked = []
-            for src in passed:
+            for src in sites:
                 s = dict(src)  # shallow copy so per-chem fields don't leak
                 s["chemistry"] = chem
+                avg_tm = (s[f"tm_5prime_{chem}"] + s[f"tm_3prime_{chem}"]) / 2.0
+                tm_dev = abs(avg_tm - target_tm)  # 0 at the target, grows both ways
+                # Higher is better: less structure (mfe), balanced arms
+                # (-tm_diff), and arm Tm near the target (-tm_dev).
                 s["score"] = round(
-                    s.get("mfe", 0.0) - s.get(f"tm_diff_{chem}", 0.0), 3,
+                    s.get("mfe", 0.0) - s.get(f"tm_diff_{chem}", 0.0) - tm_dev, 3,
                 )
                 # tm_cDNA_warning kept for downstream readers (informational)
                 s["tm_cDNA_warning"] = not (50.0 <= s["tm_cDNA"] <= 75.0)
@@ -201,8 +199,8 @@ def _phase1_find_select(
             )
             if selected:
                 selected_per_chem[chem][clone_name] = selected
-                logger.info("[%s/%s] %d candidates → %d passed Tm → %d sites at %s",
-                            clone_name, chem, len(sites), len(passed),
+                logger.info("[%s/%s] %d candidates → %d peak sites at %s",
+                            clone_name, chem, len(sites),
                             len(selected), [s["st"] for s in selected])
 
     # Save bds_candidate.xlsx (all scanned positions; chemistry-agnostic)
