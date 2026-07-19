@@ -12,13 +12,14 @@ Added in Phase 1:
 from typing import Dict, List, Any
 
 from .scorer import compute_off_target_score
-from .selection import select_top_n_with_gap
+from .selection import select_score_peaks, select_top_n_with_gap
 
 
 __all__ = [
     "compute_target_score",
     "compute_off_target_score",
     "peak_rank",
+    "select_score_peaks",
     "select_top_n_with_gap",
 ]
 

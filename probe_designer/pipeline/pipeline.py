@@ -29,8 +29,7 @@ from probe_designer.pipeline.hooks import (
 from probe_designer.pipeline.result import GeneResult, PipelineResult
 from probe_designer.scoring import (
     compute_target_score,
-    peak_rank,
-    select_top_n_with_gap,
+    select_score_peaks,
 )
 from probe_designer.search_strategies import BindingSiteSearcher
 
@@ -249,7 +248,10 @@ class Pipeline:
                     gene, exc,
                 )
 
-        # 5. Score + peak_rank + select
+        # 5. Score, then pick the score PEAKS (greedy local-maxima / NMS):
+        #    the highest-scoring sites whose binding sites don't overlap
+        #    (min_distance = min_gap). Replaces the older peak_rank +
+        #    select_top_n_with_gap two-stage spread.
         self.progress.on_stage(gene, "score", {"n_in": len(sites)})
         total_isoforms = result.isoform_count or 1
         for site in sites:
@@ -259,15 +261,10 @@ class Pipeline:
                 max_tm_diff=self.config.filter.max_tm_diff,
                 total_isoforms=total_isoforms,
             )
-        ranked = peak_rank(sites, region_size=80, min_gap=min_gap)
-        for idx, site in enumerate(ranked):
+        selected = select_score_peaks(sites, min_distance=min_gap, max_n=top_n)
+        for idx, site in enumerate(selected):
             site["peak_rank"] = idx
-
-        # select_top_n_with_gap does its own round-robin-across-clusters; use the
-        # same region_size as peak_rank so the two stages agree on "cluster".
-        result.sites = select_top_n_with_gap(
-            ranked, top_n=top_n, min_gap=min_gap, region_size=80,
-        )
+        result.sites = selected
         return result
 
     # ------------------------------------------------------------------
