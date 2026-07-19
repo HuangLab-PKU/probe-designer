@@ -225,11 +225,22 @@ class TestThermalFilterHomopolymerRuns:
 # ---------------------------------------------------------------------------
 
 class TestThermalFilterTmRange:
-    def test_kwargs_override_tm_bounds(self, filter):
+    def test_tm_range_not_gated_by_default(self, filter):
+        # 2026-07-19: absolute Tm is a soft scoring term, not a hard gate.
         result = filter.thermal_filter(
             GOOD_ARM_3, GOOD_ARM_5,
             target_sequence=GOOD_TARGET_SEQ,
             min_tm=200.0, max_tm=300.0,
+        )
+        assert "tm_3prime_range" not in result["failed_checks"]
+        assert "tm_5prime_range" not in result["failed_checks"]
+
+    def test_hard_gate_applies_when_enabled(self, filter):
+        result = filter.thermal_filter(
+            GOOD_ARM_3, GOOD_ARM_5,
+            target_sequence=GOOD_TARGET_SEQ,
+            min_tm=200.0, max_tm=300.0,
+            enforce_tm_gate=True,
         )
         assert "tm_3prime_range" in result["failed_checks"]
         assert "tm_5prime_range" in result["failed_checks"]

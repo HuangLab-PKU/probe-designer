@@ -71,6 +71,7 @@ class SequenceFilter:
         min_tm = kwargs.get('min_tm', self.filter_config.min_tm)
         max_tm = kwargs.get('max_tm', self.filter_config.max_tm)
         max_tm_diff = kwargs.get('max_tm_diff', getattr(self.filter_config, 'max_tm_diff', 10.0))
+        enforce_tm_gate = kwargs.get('enforce_tm_gate', getattr(self.filter_config, 'enforce_tm_gate', False))
         min_free_energy = kwargs.get('min_free_energy', self.filter_config.min_free_energy)
         check_rna_structure = kwargs.get('check_rna_structure', getattr(self.filter_config, 'check_rna_structure', False))
         # Phase 1A: callers can pass a pre-computed per-window accessibility
@@ -187,11 +188,14 @@ class SequenceFilter:
         result['tm_5prime'] = tm_5
         result['tm_diff'] = abs(tm_5 - tm_3)
         
-        # Check melting temperature for 3' and 5' arms
-        if not (min_tm <= tm_3 <= max_tm):
-            result['failed_checks'].append('tm_3prime_range')
-        if not (min_tm <= tm_5 <= max_tm):
-            result['failed_checks'].append('tm_5prime_range')
+        # Absolute arm Tm is a SOFT scoring term by default (see
+        # FilterConfig.enforce_tm_gate); only reject on the [min_tm, max_tm]
+        # range when the hard gate is explicitly enabled.
+        if enforce_tm_gate:
+            if not (min_tm <= tm_3 <= max_tm):
+                result['failed_checks'].append('tm_3prime_range')
+            if not (min_tm <= tm_5 <= max_tm):
+                result['failed_checks'].append('tm_5prime_range')
         
         # Check melting temperature difference
         if result['tm_diff'] > max_tm_diff:

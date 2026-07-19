@@ -66,6 +66,12 @@ class FilterConfig:
     min_tm: float = 50.0  # min melting temperature (°C); = lab_temp_c + tm_margin_c
     max_tm: float = 70.0  # max melting temperature (°C); = lab_temp_c + 25
     max_tm_diff: float = 10.0  # max Tm difference between 3' and 5' halves
+    # 2026-07-19: the hard Tm-range gate is OFF by default. Absolute arm Tm is
+    # now a SOFT scoring term (scoring.compute_target_score tm_proximity, peaked
+    # at the reaction-anchored target min_tm) rather than a pass/fail cutoff, so
+    # candidates rank by score instead of being dropped on Tm. min_tm/max_tm
+    # remain the scoring target/reference. Set True to restore hard rejection.
+    enforce_tm_gate: bool = False
     min_free_energy: float = -10.0  # min free energy (kcal/mol)
     check_rna_structure: bool = False  # whether to check RNA secondary structure
     # --- Phase 1A: target-accessibility gate (RNAplfold) ---
