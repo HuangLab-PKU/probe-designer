@@ -16,7 +16,57 @@ from probe_designer.chemistry import (
     ReactionConditions,
     dna_revcomp_to_rna,
     register_solvent,
+    reverse_complement,
 )
+
+
+# ---------------------------------------------------------------------------
+# reverse_complement — the package's single implementation
+# ---------------------------------------------------------------------------
+
+class TestReverseComplement:
+    """Contract for the canonical implementation.
+
+    This replaced seven private copies that had diverged on three axes, so the
+    contract is pinned rather than assumed. Each case below is a behaviour one
+    of the replaced copies depended on; together they are the superset that
+    makes the consolidation safe.
+    """
+
+    def test_basic(self):
+        assert reverse_complement("ACGG") == "CCGT"
+
+    def test_uppercases_lowercase_input(self):
+        # search_strategies and ext/mutation did NOT uppercase and would raise
+        # KeyError here. The canonical version accepts either case.
+        assert reverse_complement("acgg") == "CCGT"
+
+    def test_unknown_base_becomes_n_rather_than_raising(self):
+        # Four of the replaced copies raised KeyError; the two shared helpers
+        # mapped to N. N is chosen so one stray character cannot kill a batch.
+        assert reverse_complement("ACXG") == "CNGT"
+
+    def test_u_is_read_as_t(self):
+        # cross_ligation accepted RNA input; nothing else did.
+        assert reverse_complement("ACGU") == "ACGT"
+
+    def test_gap_is_preserved(self):
+        # ext/tcr aligns clone sequences and needs '-' to survive.
+        assert reverse_complement("AC-G") == "C-GT"
+
+    def test_n_maps_to_itself(self):
+        assert reverse_complement("acgn") == "NCGT"
+
+    def test_double_rc_is_identity(self):
+        arm = "GATCGGATCCATTGCA"
+        assert reverse_complement(reverse_complement(arm)) == arm
+
+    def test_empty(self):
+        assert reverse_complement("") == ""
+
+    def test_dna_revcomp_to_rna_is_the_same_function(self):
+        for seq in ("AAAC", "acgn", "GATCGGATCC", ""):
+            assert dna_revcomp_to_rna(seq) == reverse_complement(seq)
 
 
 # ---------------------------------------------------------------------------

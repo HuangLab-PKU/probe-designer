@@ -67,7 +67,7 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, List, Optional, Set, Tuple
 
-from probe_designer.chemistry import ReactionConditions
+from probe_designer.chemistry import ReactionConditions, reverse_complement
 from probe_designer.qc.dimer_ascii import parse_primer3_dimer_pairing
 
 
@@ -175,11 +175,7 @@ class _SeedSetV22:
 # ----------------------------------------------------------------------
 
 
-_COMP = {"A": "T", "T": "A", "C": "G", "G": "C", "U": "A", "N": "N"}
-
-
-def _rc(seq: str) -> str:
-    return "".join(_COMP.get(b, "N") for b in reversed(seq.upper()))
+_rc = reverse_complement
 
 
 def _kmers(seq: str, k: int) -> Set[str]:

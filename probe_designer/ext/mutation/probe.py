@@ -19,6 +19,7 @@ import logging
 from tqdm import tqdm
 from copy import deepcopy
 
+from probe_designer.chemistry import reverse_complement
 from probe_designer.config import SearchConfig, FilterConfig, BlastConfig
 from probe_designer.filtering import SequenceFilter
 
@@ -108,10 +109,6 @@ class MutationProbeDesigner:
             
         return pos5_local
     
-    def _reverse_complement(self, sequence: str) -> str:
-        """Return reverse complement of a DNA sequence."""
-        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
-        return "".join(complement[base] for base in reversed(sequence))
     
     def _mutate_genomic_sequence(self, genomic_seq: str, mut_start: int, mut_end: int, 
                                 ref: str, alt: str, strand: int) -> Tuple[str, int, int]:
@@ -197,7 +194,7 @@ class MutationProbeDesigner:
             pos3_target = pos5_local + 1 # pos3 equals pos5 for Python coordinates (left-closed, right-open)
         else:  # strand == -1
             # For negative strand, convert plus_seq to mRNA (reverse complement)
-            target_seq = self._reverse_complement(plus_seq)
+            target_seq = reverse_complement(plus_seq)
             # Convert coordinates: for negative strand, we need to reverse the positions
             # pos5_local in plus_seq corresponds to len(plus_seq) - 1 - pos5_local in target_seq
             pos5_target = len(plus_seq) - 1 - pos5_local
@@ -210,8 +207,8 @@ class MutationProbeDesigner:
         # Step 3: Generate padlock arms based on target type
         if self.target_type == "RNA":
             # mRNA targeting: padlock arms = RC(mRNA region)
-            probe_arm5 = self._reverse_complement(arm5_seq)
-            probe_arm3 = self._reverse_complement(arm3_seq)
+            probe_arm5 = reverse_complement(arm5_seq)
+            probe_arm3 = reverse_complement(arm3_seq)
         else:
             # cDNA targeting: cDNA = RC(mRNA), so padlock arms = mRNA sequence
             # Arms are swapped because cDNA runs antiparallel to mRNA
@@ -225,7 +222,7 @@ class MutationProbeDesigner:
         if self.target_type == "RNA":
             target_sequence = arm5_seq + arm3_seq  # mRNA sequence
         else:
-            target_sequence = self._reverse_complement(arm5_seq + arm3_seq)  # cDNA sequence
+            target_sequence = reverse_complement(arm5_seq + arm3_seq)  # cDNA sequence
 
         return {
             'probe_arm5': probe_arm5,  # Padlock 5' arm
@@ -537,7 +534,7 @@ class MutationProbeDesignerInvader(MutationProbeDesigner):
             target_seq = plus_seq
             pos5_target = pos5_local
         else:
-            target_seq = self._reverse_complement(plus_seq)
+            target_seq = reverse_complement(plus_seq)
             pos5_target = len(plus_seq) - 1 - pos5_local
         # KEY DIFFERENCE vs parent: arm3 starts AT pos5 (overlap by 1 nt at SNP)
         # rather than at pos5+1. Both arms include the SNP at their adjacent end.
@@ -546,8 +543,8 @@ class MutationProbeDesignerInvader(MutationProbeDesigner):
         arm5_seq = target_seq[pos5_target + 1 - arm5_len : pos5_target + 1]
         arm3_seq = target_seq[pos3_target : pos3_target + arm3_len]
 
-        probe_arm5 = self._reverse_complement(arm5_seq)
-        probe_arm3 = self._reverse_complement(arm3_seq)
+        probe_arm5 = reverse_complement(arm5_seq)
+        probe_arm3 = reverse_complement(arm3_seq)
 
         # Continuous mRNA region, deduplicated (the SNP nt at arm5_seq[-1] ==
         # arm3_seq[0] is shared on the target).

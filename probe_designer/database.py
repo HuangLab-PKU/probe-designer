@@ -55,7 +55,16 @@ class DatabaseInterface:
         return fetch
     
     def local_genome_accessor(self, genome_fasta_path: str):
-        """Create local FASTA genome accessor function using pyfaidx."""
+        """Create local FASTA genome accessor function using pyfaidx.
+
+        NOTE: ``probe_designer.genome.local_fasta.build_genome_accessor`` does
+        the same job and additionally reconciles the chr-prefix mismatch (Ensembl
+        reports ``seq_region_name`` as ``10`` while many FASTAs key on ``chr10``),
+        so this accessor raises ``KeyError`` on inputs the other one handles. They
+        differ on failure too — that one returns ``""`` so a batch keeps running,
+        this one raises. Worth unifying, but the failure-mode change needs its own
+        review; not folded into the reverse_complement consolidation.
+        """
         try:
             from pyfaidx import Fasta
             genome = Fasta(genome_fasta_path)
@@ -64,7 +73,13 @@ class DatabaseInterface:
                 chrom = str(seq_region_name)
                 if chrom not in genome:
                     raise KeyError(f"Chromosome {chrom} not found in FASTA file")
-                seq = genome[chrom][start-1:end]  # pyfaidx uses 0-based coordinates
+                # Contract: start/end are 1-based inclusive (Ensembl convention).
+                # The -1 converts to pyfaidx's 0-based half-open slice. The old
+                # comment here read "pyfaidx uses 0-based coordinates", which
+                # described pyfaidx's internals but was routinely misread as this
+                # function's parameter convention — the opposite. Coordinate
+                # semantics get stated from the caller's side now.
+                seq = genome[chrom][start - 1:end]
                 return str(seq)
             
             return fetch
@@ -539,8 +554,3 @@ class SequenceProcessor:
             gene_info['seq'] = str(coding_sequence)
         return gene_info['seq'], gene_info
     
-    @staticmethod
-    def reverse_complement(sequence: str) -> str:
-        """Return reverse complement of a DNA sequence."""
-        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
-        return "".join(complement[base] for base in reversed(sequence))

@@ -32,7 +32,9 @@ from Bio.SeqUtils import MeltingTemp as mt
 # Valid Biopython MeltingTemp salt-correction methods (see salt_correction).
 _VALID_SALTCORR = frozenset({1, 2, 3, 4, 5, 6, 7})
 
-_COMPLEMENT = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
+_COMPLEMENT = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N",
+               "U": "A",   # accept RNA input
+               "-": "-"}   # preserve gaps in aligned sequences
 
 # Tm depression coefficient (degC per % v/v) for co-solvents / denaturants.
 # Formamide keeps a dedicated field (historical + default); ANY other solvent
@@ -58,23 +60,45 @@ def register_solvent(name: str, deg_per_pct: float) -> None:
     SOLVENT_TM_COEFF[name.strip().lower()] = float(deg_per_pct)
 
 
-def dna_revcomp_to_rna(seq: str) -> str:
-    """Return the reverse complement of a DNA arm as the RNA-sense strand.
+def reverse_complement(seq: str) -> str:
+    """Reverse complement, uppercase. The canonical implementation for this package.
 
-    For a DNA probe arm hybridizing to mRNA, the reverse complement is the
-    target (mRNA) sequence. Biopython's ``R_DNA_NN1`` table *requires* the RNA
-    strand ("Note that ``seq`` must be the RNA sequence"), so this is the string
-    that must be fed to ``Tm_NN`` for a DNA:RNA hybrid. Thymine is intentionally
-    kept (the table is keyed on T), so the name means "RNA-sense", not literally
-    U-containing.
+    ``U`` reads as ``T`` (RNA input is accepted), a gap ``-`` is preserved so
+    aligned sequences survive the round trip, and anything else maps to ``N``
+    rather than raising — callers here feed validated ACGT, and a permissive
+    mapping keeps a batch of thousands from dying on one stray character.
+
+    This replaced seven near-identical private copies scattered across the
+    package, which had quietly diverged on three axes: whether the input was
+    uppercased first, whether an unknown base raised ``KeyError`` or became
+    ``N``, and whether ``-`` and ``U`` were handled at all. Divergence on the
+    case axis in particular meant the same call was safe in one module and a
+    crash in another.
 
     Args:
-        seq: DNA arm sequence, 5'->3' (case-insensitive).
+        seq: nucleotide sequence, 5'->3' (case-insensitive).
 
     Returns:
-        The reverse complement (unknown bases mapped to ``N``), uppercase.
+        The reverse complement, uppercase.
     """
     return "".join(_COMPLEMENT.get(base, "N") for base in reversed(seq.upper()))
+
+
+def dna_revcomp_to_rna(seq: str) -> str:
+    """The reverse complement of a DNA arm, named for its RNA-sense intent.
+
+    For a DNA probe arm hybridizing to mRNA, the reverse complement *is* the
+    target (mRNA) sequence. Biopython's ``R_DNA_NN1`` table requires the RNA
+    strand ("Note that ``seq`` must be the RNA sequence"), so this is the string
+    that must be fed to ``Tm_NN`` for a DNA:RNA hybrid. Thymine is intentionally
+    kept (the table is keyed on T), so "RNA-sense" here does not mean
+    U-containing.
+
+    Mechanically identical to :func:`reverse_complement`; kept as a separate
+    name because at the call sites the intent — "make the Tm table's required
+    strand" — is what needs to be readable.
+    """
+    return reverse_complement(seq)
 
 
 @dataclass

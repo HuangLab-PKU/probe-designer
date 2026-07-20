@@ -23,7 +23,11 @@ from typing import Callable, Dict, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
-from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
+from probe_designer.chemistry import (
+    ReactionConditions,
+    dna_revcomp_to_rna,
+    reverse_complement,
+)
 
 
 GenomeAccessor = Callable[[str, int, int], str]
@@ -39,9 +43,7 @@ MAXIMA_H_MINUS_RT = ReactionConditions(
 )
 
 
-def _reverse_complement(seq: str) -> str:
-    comp = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
-    return "".join(comp[b] for b in reversed(seq.upper()))
+_reverse_complement = reverse_complement
 
 
 def _gc_percent(seq: str) -> float:
