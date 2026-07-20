@@ -37,6 +37,57 @@ def _default_position(site: Dict[str, Any]) -> Optional[float]:
     return (float(st) + float(en)) / 2.0
 
 
+def select_score_peaks(
+    sites: List[Dict[str, Any]],
+    min_distance: int,
+    *,
+    max_n: Optional[int] = None,
+    score_key: str = "score",
+    position_fn: Optional[Callable[[Dict[str, Any]], Optional[float]]] = None,
+) -> List[Dict[str, Any]]:
+    """Greedy local-maximum (non-maximum-suppression) peak selection.
+
+    Repeatedly take the highest-scoring remaining site and suppress every other
+    site within ``min_distance`` bp of it, so the selections are the score
+    "peaks" of the landscape spaced far enough apart that their binding sites
+    do not overlap. Equivalent to ``scipy.signal.find_peaks(distance=...)`` on a
+    score-vs-position signal, but operates directly on sparse candidate sites.
+
+    Args:
+        sites: candidate sites; each opaque except ``st``/``en`` and ``score_key``.
+        min_distance: minimum bp between selected positions — set to the binding-
+            site length so selected probes cannot overlap.
+        max_n: optional cap on the number of peaks returned (None = all peaks).
+        score_key: dict key used for the DESC ordering.
+        position_fn: extract a numeric position; defaults to the ``(st, en)``
+            midpoint. Unpositioned sites are dropped (they have no overlap to
+            suppress and no defined peak location).
+
+    Returns:
+        Selected peaks in score-DESC order (highest first). Length <= ``max_n``.
+    """
+    if not sites or min_distance < 0:
+        return []
+    pos_fn = position_fn or _default_position
+
+    positioned = [(s, pos_fn(s)) for s in sites]
+    positioned = [(s, p) for s, p in positioned if p is not None]
+    # Highest score first; the greedy pick then defines each peak and its
+    # suppression zone. Ties keep input order (Python sort is stable).
+    positioned.sort(key=lambda sp: sp[0].get(score_key, 0), reverse=True)
+
+    selected: List[Dict[str, Any]] = []
+    selected_pos: List[float] = []
+    for site, pos in positioned:
+        if any(abs(pos - q) < min_distance for q in selected_pos):
+            continue  # inside an already-claimed peak's exclusion zone
+        selected.append(site)
+        selected_pos.append(pos)
+        if max_n is not None and len(selected) >= max_n:
+            break
+    return selected
+
+
 def select_top_n_with_gap(
     sites: List[Dict[str, Any]],
     top_n: int,

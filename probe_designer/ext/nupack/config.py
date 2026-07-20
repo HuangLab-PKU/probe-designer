@@ -1,0 +1,61 @@
+"""Default NUPACK 4 model + tube parameters for HuangLab lab buffer.
+
+These reflect the actual padlock probe hybridization conditions
+(2026-05-26, user-confirmed):
+
+* 1× Ampligase buffer = 20 mM Tris-HCl pH 8.3 + 25 mM KCl + 10 mM MgCl₂
+* + 50 mM extra KCl → 75 mM total monovalent (K⁺ ≡ Na⁺ in NN models)
+* + 20% formamide → destabilizes duplex; modeled as +10 °C effective
+  temperature shift (0.5 °C / %FA × 20%, midpoint of literature range)
+* Reaction at 45 °C lab temperature → 55 °C effective in no-formamide
+  NUPACK DNA model
+* Probe concentration 0.05–0.2 μM, default 0.1 μM (midpoint)
+
+NUPACK 4 has no native formamide parameter; we encode formamide
+destabilization as an effective ``celsius``.
+"""
+from __future__ import annotations
+
+
+# Monovalent salt (K+ from Ampligase + extra KCl) — passed as 'sodium' to NUPACK Model
+# (NN model treats Na+ and K+ as equivalent monovalents).
+DEFAULT_SODIUM_M: float = 0.075
+
+# Divalent (Mg2+) from Ampligase buffer
+DEFAULT_MAGNESIUM_M: float = 0.010
+
+# Effective temperature in no-formamide NN model: 45 °C lab + 10 °C formamide shift
+DEFAULT_CELSIUS: float = 55.0
+
+# Informational only — not passed to NUPACK
+DEFAULT_LAB_TEMP_C: float = 45.0
+DEFAULT_FORMAMIDE_PCT: float = 20.0
+DEFAULT_FORMAMIDE_DEG_PER_PCT: float = 0.5
+
+# NUPACK ensemble — 'stacking' = coaxial stacking on (DEFAULT, the whole point
+# of using NUPACK over primer3 for nick-junction energetics).
+# 'nostacking' = ablation test; produces less-stable ternary ΔG.
+DEFAULT_ENSEMBLE: str = "stacking"
+
+# Probe strand concentration (each of arm3, arm5, splint).
+# 0.1 μM is the midpoint of the panel-dependent range 0.05–0.2 μM.
+DEFAULT_STRAND_CONC_M: float = 1.0e-7
+
+# Productive ternary complex fraction threshold:
+# [arm3·splint·arm5] / [splint]_total > threshold flags as cross-lig risk.
+# 1e-4 ≈ "1 in 10000 splint molecules in productive ternary at equilibrium"
+# — empirically picked to match v2.2 sensitivity on validated cross-lig pairs.
+DEFAULT_FRACTION_THRESHOLD: float = 1e-4
+
+# Vicinity contiguity requirement (same convention as qc/cross_ligation.py
+# DEFAULT_VICINITY_N): n bases each side of the nick on each arm must be
+# contiguously paired in the MFE ternary structure.
+DEFAULT_VICINITY_N: int = 3
+
+
+__all__ = [
+    "DEFAULT_SODIUM_M", "DEFAULT_MAGNESIUM_M", "DEFAULT_CELSIUS",
+    "DEFAULT_LAB_TEMP_C", "DEFAULT_FORMAMIDE_PCT", "DEFAULT_FORMAMIDE_DEG_PER_PCT",
+    "DEFAULT_ENSEMBLE", "DEFAULT_STRAND_CONC_M",
+    "DEFAULT_FRACTION_THRESHOLD", "DEFAULT_VICINITY_N",
+]

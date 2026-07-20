@@ -12,13 +12,14 @@ Added in Phase 1:
 from typing import Dict, List, Any
 
 from .scorer import compute_off_target_score
-from .selection import select_top_n_with_gap
+from .selection import select_score_peaks, select_top_n_with_gap
 
 
 __all__ = [
     "compute_target_score",
     "compute_off_target_score",
     "peak_rank",
+    "select_score_peaks",
     "select_top_n_with_gap",
 ]
 
@@ -60,9 +61,14 @@ def compute_target_score(
     tm3 = site.get("tm_3prime", 0)
     if tm5 > 0 and tm3 > 0:
         avg_tm = (tm5 + tm3) / 2
-        tm_excess = max(0, avg_tm - min_arm_tm)
+        # Two-sided proximity to the reaction-anchored target Tm
+        # (min_arm_tm = lab_temp_c + tm_margin_c). Peaks at the target and
+        # falls off in BOTH directions: too-low arms won't stay bound at the
+        # hyb temperature, too-high arms lose specificity / Tm uniformity.
+        # (Pre-2026-07-19 this was one-sided — only penalized excess above.)
+        tm_dev = abs(avg_tm - min_arm_tm)
         tm_range = 20.0
-        score += max(0, 2.0 * (1.0 - tm_excess / tm_range))
+        score += max(0, 2.0 * (1.0 - tm_dev / tm_range))
 
     tm_diff = abs(tm5 - tm3)
     if max_tm_diff > 0:

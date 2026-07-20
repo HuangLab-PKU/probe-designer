@@ -118,9 +118,15 @@ class TestComputeTargetScoreTm:
         assert s == pytest.approx(BASE_SCORE - 1.0, abs=TOL)
 
     def test_tm_proximity_zero_at_far_excess(self):
-        # avg=80, excess=30, clamped to 0 (vs base 2.0) => -2.0
+        # avg=80, dev=30, clamped to 0 (vs base 2.0) => -2.0
         s = compute_target_score(_neutral_site(tm_5prime=80.0, tm_3prime=80.0))
         assert s == pytest.approx(BASE_SCORE - 2.0, abs=TOL)
+
+    def test_tm_proximity_penalized_below_target(self):
+        # 2026-07-19: two-sided. avg=40 is 10 BELOW target(50) => dev=10 =>
+        # 2*(1-10/20)=1.0 (vs base 2.0) => -1.0. (Old one-sided gave full 2.0.)
+        s = compute_target_score(_neutral_site(tm_5prime=40.0, tm_3prime=40.0))
+        assert s == pytest.approx(BASE_SCORE - 1.0, abs=TOL)
 
     def test_tm_balance_linear(self):
         # diff=5 over max_tm_diff=10 => 0.5 (vs base 1.0) => -0.5

@@ -1,6 +1,13 @@
 """
 Probe assembly module
 Simplified probe assembly from binding sites with backbones.
+
+Output Excel/JSON/FASTA follow the unified schema in
+``probe_designer.io.probe_schema``: first three columns are
+``order, probe_name, probe_sequence``, and ``probe_name`` follows
+``{gene}_{position}_dRNA_{codebook}_{No.}`` (or ``..._iLock_...`` when
+the iLock modification is applied). The intermediate ``binding_sites``
+format keeps its short keys (``arm5``/``arm3``/``st``/``en``).
 """
 
 import os
@@ -8,7 +15,29 @@ import json
 from pathlib import Path
 import pandas as pd
 from typing import List, Dict, Any, Optional, Union
+
 from .config import ProbeConfig
+from .io.probe_schema import (
+    CHEM_DRNA,
+    CHEM_ILOCK,
+    apply_final_column_order,
+    make_padlock_name,
+    resolve_codebook,
+)
+
+
+def assemble_plain_padlock(arm5: str, arm3: str, backbone: str) -> str:
+    """Assemble a plain padlock probe — ``arm5 + backbone + arm3``.
+
+    Used by mutation ``dRNA`` and ``cDNA`` chemistries, and by the TCR
+    pipeline. iLock assembly is in
+    :func:`probe_designer.ext.mutation.probe.assemble_ilock` because the
+    invader linker geometry is chemistry-specific.
+
+    Caller is responsible for casing — this function preserves whatever the
+    arms / backbone come in as.
+    """
+    return arm5 + backbone + arm3
 
 
 def load_binding_sites(path: Union[str, Path]) -> Dict[str, List[Dict[str, Any]]]:
@@ -114,7 +143,12 @@ class ProbeAssembler:
         """
         if self.backbone_data is None:
             raise ValueError("Backbone data not loaded. Please provide backbone_file in ProbeConfig.")
-        
+
+        codebook = resolve_codebook(
+            self.probe_config.codebook,
+            Path(self.probe_config.backbone_file),
+        )
+
         # Load gene_info from Excel file
         if not os.path.exists(gene_info_file):
             raise FileNotFoundError(f"Gene info file not found: {gene_info_file}")
@@ -175,67 +209,37 @@ class ProbeAssembler:
                 probe_id = str(probe_ids)  # Convert to string for consistency
                 if probe_id not in self.backbone_data:
                     raise ValueError(f"Probe ID '{probe_id}' not found in backbone file. Available IDs: {list(self.backbone_data.keys())}")
-                
+
                 backbone = self.backbone_data[probe_id]
-                
+
                 # Use same backbone for all sites of this gene
                 for site in sites:
-                    probe_seq = self._assemble_probe_sequence(
-                        site['arm_5prime'].lower(),
-                        site['arm_3prime'].lower(),
-                        backbone
-                    )
-                    record = {
-                        'gene_name': gene_name,
-                        'probe_id': probe_id,
-                        'probe_seq': probe_seq,
-                        'arm_5prime': site['arm_5prime'],
-                        'arm_3prime': site['arm_3prime'],
-                        'backbone': backbone,
-                        'st': site['st'],
-                        'en': site['en'],
-                        'g_content': site['g_content'],
-                        'tm': site['tm'],
-                        'tm_3prime': site.get('tm_3prime'),
-                        'tm_5prime': site.get('tm_5prime')
-                    }
-                    if 'isoform_overlap_num' in site:
-                        record['isoform_overlap_num'] = site['isoform_overlap_num']
-                    probe_records.append(record)
-            
+                    arm5 = site['arm_5prime'].lower()
+                    arm3 = site['arm_3prime'].lower()
+                    probe_seq = self._assemble_probe_sequence(arm5, arm3, backbone)
+                    probe_records.append(self._build_record(
+                        gene_name=gene_name, site=site, probe_id=probe_id,
+                        probe_seq=probe_seq, backbone=backbone, codebook=codebook,
+                    ))
+
             elif isinstance(probe_ids, list):
                 # Per-site mode: one No. per binding site
                 if len(probe_ids) != len(sites):
                     raise ValueError(f"Number of probe IDs ({len(probe_ids)}) does not match number of binding sites ({len(sites)}) for gene '{gene_name}'")
-                
+
                 for site, probe_id in zip(sites, probe_ids):
                     probe_id = str(probe_id)  # Convert to string for consistency
                     if probe_id not in self.backbone_data:
                         raise ValueError(f"Probe ID '{probe_id}' not found in backbone file. Available IDs: {list(self.backbone_data.keys())}")
-                    
+
                     backbone = self.backbone_data[probe_id]
                     probe_seq = self._assemble_probe_sequence(
-                        site['arm_5prime'],
-                        site['arm_3prime'],
-                        backbone
+                        site['arm_5prime'], site['arm_3prime'], backbone,
                     )
-                    record = {
-                        'gene_name': gene_name,
-                        'probe_id': probe_id,
-                        'probe_seq': probe_seq,
-                        'arm_5prime': site['arm_5prime'],
-                        'arm_3prime': site['arm_3prime'],
-                        'backbone': backbone,
-                        'st': site['st'],
-                        'en': site['en'],
-                        'g_content': site['g_content'],
-                        'tm': site['tm'],
-                        'tm_3prime': site.get('tm_3prime'),
-                        'tm_5prime': site.get('tm_5prime')
-                    }
-                    if 'isoform_overlap_num' in site:
-                        record['isoform_overlap_num'] = site['isoform_overlap_num']
-                    probe_records.append(record)
+                    probe_records.append(self._build_record(
+                        gene_name=gene_name, site=site, probe_id=probe_id,
+                        probe_seq=probe_seq, backbone=backbone, codebook=codebook,
+                    ))
             else:
                 raise ValueError(f"Invalid gene_info format for gene '{gene_name}'. Expected str/int or list, got {type(probe_ids)}")
         
@@ -251,8 +255,47 @@ class ProbeAssembler:
                 error_msg += f" ... (共 {len(available_genes)} 个)"
             raise ValueError(error_msg)
         
-        return pd.DataFrame(probe_records)
-    
+        df = pd.DataFrame(probe_records)
+        return apply_final_column_order(df, kind="padlock")
+
+    def _build_record(
+        self, *, gene_name: str, site: Dict[str, Any], probe_id: str,
+        probe_seq: str, backbone: str, codebook: str,
+    ) -> Dict[str, Any]:
+        """Schema-v2 record dict for one assembled probe."""
+        position = int(site["st"])
+        no = int(probe_id)
+        record: Dict[str, Any] = {
+            "order": pd.NA,
+            "probe_name": make_padlock_name(
+                name=gene_name, position=position, chemistry=CHEM_DRNA,
+                codebook=codebook, no=no,
+            ),
+            "probe_sequence": probe_seq,
+            "gene_name": gene_name, "clone_id": "",
+            "chemistry": CHEM_DRNA,
+            "position": position,
+            "target_sequence": site.get("target_sequence", pd.NA),
+            "probe_arm5": site["arm_5prime"],
+            "probe_arm3": site["arm_3prime"],
+            "probe_length": len(probe_seq),
+            "No.": no, "codebook": codebook,
+            "backbone_name": pd.NA,
+            "backbone_sequence": backbone,
+            # Schema-v2 keeps both metrics as distinct columns. The thermal
+            # filter (Phase 0+) populates both; pre-Phase-0 binding-site dicts
+            # only have g_content, so gc_content stays NaN for those.
+            "gc_content": site.get("gc_content"),
+            "g_content": site.get("g_content"),
+            "tm": site.get("tm"),
+            "tm_5prime": site.get("tm_5prime"),
+            "tm_3prime": site.get("tm_3prime"),
+            "free_energy": site.get("free_energy"),
+        }
+        if "isoform_overlap_num" in site:
+            record["isoform_overlap_num"] = site["isoform_overlap_num"]
+        return record
+
     def _assemble_probe_sequence(self, arm_5prime: str, arm_3prime: str, backbone: str) -> str:
         """
         Assemble probe sequence: arm_5prime + backbone + arm_3prime
@@ -270,62 +313,72 @@ class ProbeAssembler:
     def add_ilock_modification(self, probe_df: pd.DataFrame, position: str = "3prime") -> pd.DataFrame:
         """
         Add iLock modification to probes.
-        
+
+        Concatenates an iLock spacer to the existing probe and flips the
+        ``chemistry`` column to ``"iLock"`` so the schema reflects the
+        modification (no separate ``modification`` column is emitted —
+        per Schema-v2 the chemistry value carries that signal).
+
         Args:
-            probe_df: DataFrame with 'probe_seq' column
-            position: Where to add iLock - "3prime", "5prime", or "both"
-        
-        Returns:
-            DataFrame with modified 'probe_seq' and new 'modification' column
+            probe_df: DataFrame with ``probe_sequence`` and ``chemistry`` columns.
+            position: Where to add iLock — ``"3prime"``, ``"5prime"``, or ``"both"``.
         """
-        # iLock sequence (example - adjust as needed)
-        ilock_seq = "CCTTCCTTCCTTCCTTCCTT"  # Typical iLock sequence
-        
+        ilock_seq = "CCTTCCTTCCTTCCTTCCTT"  # Typical iLock spacer
+
         probe_df = probe_df.copy()
-        probe_df['modification'] = 'iLock'
-        
+        probe_df["chemistry"] = CHEM_ILOCK
+
         if position == "3prime":
-            probe_df['probe_seq'] = probe_df['probe_seq'] + ilock_seq
+            probe_df["probe_sequence"] = probe_df["probe_sequence"] + ilock_seq
         elif position == "5prime":
-            probe_df['probe_seq'] = ilock_seq + probe_df['probe_seq']
+            probe_df["probe_sequence"] = ilock_seq + probe_df["probe_sequence"]
         elif position == "both":
-            probe_df['probe_seq'] = ilock_seq + probe_df['probe_seq'] + ilock_seq
+            probe_df["probe_sequence"] = (
+                ilock_seq + probe_df["probe_sequence"] + ilock_seq
+            )
         else:
-            raise ValueError(f"Invalid position '{position}'. Must be '3prime', '5prime', or 'both'")
-        
+            raise ValueError(
+                f"Invalid position '{position}'. Must be '3prime', '5prime', or 'both'"
+            )
+
+        # Probe length and probe_name need to track the modified sequence.
+        probe_df["probe_length"] = probe_df["probe_sequence"].str.len()
+        probe_df["probe_name"] = [
+            make_padlock_name(
+                name=str(r["gene_name"]), position=int(r["position"]),
+                chemistry=CHEM_ILOCK, codebook=str(r["codebook"]), no=int(r["No."]),
+            )
+            for _, r in probe_df.iterrows()
+        ]
         return probe_df
-    
+
     def save_probes(self, probe_df: pd.DataFrame, output_dir: str):
         """Save probes to Excel, FASTA and JSON, plus stats."""
         os.makedirs(output_dir, exist_ok=True)
-        
+
         excel_file = os.path.join(output_dir, "probes.xlsx")
         probe_df.to_excel(excel_file, index=False)
-        
+
         fasta_file = os.path.join(output_dir, "probes.fasta")
-        with open(fasta_file, 'w') as f:
+        with open(fasta_file, "w") as f:
             for _, row in probe_df.iterrows():
-                gene = row['gene_name']
-                probe_id = row['probe_id']
-                probe = row['probe_seq']
-                f.write(f">{gene}|{probe_id}\n")
-                f.write(f"{probe}\n")
-        
+                f.write(f">{row['probe_name']}\n{row['probe_sequence']}\n")
+
         json_file = os.path.join(output_dir, "probes.json")
-        probe_dict = probe_df.to_dict('records')
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(probe_dict, f, indent=2, ensure_ascii=False)
-        
+        probe_dict = probe_df.to_dict("records")
+        with open(json_file, "w", encoding="utf-8") as f:
+            json.dump(probe_dict, f, indent=2, ensure_ascii=False, default=str)
+
         stats = {
-            'total_probes': len(probe_df),
-            'unique_genes': probe_df['gene_name'].nunique(),
-            'unique_probe_ids': probe_df['probe_id'].nunique(),
-            'avg_probe_length': probe_df['probe_seq'].str.len().mean(),
-            'avg_g_content': probe_df['g_content'].mean(),
-            'avg_tm': probe_df['tm'].mean()
+            "total_probes": len(probe_df),
+            "unique_genes": probe_df["gene_name"].nunique(),
+            "unique_probe_nos": probe_df["No."].nunique(),
+            "avg_probe_length": float(probe_df["probe_length"].mean()),
+            "avg_gc_content": float(probe_df["gc_content"].mean()),
+            "avg_tm": float(probe_df["tm"].mean()),
         }
         stats_file = os.path.join(output_dir, "probe_stats.json")
-        with open(stats_file, 'w', encoding='utf-8') as f:
+        with open(stats_file, "w", encoding="utf-8") as f:
             json.dump(stats, f, indent=2, ensure_ascii=False)
-        
+
         return probe_df

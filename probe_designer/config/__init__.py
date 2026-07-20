@@ -10,6 +10,8 @@ from typing import List, Dict, Any, Optional
 import json
 import yaml
 
+from probe_designer.chemistry import ReactionConditions
+
 
 @dataclass
 class DatabaseConfig:
@@ -32,27 +34,101 @@ class SearchConfig:
 
 @dataclass
 class FilterConfig:
-    """Sequence filtering configuration."""
+    """Sequence filtering configuration.
+
+    Schema-v2 (Phase 0, 2026-05-14) distinguishes G-only content from GC content.
+    Historically `min_g_content` / `max_g_content` counted only G nucleotides,
+    which under-rejects cDNA-chemistry arms (G is depleted by mRNA→cDNA strand
+    flip) and over-rejects when GC is normal. The new gate is GC fraction
+    (G+C), with defaults anchored to a 2026-05-13 audit of BZ23/TNBC panels
+    (`experiments/20260513_gc_content_audit/FINDINGS.md`).
+
+    The legacy G-only fields are accepted for backward-compatibility and emit
+    a DeprecationWarning when used; new pipelines should set `min/max_gc_content`.
+    """
     # Pre-BLAST rules (thermal properties)
-    min_g_content: float = 0.3  # min G fraction per arm
-    max_g_content: float = 0.7  # max G fraction
-    max_consecutive_g: int = 4  # max consecutive Gs allowed
-    min_tm: float = 45.0  # min melting temperature
-    max_tm: float = 65.0  # max melting temperature
+    # --- GC-content gate (Schema-v2, Phase 0) ---
+    min_gc_content: float = 0.35  # min G+C fraction per arm (audit-anchored compromise)
+    max_gc_content: float = 0.65  # max G+C fraction per arm
+    # --- legacy G-only gate (kept for backward compat; emits deprecation warning) ---
+    min_g_content: float = 0.3  # DEPRECATED — counts only G nucleotides; prefer min_gc_content
+    max_g_content: float = 0.7  # DEPRECATED — counts only G nucleotides; prefer max_gc_content
+    # --- homopolymer gates: all four bases now checked ---
+    max_consecutive_g: int = 5  # max consecutive G; default raised to 5 to align with A/T/C
+    max_consecutive_a: int = 5  # max consecutive A
+    max_consecutive_t: int = 5  # max consecutive T
+    max_consecutive_c: int = 5  # max consecutive C
+    # --- Tm + structure ---
+    # Re-anchored 2026-07-17 to the reaction temperature: min = lab_temp_c +
+    # tm_margin_c (45 + 5 = 50), max = lab_temp_c + 25 (70). Computed at the
+    # reaction buffer incl. formamide. Impact on shipped marker arms: 0.4%
+    # (experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt).
+    min_tm: float = 50.0  # min melting temperature (°C); = lab_temp_c + tm_margin_c
+    max_tm: float = 70.0  # max melting temperature (°C); = lab_temp_c + 25
     max_tm_diff: float = 10.0  # max Tm difference between 3' and 5' halves
+    # 2026-07-19: the hard Tm-range gate is OFF by default. Absolute arm Tm is
+    # now a SOFT scoring term (scoring.compute_target_score tm_proximity, peaked
+    # at the reaction-anchored target min_tm) rather than a pass/fail cutoff, so
+    # candidates rank by score instead of being dropped on Tm. min_tm/max_tm
+    # remain the scoring target/reference. Set True to restore hard rejection.
+    enforce_tm_gate: bool = False
     min_free_energy: float = -10.0  # min free energy (kcal/mol)
     check_rna_structure: bool = False  # whether to check RNA secondary structure
-    
+    # --- Phase 1A: target-accessibility gate (RNAplfold) ---
+    # When min_accessibility > 0, the search strategy computes per-base
+    # unpaired probability via RNAplfold over the FULL transcript and
+    # gates each candidate window on its mean accessibility. When
+    # min_accessibility == 0 (default), the legacy check_rna_structure
+    # self-fold path runs instead. See filtering/accessibility.py.
+    min_accessibility: float = 0.0  # 0 disables; recommended 0.30 when on
+    plfold_window: int = 70         # RNAplfold W (sliding window size)
+    plfold_span: int = 40           # RNAplfold L (max bp span within window)
+    plfold_temperature: float = 37.0  # °C; raise to 47-55 to approximate formamide
+
+    # --- Reaction buffer (2026-07-17): the real hybridization conditions used
+    #     for every Tm/ΔG calculation. Flat fields so the generic YAML loader
+    #     round-trips them; build a ReactionConditions via reaction_conditions().
+    #     Defaults follow protocol rca.md v5.3 (see chemistry.ReactionConditions).
+    #     Before this change all Tm used Biopython defaults (Na=50, Mg=0, 50 nM),
+    #     understating arm Tm by ~10 °C — see experiments/20260715_tm_deltag_methods_audit/.
+    monovalent_mM: float = 75.0        # K+ (Ampligase 25 + added KCl 50)
+    mg_mM: float = 10.0                # Mg2+ (Ampligase)
+    dntp_mM: float = 0.0               # dNTP (chelates Mg2+)
+    strand_nM: float = 100.0           # 0.1 µM probe
+    formamide_pct: float = 20.0        # % formamide (depresses Tm)
+    formamide_deg_per_pct: float = 0.5  # °C Tm depression per % formamide
+    lab_temp_c: float = 45.0           # hyb anneal temperature; arm-Tm anchor
+    tm_margin_c: float = 5.0           # min arm Tm = lab_temp_c + tm_margin_c
+    saltcorr: int = 5                  # Biopython salt method (5 = SantaLucia'98 + von Ahsen Mg)
+
     # Post-BLAST rules
     max_alignments: int = 5  # max allowed alignments (specificity)
     require_specificity: bool = True  # enforce specificity in BLAST filter
     target_organisms: List[str] = None  # target organisms to allow
+
+    def reaction_conditions(self) -> ReactionConditions:
+        """Materialize the flat buffer fields into a ReactionConditions.
+
+        Validation (fail-fast) happens in ReactionConditions.__post_init__.
+        """
+        return ReactionConditions(
+            monovalent_mM=self.monovalent_mM,
+            mg_mM=self.mg_mM,
+            dntp_mM=self.dntp_mM,
+            strand_nM=self.strand_nM,
+            formamide_pct=self.formamide_pct,
+            formamide_deg_per_pct=self.formamide_deg_per_pct,
+            lab_temp_c=self.lab_temp_c,
+            tm_margin_c=self.tm_margin_c,
+            saltcorr=self.saltcorr,
+        )
 
 
 @dataclass
 class ProbeConfig:
     """Probe assembly configuration."""
     backbone_file: Optional[str] = None  # Backbone Excel file path (must contain 'No.' and 'Sequence' columns)
+    codebook: Optional[str] = None  # Codebook name (e.g. SP369); falls back to backbone-filename regex.
 
 
 @dataclass
@@ -295,16 +371,31 @@ class ConfigManager:
                 'step_size': self.search.step_size
             },
             'filter': {
-                'min_g_content': self.filter.min_g_content,
-                'max_g_content': self.filter.max_g_content,
+                'min_gc_content': self.filter.min_gc_content,
+                'max_gc_content': self.filter.max_gc_content,
+                'min_g_content': self.filter.min_g_content,  # deprecated
+                'max_g_content': self.filter.max_g_content,  # deprecated
                 'max_consecutive_g': self.filter.max_consecutive_g,
+                'max_consecutive_a': self.filter.max_consecutive_a,
+                'max_consecutive_t': self.filter.max_consecutive_t,
+                'max_consecutive_c': self.filter.max_consecutive_c,
                 'min_tm': self.filter.min_tm,
                 'max_tm': self.filter.max_tm,
                 'max_tm_diff': self.filter.max_tm_diff,
                 'min_free_energy': self.filter.min_free_energy,
                 'check_rna_structure': self.filter.check_rna_structure,
                 'require_specificity': self.filter.require_specificity,
-                'final_probes_per_gene': getattr(self.filter, 'final_probes_per_gene', 3)
+                'final_probes_per_gene': getattr(self.filter, 'final_probes_per_gene', 3),
+                # Reaction buffer (2026-07-17)
+                'monovalent_mM': self.filter.monovalent_mM,
+                'mg_mM': self.filter.mg_mM,
+                'dntp_mM': self.filter.dntp_mM,
+                'strand_nM': self.filter.strand_nM,
+                'formamide_pct': self.filter.formamide_pct,
+                'formamide_deg_per_pct': self.filter.formamide_deg_per_pct,
+                'lab_temp_c': self.filter.lab_temp_c,
+                'tm_margin_c': self.filter.tm_margin_c,
+                'saltcorr': self.filter.saltcorr,
             },
             'blast': {
                 'blast_type': self.blast.blast_type,
@@ -349,7 +440,14 @@ class ConfigManager:
         if self.search.max_binding_sites <= 0:
             errors.append("max_binding_sites must be > 0")
         
-        # filters
+        # filters: GC% gate (Schema-v2)
+        if not (0 <= self.filter.min_gc_content <= 1):
+            errors.append("min_gc_content must be between 0 and 1")
+        if not (0 <= self.filter.max_gc_content <= 1):
+            errors.append("max_gc_content must be between 0 and 1")
+        if self.filter.min_gc_content >= self.filter.max_gc_content:
+            errors.append("min_gc_content must be < max_gc_content")
+        # filters: legacy G-only gate (kept for backward compat)
         if not (0 <= self.filter.min_g_content <= 1):
             errors.append("min_g_content must be between 0 and 1")
         if not (0 <= self.filter.max_g_content <= 1):

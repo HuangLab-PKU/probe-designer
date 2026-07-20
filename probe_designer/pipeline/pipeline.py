@@ -29,8 +29,7 @@ from probe_designer.pipeline.hooks import (
 from probe_designer.pipeline.result import GeneResult, PipelineResult
 from probe_designer.scoring import (
     compute_target_score,
-    peak_rank,
-    select_top_n_with_gap,
+    select_score_peaks,
 )
 from probe_designer.search_strategies import BindingSiteSearcher
 
@@ -78,12 +77,16 @@ class Pipeline:
         existing_targets: Optional[ExistingTargetsHook] = None,
         isoform_provider: Optional[IsoformProvider] = None,
         output_dir: Optional[Path] = None,
+        annotations_dir: Optional[Path] = None,
     ) -> None:
         self.config = config
         self.progress: ProgressHook = progress or NULL_PROGRESS
         self.existing_targets: ExistingTargetsHook = existing_targets or NULL_EXISTING
         self.isoform_provider = isoform_provider  # may be None -> use DB default
         self.output_dir = Path(output_dir) if output_dir else None
+        # Opt-in: emit per-transcript thermodynamic annotation tracks (arm Tm +
+        # accessibility) at the current hyb conditions, e.g. to a NAS path.
+        self._annotations_dir = Path(annotations_dir) if annotations_dir else None
 
         self._db = DatabaseInterface(config.database)
         self._genome_accessor = None
@@ -210,6 +213,11 @@ class Pipeline:
                 result.errors.append("No reference sequence; skipping gene")
                 return result
 
+        # 1b. Emit reference thermodynamic annotations (opt-in) for this gene's
+        #     transcript(s), at the current hyb conditions. Never fatal to a run.
+        if self._annotations_dir is not None:
+            self._emit_annotations(gene, isoforms, sequences)
+
         # 2. Search binding sites
         self.progress.on_stage(gene, "search", {})
         try:
@@ -249,7 +257,10 @@ class Pipeline:
                     gene, exc,
                 )
 
-        # 5. Score + peak_rank + select
+        # 5. Score, then pick the score PEAKS (greedy local-maxima / NMS):
+        #    the highest-scoring sites whose binding sites don't overlap
+        #    (min_distance = min_gap). Replaces the older peak_rank +
+        #    select_top_n_with_gap two-stage spread.
         self.progress.on_stage(gene, "score", {"n_in": len(sites)})
         total_isoforms = result.isoform_count or 1
         for site in sites:
@@ -259,16 +270,69 @@ class Pipeline:
                 max_tm_diff=self.config.filter.max_tm_diff,
                 total_isoforms=total_isoforms,
             )
-        ranked = peak_rank(sites, region_size=80, min_gap=min_gap)
-        for idx, site in enumerate(ranked):
+        selected = select_score_peaks(sites, min_distance=min_gap, max_n=top_n)
+        for idx, site in enumerate(selected):
             site["peak_rank"] = idx
-
-        # select_top_n_with_gap does its own round-robin-across-clusters; use the
-        # same region_size as peak_rank so the two stages agree on "cluster".
-        result.sites = select_top_n_with_gap(
-            ranked, top_n=top_n, min_gap=min_gap, region_size=80,
-        )
+        result.sites = selected
         return result
+
+    def _emit_annotations(
+        self,
+        gene: str,
+        isoforms: Optional[Dict[str, List[Dict[str, Any]]]],
+        sequences: Optional[Dict[str, Any]],
+    ) -> None:
+        """Write Tm + accessibility bedGraph tracks for this gene's transcript(s)
+        into the annotations dir, at the config's hyb conditions. Opt-in and
+        best-effort: a failed isoform is skipped, never aborting the run."""
+        from probe_designer.annotate import emit_annotations_for_sequences
+        from probe_designer.search_strategies import IsoformAwareness
+
+        reaction = self.config.filter.reaction_conditions()
+        arm_len = max(1, int(self.config.search.binding_site_length) // 2)
+
+        seqs: Dict[str, str] = {}
+        if isoforms and isoforms.get(gene):
+            if not self._genome_accessor:
+                logger.warning("[%s] annotations: no genome accessor; skipped", gene)
+                return
+            awareness = IsoformAwareness(isoforms[gene], self._genome_accessor)
+            for iso in isoforms[gene]:
+                name = iso.get("display_name") or iso.get("id") or gene
+                try:
+                    seqs[name] = awareness.get_isoform_mrna(iso)
+                except Exception as exc:
+                    logger.warning("[%s] annotations: skip isoform %s: %s",
+                                   gene, name, exc)
+        elif sequences:
+            for sid, seq in sequences.items():
+                if isinstance(seq, str):
+                    seqs[str(sid)] = seq
+
+        written = emit_annotations_for_sequences(
+            seqs, reaction, self._annotations_dir, arm_length=arm_len,
+        )
+
+        # Canonical-transcript genome projection (for IGV overlay on the
+        # assembly). Only the representative transcript is projected.
+        if isoforms and isoforms.get(gene) and seqs:
+            from probe_designer.annotate import build_canonical_genome_annotations
+            from probe_designer.genome_projection import pick_canonical_isoform
+            canonical = pick_canonical_isoform(isoforms[gene])
+            cname = canonical.get("display_name") or gene
+            if cname in seqs and canonical.get("Exon"):
+                try:
+                    written += build_canonical_genome_annotations(
+                        canonical, seqs[cname], reaction,
+                        out_dir=self._annotations_dir / "genome",
+                        arm_length=arm_len, gene=gene,
+                    )
+                except Exception as exc:
+                    logger.warning("[%s] genome-projection annotation failed: %s",
+                                   gene, exc)
+
+        logger.info("[%s] wrote %d annotation track(s) to %s",
+                    gene, len(written), self._annotations_dir)
 
     # ------------------------------------------------------------------
     # Isoform / sequence data access

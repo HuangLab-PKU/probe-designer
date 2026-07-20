@@ -33,15 +33,43 @@ search:
 # ============================================================================
 filter:
   # Pre-BLAST thermal filtering criteria
-  min_g_content: 0.3  # Minimum G content (0.0-1.0)
-  max_g_content: 0.7  # Maximum G content (0.0-1.0)
-  max_consecutive_g: 5  # Maximum consecutive G nucleotides
-  min_tm: 50.0  # Minimum melting temperature (°C)
-  max_tm: 70.0  # Maximum melting temperature (°C)
+  #
+  # Schema-v2 (2026-05-14): the active GC gate is min/max_gc_content.
+  # The legacy min/max_g_content fields are accepted for back-compat but
+  # only influence the reported g_content column — they no longer gate.
+  #
+  # Defaults are anchored to a 2026-05-13 audit of BZ23/TNBC panels; see
+  # experiments/20260513_gc_content_audit/FINDINGS.md for the rationale.
+  min_gc_content: 0.35  # Minimum G+C fraction per arm (Schema-v2 gate)
+  max_gc_content: 0.65  # Maximum G+C fraction per arm (Schema-v2 gate)
+  min_g_content: 0.3    # DEPRECATED — counts only G; kept for backward compat
+  max_g_content: 0.7    # DEPRECATED — counts only G; kept for backward compat
+  max_consecutive_g: 5  # Maximum consecutive G nucleotides per arm
+  max_consecutive_a: 5  # Maximum consecutive A nucleotides per arm (Schema-v2)
+  max_consecutive_t: 5  # Maximum consecutive T nucleotides per arm (Schema-v2)
+  max_consecutive_c: 5  # Maximum consecutive C nucleotides per arm (Schema-v2)
+  min_tm: 50.0  # Minimum melting temperature (°C); anchored to lab_temp_c + tm_margin_c
+  max_tm: 70.0  # Maximum melting temperature (°C); anchored to lab_temp_c + 25
   max_tm_diff: 10.0  # Maximum temperature difference between 3' and 5' arms (°C)
   min_free_energy: -10.0  # Minimum RNA secondary structure free energy (kcal/mol)
   check_rna_structure: true  # Whether to check RNA secondary structure
-  
+
+  # Reaction buffer (2026-07-17) — the real hybridization conditions every Tm is
+  # computed at. Defaults follow protocol rca.md v5.3 (Ampligase 1x + 50 mM KCl
+  # + 20% formamide, 45 °C). Change these to match your hyb solution; the Tm
+  # gates re-anchor to lab_temp_c + tm_margin_c. See chemistry.ReactionConditions
+  # and experiments/20260715_tm_deltag_methods_audit/.
+  monovalent_mM: 75.0        # Monovalent cation K+ (mM)
+  mg_mM: 10.0                # Mg2+ (mM) — was ignored before this change
+  dntp_mM: 0.0               # dNTP (mM)
+  strand_nM: 100.0           # Probe/oligo concentration (nM)
+  formamide_pct: 20.0        # Formamide (% v/v); depresses Tm
+  formamide_deg_per_pct: 0.5  # Tm depression per % formamide (°C/%)
+  lab_temp_c: 45.0           # Hybridization anneal temperature (°C); arm-Tm anchor
+  tm_margin_c: 5.0           # Required arm-Tm margin above lab_temp_c (°C)
+  saltcorr: 5                # Biopython salt method (5=SantaLucia'98+vonAhsen Mg; 7=Owczarzy'08)
+
+
   # Post-BLAST specificity filtering
   require_specificity: true  # Whether to require specificity filtering
   max_alignments: 5  # Maximum allowed alignments for specificity check

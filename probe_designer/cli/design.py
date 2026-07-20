@@ -48,6 +48,31 @@ class _LoggingProgress:
         logger.info("Pipeline done (%d genes)", gene_count)
 
 
+def _apply_buffer_overrides(
+    filter_cfg, *, monovalent_mm, mg_mm, dntp_mm, strand_nm,
+    formamide_pct, lab_temp_c, tm_margin_c, saltcorr,
+) -> None:
+    """Apply CLI reaction-buffer overrides onto a FilterConfig in place.
+
+    Only non-None values override the config/defaults. If ``lab_temp_c`` or
+    ``tm_margin_c`` change, the Tm window is re-anchored to the reaction
+    temperature: min_tm = lab_temp_c + tm_margin_c, max_tm = lab_temp_c + 25.
+    The buffer is validated eagerly (fail-fast) before the run starts.
+    """
+    overrides = {
+        "monovalent_mM": monovalent_mm, "mg_mM": mg_mm, "dntp_mM": dntp_mm,
+        "strand_nM": strand_nm, "formamide_pct": formamide_pct,
+        "lab_temp_c": lab_temp_c, "tm_margin_c": tm_margin_c, "saltcorr": saltcorr,
+    }
+    for field, value in overrides.items():
+        if value is not None:
+            setattr(filter_cfg, field, value)
+    if lab_temp_c is not None or tm_margin_c is not None:
+        filter_cfg.min_tm = filter_cfg.lab_temp_c + filter_cfg.tm_margin_c
+        filter_cfg.max_tm = filter_cfg.lab_temp_c + 25.0
+    filter_cfg.reaction_conditions()  # validate the composition, fail-fast
+
+
 def design(
     genes_file: Path = typer.Option(
         ..., "--genes-file", exists=True, dir_okay=False, readable=True,
@@ -98,6 +123,41 @@ def design(
              "flag, all isoforms (including retained_intron, NMD, "
              "processed_transcript) participate, which can dilute consensus."
     ),
+    # --- Reaction buffer overrides (chemistry.ReactionConditions) ---
+    monovalent_mm: Optional[float] = typer.Option(
+        None, "--monovalent-mm", help="Reaction monovalent K+ (mM). Default 75."
+    ),
+    mg_mm: Optional[float] = typer.Option(
+        None, "--mg-mm", help="Reaction Mg2+ (mM). Default 10."
+    ),
+    dntp_mm: Optional[float] = typer.Option(
+        None, "--dntp-mm", help="Reaction dNTP (mM). Default 0."
+    ),
+    strand_nm: Optional[float] = typer.Option(
+        None, "--strand-nm", help="Probe/oligo concentration (nM). Default 100."
+    ),
+    formamide_pct: Optional[float] = typer.Option(
+        None, "--formamide-pct", help="Formamide (percent v/v); depresses Tm. Default 20."
+    ),
+    lab_temp_c: Optional[float] = typer.Option(
+        None, "--lab-temp-c",
+        help="Hyb anneal temperature (C). Re-anchors Tm window "
+             "(min_tm = lab_temp_c + tm_margin_c). Default 45."
+    ),
+    tm_margin_c: Optional[float] = typer.Option(
+        None, "--tm-margin-c",
+        help="Arm-Tm margin above lab_temp_c (C). Re-anchors min_tm. Default 5."
+    ),
+    saltcorr: Optional[int] = typer.Option(
+        None, "--saltcorr", min=1, max=7,
+        help="Biopython salt method (5=SantaLucia'98+vonAhsen Mg, 7=Owczarzy'08)."
+    ),
+    annotations_dir: Optional[Path] = typer.Option(
+        None, "--annotations-dir",
+        help="If set, write per-transcript Tm + accessibility bedGraph tracks "
+             "(at the hyb conditions) here as a byproduct of the run, e.g. a NAS "
+             "path beside the genome."
+    ),
 ) -> None:
     """Run the end-to-end design pipeline and write scored/selected results."""
     if config_path is None:
@@ -124,6 +184,13 @@ def design(
     if output_dir:
         cfg.output.output_dir = str(output_dir)
 
+    _apply_buffer_overrides(
+        cfg.filter,
+        monovalent_mm=monovalent_mm, mg_mm=mg_mm, dntp_mm=dntp_mm,
+        strand_nm=strand_nm, formamide_pct=formamide_pct,
+        lab_temp_c=lab_temp_c, tm_margin_c=tm_margin_c, saltcorr=saltcorr,
+    )
+
     errors = cfg.validate_config()
     if errors:
         for err in errors:
@@ -148,6 +215,7 @@ def design(
         progress=_LoggingProgress(),
         isoform_provider=isoform_provider,
         output_dir=run_dir,
+        annotations_dir=annotations_dir,
     )
     result = pipeline.run(
         genes,

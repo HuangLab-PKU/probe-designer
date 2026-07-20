@@ -102,6 +102,7 @@ class SingleSequenceStrategy(SearchStrategy):
                     'tm_5': thermal_result['tm_5prime'],
                     'tm_diff': thermal_result['tm_diff'],
                     'g_content': thermal_result['g_content'],
+                    'gc_content': thermal_result['gc_content'],
                     'free_energy': thermal_result['free_energy']
                 })
         
@@ -135,6 +136,7 @@ class SingleSequenceStrategy(SearchStrategy):
                     'strand': strand_str,
                     'length': bds_len,
                     'g_content': candidate['g_content'],
+                    'gc_content': candidate.get('gc_content'),
                     'tm': candidate['tm'],
                     'tm_3': candidate['tm_3'],
                     'tm_5': candidate['tm_5'],
@@ -196,6 +198,7 @@ class ExonJunctionStrategy(SearchStrategy):
                     'arm_5prime': thermal_result['arm_5prime'],
                     'length': bds_len,
                     'g_content': thermal_result['g_content'],
+                    'gc_content': thermal_result['gc_content'],
                     'tm': thermal_result['tm'],
                     'tm_3': thermal_result['tm_3prime'],
                     'tm_5': thermal_result['tm_5prime'],
@@ -230,11 +233,35 @@ class IsoformAwareStrategy(SearchStrategy):
         """Search binding sites using isoform-aware approach."""
         # Initialize genome sequence (may take time on first call)
         _ = self.awareness.get_genome_seq()
-        
+
         bds_len = self.search_config.binding_site_length
         candidates: List[Dict[str, Any]] = []
         seen_positions = set() if self.mode == 'consensus' else None  # Only track duplicates for consensus mode
-        
+
+        # Phase 1A: optionally precompute per-isoform RNAplfold profiles for
+        # the target-accessibility gate. Costs ~0.5–1 s per isoform; mostly
+        # one-shot per panel since downstream calls use the in-memory dict.
+        # Disabled when min_accessibility <= 0 (the default), in which case
+        # the legacy self-fold check in thermal_filter still runs.
+        min_acc = float(getattr(self.filter_config, 'min_accessibility', 0.0) or 0.0)
+        iso_profiles: Dict[str, Any] = {}
+        if min_acc > 0:
+            from .filtering.accessibility import compute_plfold_profile  # local import to keep startup light
+            plfold_W = int(getattr(self.filter_config, 'plfold_window', 70))
+            plfold_L = int(getattr(self.filter_config, 'plfold_span', 40))
+            plfold_T = float(getattr(self.filter_config, 'plfold_temperature', 37.0))
+            for iso in self.isoforms:
+                try:
+                    mrna = self.awareness.get_isoform_mrna(iso)
+                except Exception as exc:
+                    # Don't fail the panel for one bad isoform — log and skip.
+                    import warnings as _w
+                    _w.warn(f"plfold: skipping isoform {iso.get('display_name')}: {exc}")
+                    continue
+                iso_profiles[iso['display_name']] = compute_plfold_profile(
+                    mrna, window=plfold_W, span=plfold_L, temperature=plfold_T,
+                )
+
         # Setup progress bars if requested
         if self.show_progress:
             isoform_pbar = tqdm(self.isoforms, desc=f"{gene_name} (isoforms)", unit="isoform", leave=True, dynamic_ncols=True, file=sys.stdout)
@@ -330,21 +357,70 @@ class IsoformAwareStrategy(SearchStrategy):
                     arm_3prime = probe_seq[:bds_len//2]  # Front half
                     arm_5prime = probe_seq[bds_len//2:]  # Back half
                     
+                    # Phase 1A: aggregate mean p_unpaired across all participating
+                    # isoforms (the set in `covered`). Each isoform contributes its
+                    # own profile lookup at the window's mRNA-coordinate. Falls
+                    # back to None when disabled (min_accessibility=0); thermal_filter
+                    # then uses the legacy self-fold check.
+                    target_accessibility = None
+                    if iso_profiles:
+                        # Genomic endpoints of the binding window. target_regions is
+                        # a list of (start, end) inclusive segments; the full window
+                        # spans the lowest start to the highest end across segments.
+                        # In mRNA coords introns are skipped, so the two endpoints
+                        # map to two mRNA positions that bracket the window.
+                        genomic_lo = target_regions[0][0]
+                        genomic_hi = target_regions[-1][1]
+                        per_iso_acc: Dict[str, float] = {}
+                        for iso_name in covered:
+                            prof = iso_profiles.get(iso_name)
+                            if prof is None:
+                                continue
+                            target_iso = next(
+                                (i for i in self.isoforms if i['display_name'] == iso_name),
+                                None,
+                            )
+                            if target_iso is None:
+                                continue
+                            # Map both endpoints; take min/max to make slicing
+                            # strand-symmetric. On + strand the lowest genomic
+                            # coord maps to the lowest mRNA position; on - strand
+                            # it maps to the highest (mRNA reads 3'→5' of the
+                            # plus strand). Code review 2026-05-14 caught the
+                            # original `ms + bds_len` formula reading past the
+                            # window on minus-strand isoforms.
+                            ms_lo = self.awareness.genomic_to_mrna_pos(target_iso, genomic_lo)
+                            ms_hi = self.awareness.genomic_to_mrna_pos(target_iso, genomic_hi)
+                            if ms_lo is None or ms_hi is None:
+                                continue
+                            win_start = min(ms_lo, ms_hi)
+                            win_end = max(ms_lo, ms_hi) + 1   # +1 -> half-open
+                            if win_end > len(prof) or win_start < 0:
+                                continue
+                            from .filtering.accessibility import mean_open_probability
+                            per_iso_acc[iso_name] = mean_open_probability(
+                                prof, win_start, win_end,
+                            )
+                        if per_iso_acc:
+                            from .filtering.accessibility import aggregate_open_probability
+                            target_accessibility = aggregate_open_probability(per_iso_acc)
+
                     # Use thermal_filter for screening
                     thermal_result = self.filter.thermal_filter(
                         arm_3prime,
                         arm_5prime,
                         sequence_type="DNA",
                         target_type="RNA",
-                        target_sequence=target_seq
+                        target_sequence=target_seq,
+                        target_accessibility=target_accessibility,
                     )
-                    
+
                     if not thermal_result['passed']:
                         current_pos += 1
                         if position_pbar:
                             position_pbar.update(1)
                         continue
-                    
+
                     # Calculate genomic position
                     # end_pos_inclusive is the last inclusive position of the target region
                     genomic_start = current_pos if strand == 1 else end_pos_inclusive - bds_len + 1
@@ -371,11 +447,13 @@ class IsoformAwareStrategy(SearchStrategy):
                         'target_regions': target_regions,
                         'length': bds_len,
                         'g_content': thermal_result['g_content'],
+                        'gc_content': thermal_result['gc_content'],
                         'tm': thermal_result['tm'],
                         'tm_3': thermal_result['tm_3prime'],
                         'tm_5': thermal_result['tm_5prime'],
                         'tm_diff': thermal_result['tm_diff'],
                         'free_energy': thermal_result['free_energy'],
+                        'target_accessibility': thermal_result.get('target_accessibility'),
                         'strategy': f'isoform_{self.mode}',
                         'isoform_id': isoform['id'],
                         'isoform_name': isoform['display_name'],
@@ -769,3 +847,54 @@ class IsoformAwareness:
         for r in regions:
             covered.update(self.exon_splice_to_isoforms.get(r, []))
         return list(covered)
+
+    # ---------------------- Phase 1A helpers ----------------------
+    # Map genomic positions to the spliced-mRNA coordinate system per isoform.
+    # Used by IsoformAwareStrategy to query a per-isoform RNAplfold profile
+    # at the window's position in its OWN mRNA.
+
+    def get_isoform_mrna(self, isoform: Dict[str, Any]) -> str:
+        """Return the spliced mRNA sequence of ``isoform`` (5' -> 3').
+
+        For minus-strand isoforms the sequence is reverse-complemented so it
+        reads in the transcribed direction — the same convention used by
+        ``get_target_seq``.
+        """
+        exons = sorted(isoform['Exon'], key=lambda x: x['start'])
+        genome = self.get_genome_seq()
+        parts: List[str] = []
+        for exon in exons:
+            ls = exon['start'] - self.global_start
+            le = exon['end'] - self.global_start + 1  # inclusive -> exclusive
+            if ls < 0 or le > len(genome):
+                raise IndexError(
+                    f"exon [{exon['start']}, {exon['end']}] outside locus "
+                    f"[{self.global_start}, {self.global_end}]"
+                )
+            parts.append(genome[ls:le])
+        seq = ''.join(parts)
+        if isoform['strand'] == -1:
+            comp = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
+            seq = ''.join(comp.get(b, 'N') for b in reversed(seq))
+        return seq
+
+    def genomic_to_mrna_pos(
+        self, isoform: Dict[str, Any], genomic_pos: int,
+    ) -> Optional[int]:
+        """Map ``genomic_pos`` to the isoform's 0-indexed mRNA position.
+
+        Returns None if ``genomic_pos`` falls in an intron of this isoform
+        (and is therefore not present in the spliced transcript).
+        """
+        exons = sorted(isoform['Exon'], key=lambda x: x['start'])
+        total_mrna_len = sum(e['end'] - e['start'] + 1 for e in exons)
+        cum_offset = 0
+        for exon in exons:
+            if exon['start'] <= genomic_pos <= exon['end']:
+                pos_in_exon = genomic_pos - exon['start']
+                mrna_pos = cum_offset + pos_in_exon
+                if isoform['strand'] == -1:
+                    mrna_pos = total_mrna_len - 1 - mrna_pos
+                return mrna_pos
+            cum_offset += exon['end'] - exon['start'] + 1
+        return None
