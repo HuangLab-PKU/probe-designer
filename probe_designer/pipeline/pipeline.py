@@ -27,6 +27,7 @@ from probe_designer.pipeline.hooks import (
     ProgressHook,
 )
 from probe_designer.pipeline.result import GeneResult, PipelineResult
+from probe_designer.policy import ThermoPolicy
 from probe_designer.scoring import (
     compute_target_score,
     select_score_peaks,
@@ -234,8 +235,19 @@ class Pipeline:
             return result
 
         # 3. Pre-BLAST thermal filter (strategy-agnostic)
+        #    Isolated per gene like the search and BLAST stages: the filter now
+        #    lets a ViennaRNA failure propagate instead of recording it as an
+        #    ordinary probe rejection (audit R8), and without a boundary here one
+        #    degenerate target sequence would abort an entire multi-gene run.
+        #    The error stays visible in result.errors rather than being
+        #    downgraded to a per-candidate failed_check.
         self.progress.on_stage(gene, "pre_blast", {"n_in": len(sites)})
-        filtered_by_gene = self._seq_filter.pre_blast_filter({gene: sites})
+        try:
+            filtered_by_gene = self._seq_filter.pre_blast_filter({gene: sites})
+        except Exception as exc:
+            result.errors.append(f"pre-BLAST filter failed: {exc}")
+            logger.warning("[%s] pre-BLAST filter failed: %s", gene, exc)
+            return result
         sites = filtered_by_gene.get(gene, [])
         self.progress.on_stage(gene, "pre_blast", {"n_out": len(sites)})
 

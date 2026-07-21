@@ -188,8 +188,10 @@ def _phase1_find_select(
                 tm_dev = abs(avg_tm - target_tm)  # 0 at the target, grows both ways
                 # Higher is better: less structure (mfe), balanced arms
                 # (-tm_diff), and arm Tm near the target (-tm_dev).
+                # `or 0.0`: mfe is None when ViennaRNA is unavailable (audit R8),
+                # in which case the structure term drops out rather than raising.
                 s["score"] = round(
-                    s.get("mfe", 0.0) - s.get(f"tm_diff_{chem}", 0.0) - tm_dev, 3,
+                    (s.get("mfe") or 0.0) - s.get(f"tm_diff_{chem}", 0.0) - tm_dev, 3,
                 )
                 # tm_cDNA_warning kept for downstream readers (informational)
                 s["tm_cDNA_warning"] = not (50.0 <= s["tm_cDNA"] <= 75.0)
