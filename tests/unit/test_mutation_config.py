@@ -35,6 +35,42 @@ def test_default_chemistries_are_all_three(tmp_path):
     assert cfg.chemistries == list(ALL_CHEMISTRIES)
 
 
+def test_arm_balance_tolerance_matches_the_shared_default(tmp_path):
+    """Audit R4: mutation used 20 C against the mRNA pipeline's 10; both now
+    use the field-practice 5 C from ThermoPolicy. It is a scoring reference —
+    the balance gate is soft, so this drops no mutation probes."""
+    from probe_designer.policy import DEFAULT_MAX_TM_DIFF_C
+
+    cfg = MutationConfig(**make_kwargs(tmp_path))
+    assert cfg.max_tm_diff == DEFAULT_MAX_TM_DIFF_C
+
+
+def test_arm_length_budget_is_independent_of_the_tm_tolerance(tmp_path):
+    """Audit R4/R7: `max_arm_len_dif` used to be fed `max_tm_diff` — a value in
+    degrees Celsius spent as a budget in nucleotides. Separate knobs now, so
+    tightening the Tm tolerance cannot silently reshape probe geometry."""
+    cfg = MutationConfig(**make_kwargs(tmp_path))
+    assert cfg.max_arm_len_diff == 20
+    assert cfg.max_arm_len_diff != cfg.max_tm_diff
+
+
+def test_plp_params_carries_only_what_the_designer_reads(tmp_path):
+    """The dict is a parameter *contract*, not a dumping ground.
+
+    It used to carry eight keys (G_min, Tm_low, max_Tm_dif, mfe_thre, ...) that
+    no live code read — leftovers from the legacy `plp_evaluation` path, whose
+    job FilterConfig now does. Dead keys that look live are how a unit
+    confusion like max_arm_len_dif survives unnoticed.
+    """
+    from probe_designer.ext.mutation.pipeline import _build_plp_params
+
+    cfg = MutationConfig(**make_kwargs(tmp_path))
+    params = _build_plp_params(cfg, "iLock")
+    assert set(params) == {
+        "ini_arm_len", "min_arm_len", "max_arm_len", "max_arm_len_diff",
+    }
+
+
 def test_default_ilock_tm_range_is_50_70(tmp_path):
     """Per 2026-05-10 audit, default iLock Tm window is 50-70 (was 55-75)."""
     cfg = MutationConfig(**make_kwargs(tmp_path))

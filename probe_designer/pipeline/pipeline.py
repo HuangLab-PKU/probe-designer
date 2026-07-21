@@ -266,8 +266,7 @@ class Pipeline:
         for site in sites:
             site["score"] = compute_target_score(
                 site,
-                min_arm_tm=self.config.filter.min_tm,
-                max_tm_diff=self.config.filter.max_tm_diff,
+                policy=ThermoPolicy.resolve(self.config.filter),
                 total_isoforms=total_isoforms,
             )
         selected = select_score_peaks(sites, min_distance=min_gap, max_n=top_n)

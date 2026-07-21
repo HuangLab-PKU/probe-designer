@@ -26,7 +26,7 @@ filter:
   max_consecutive_c: 5
   min_tm: 50.0   # = lab_temp_c + tm_margin_c (45 + 5), re-anchored 2026-07-17
   max_tm: 70.0   # = lab_temp_c + 25
-  max_tm_diff: 10.0
+  max_tm_diff: 5.0    # two-arm balance tolerance (°C); scoring reference, gate is soft
   min_free_energy: -10.0
   check_rna_structure: true
   require_specificity: true

@@ -65,13 +65,21 @@ class FilterConfig:
     # (experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt).
     min_tm: float = 50.0  # min melting temperature (°C); = lab_temp_c + tm_margin_c
     max_tm: float = 70.0  # max melting temperature (°C); = lab_temp_c + 25
-    max_tm_diff: float = 10.0  # max Tm difference between 3' and 5' halves
+    # Two-arm balance. Tightened 10 -> 5 on 2026-07-21 (audit R4) to the
+    # Larsson 2010 / Krzywkowski 2017 field practice. It is a SCORING reference,
+    # not a cutoff: as a hard gate 5 C would have rejected 17.7% of 232 shipped
+    # probes (19.7% of cDNA), while as a reference it costs nothing and sharpens
+    # ranking exactly where the discrimination matters.
+    max_tm_diff: float = 5.0  # max Tm difference between 3' and 5' halves
     # 2026-07-19: the hard Tm-range gate is OFF by default. Absolute arm Tm is
     # now a SOFT scoring term (scoring.compute_target_score tm_proximity, peaked
     # at the reaction-anchored target min_tm) rather than a pass/fail cutoff, so
     # candidates rank by score instead of being dropped on Tm. min_tm/max_tm
     # remain the scoring target/reference. Set True to restore hard rejection.
+    # 2026-07-21: the balance rule joined it, for the same reason (audit R4).
+    # Both are read through policy.ThermoPolicy, shared with the ranker.
     enforce_tm_gate: bool = False
+    enforce_tm_diff_gate: bool = False
     min_free_energy: float = -10.0  # min free energy (kcal/mol)
     check_rna_structure: bool = False  # whether to check RNA secondary structure
     # --- Phase 1A: target-accessibility gate (RNAplfold) ---

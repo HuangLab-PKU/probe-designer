@@ -129,11 +129,20 @@ class TestComputeTargetScoreTm:
         assert s == pytest.approx(BASE_SCORE - 1.0, abs=TOL)
 
     def test_tm_balance_linear(self):
-        # diff=5 over max_tm_diff=10 => 0.5 (vs base 1.0) => -0.5
-        # avg=52.5, excess=2.5 => tm_prox = 2*(1-0.125) = 1.75 (vs 2.0) => -0.25
-        # Net = -0.75
+        # 2026-07-21 (audit R4): the balance tolerance tightened 10 -> 5 C to
+        # match field practice (Larsson 2010, Krzywkowski 2017), so a 5 C spread
+        # now scores 0 on balance where it used to score 0.5.
+        # diff=5 over max_tm_diff=5 => 0.0 (vs base 1.0) => -1.0
+        # avg=52.5, dev=2.5 => tm_prox = 2*(1-2.5/20) = 1.75 (vs 2.0) => -0.25
+        # Net = -1.25
         s = compute_target_score(_neutral_site(tm_5prime=50.0, tm_3prime=55.0))
-        assert s == pytest.approx(BASE_SCORE - 0.75, abs=TOL)
+        assert s == pytest.approx(BASE_SCORE - 1.25, abs=TOL)
+
+    def test_tm_balance_discriminates_within_the_tolerance(self):
+        """The point of tightening: 2 C and 4 C are no longer near-identical."""
+        tight = compute_target_score(_neutral_site(tm_5prime=50.0, tm_3prime=52.0))
+        loose = compute_target_score(_neutral_site(tm_5prime=50.0, tm_3prime=54.0))
+        assert tight > loose
 
 
 class TestComputeTargetScoreTerminalGc:

@@ -316,54 +316,15 @@ def print_dependency_status():
         print(f"pip install {' '.join(missing)}")
 
 
-def create_config_template(output_file: str):
-    """Create a JSON config template on disk."""
-    config_template = {
-        "database": {
-            "organism": "mouse",
-            "database_type": "ensembl",
-            "coord_system_version": "GRCh38",
-            "max_retries": 3
-        },
-        "search": {
-            "binding_site_length": 40,
-            "max_binding_sites": 30,
-            "search_strategy": "exon_junction",
-            "step_size": None
-        },
-        "filter": {
-            "min_g_content": 0.4,
-            "max_g_content": 0.7,
-            "max_consecutive_g": 4,
-            "min_tm": 45.0,
-            "max_tm": 65.0,
-            "min_free_energy": -10.0,
-            "max_alignments": 5,
-            "require_specificity": True,
-            "target_organisms": ["Mus musculus", "Homo sapiens"]
-        },
-        "probe": {
-            "panel_type": "PRISM",
-            "barcode_file": None,
-            "primer_left": None,
-            "primer_right": None
-        },
-        "blast": {
-            "blast_type": "local",
-            "database": "refseq_rna",
-            "task": "megablast",
-            "evalue": 1e-5
-        },
-        "output": {
-            "output_dir": "results",
-            "create_timestamp": True,
-            "save_intermediate": True,
-            "file_formats": ["xlsx", "fasta", "json"]
-        }
-    }
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(config_template, f, indent=2, ensure_ascii=False)
-    print(f"Config template saved: {output_file}")
+# `create_config_template` lived here until 2026-07-21 (audit R7). It wrote a
+# JSON config template from hand-copied literals — a third copy of the defaults
+# beside the dataclasses and configs/*.yaml, and by then a wrong one: it still
+# claimed min_tm 45 / max_tm 65 (contradicting every shipped YAML) and knew
+# nothing of the GC gate, the reaction buffer, the RNAplfold geometry or the
+# enforce_* switches added since. It had no callers anywhere in the monorepo,
+# and configs/config_template.yaml is the maintained, documented template.
+# Removed rather than regenerated from the dataclasses: one template is the fix,
+# two is the bug.
 
 
 def get_file_size_mb(file_path: str) -> float:

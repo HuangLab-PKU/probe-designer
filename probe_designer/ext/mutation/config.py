@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from probe_designer.policy import DEFAULT_MAX_TM_DIFF_C
+
 
 # Public chemistry catalog. Per-experiment overrides should mutate the dict
 # returned by :func:`default_chemistry_params` (a fresh copy each call) — never
@@ -116,7 +118,14 @@ class MutationConfig:
     g_content_range: Tuple[float, float] = (0.1, 0.9)  # DEPRECATED — informational only
     g_consecutive_max: int = 7
     mfe_min: float = -15.0
-    max_tm_diff: float = 20.0
+    # Two-arm Tm balance tolerance (C). Was 20 against the mRNA pipeline's 10;
+    # both now use the shared field-practice 5 C (Larsson 2010, Krzywkowski
+    # 2017) from policy.ThermoPolicy. This is a scoring reference — the balance
+    # gate is soft (FilterConfig.enforce_tm_diff_gate), so no probe is dropped.
+    max_tm_diff: float = DEFAULT_MAX_TM_DIFF_C
+    # Arm-length budget (NUCLEOTIDES). Distinct from max_tm_diff, which is in
+    # degrees Celsius; the two were previously the same value (audit R4/R7).
+    max_arm_len_diff: int = 20
     pad: int = 50
 
     # Numbering / backbone

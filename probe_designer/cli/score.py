@@ -11,6 +11,7 @@ from pathlib import Path
 
 import typer
 
+from probe_designer.policy import DEFAULT_POLICY, ThermoPolicy
 from probe_designer.scoring import compute_target_score, peak_rank
 
 
@@ -27,8 +28,14 @@ def score(
         None, "--output", "-o",
         help="Output JSON path. Defaults to <input>.scored.json"
     ),
-    min_arm_tm: float = typer.Option(50.0, "--min-arm-tm", help="Tm proximity target for scoring."),
-    max_tm_diff: float = typer.Option(10.0, "--max-tm-diff", help="Max Tm diff for balance scoring."),
+    min_arm_tm: float = typer.Option(
+        DEFAULT_POLICY.min_arm_tm, "--min-arm-tm",
+        help="Tm proximity target for scoring (reaction temp + margin).",
+    ),
+    max_tm_diff: float = typer.Option(
+        DEFAULT_POLICY.max_tm_diff, "--max-tm-diff",
+        help="Two-arm Tm balance tolerance for scoring.",
+    ),
     region_size: int = typer.Option(80, "--region-size", help="bp window for peak_rank grouping."),
     min_gap: int = typer.Option(40, "--min-gap", help="Minimum gap within a peak_rank region."),
 ) -> None:
@@ -37,16 +44,16 @@ def score(
     if not isinstance(data, dict):
         raise typer.BadParameter("Input JSON must be a {gene: [sites]} mapping.")
 
+    policy = ThermoPolicy(min_arm_tm=min_arm_tm, max_arm_tm=min_arm_tm + 20.0,
+                          max_tm_diff=max_tm_diff)
+
     scored: dict[str, list] = {}
     total_sites = 0
     for gene, sites in data.items():
         for site in sites:
             total_isoforms = site.get("_total_isoforms", 1)
             site["score"] = compute_target_score(
-                site,
-                min_arm_tm=min_arm_tm,
-                max_tm_diff=max_tm_diff,
-                total_isoforms=total_isoforms,
+                site, policy=policy, total_isoforms=total_isoforms,
             )
         ranked = peak_rank(sites, region_size=region_size, min_gap=min_gap)
         # Attach peak_rank index for downstream consumers

@@ -28,6 +28,7 @@ except ImportError:
 
 from probe_designer.config import BlastConfig, FilterConfig
 from probe_designer.chemistry import dna_revcomp_to_rna
+from probe_designer.policy import ThermoPolicy
 
 
 logger = logging.getLogger(__name__)
@@ -68,10 +69,16 @@ class SequenceFilter:
         max_consecutive_a = kwargs.get('max_consecutive_a', getattr(self.filter_config, 'max_consecutive_a', 5))
         max_consecutive_t = kwargs.get('max_consecutive_t', getattr(self.filter_config, 'max_consecutive_t', 5))
         max_consecutive_c = kwargs.get('max_consecutive_c', getattr(self.filter_config, 'max_consecutive_c', 5))
-        min_tm = kwargs.get('min_tm', self.filter_config.min_tm)
-        max_tm = kwargs.get('max_tm', self.filter_config.max_tm)
-        max_tm_diff = kwargs.get('max_tm_diff', getattr(self.filter_config, 'max_tm_diff', 10.0))
-        enforce_tm_gate = kwargs.get('enforce_tm_gate', getattr(self.filter_config, 'enforce_tm_gate', False))
+        # Arm-Tm rules (target, balance tolerance, and whether each is a hard
+        # gate) come from one object shared with the ranker — see policy.py.
+        policy = ThermoPolicy.resolve(
+            self.filter_config,
+            min_tm=kwargs.get('min_tm'),
+            max_tm=kwargs.get('max_tm'),
+            max_tm_diff=kwargs.get('max_tm_diff'),
+            enforce_tm_gate=kwargs.get('enforce_tm_gate'),
+            enforce_tm_diff_gate=kwargs.get('enforce_tm_diff_gate'),
+        )
         min_free_energy = kwargs.get('min_free_energy', self.filter_config.min_free_energy)
         check_rna_structure = kwargs.get('check_rna_structure', getattr(self.filter_config, 'check_rna_structure', False))
         # Phase 1A: callers can pass a pre-computed per-window accessibility
@@ -188,17 +195,14 @@ class SequenceFilter:
         result['tm_5prime'] = tm_5
         result['tm_diff'] = abs(tm_5 - tm_3)
         
-        # Absolute arm Tm is a SOFT scoring term by default (see
-        # FilterConfig.enforce_tm_gate); only reject on the [min_tm, max_tm]
-        # range when the hard gate is explicitly enabled.
-        if enforce_tm_gate:
-            if not (min_tm <= tm_3 <= max_tm):
-                result['failed_checks'].append('tm_3prime_range')
-            if not (min_tm <= tm_5 <= max_tm):
-                result['failed_checks'].append('tm_5prime_range')
-        
-        # Check melting temperature difference
-        if result['tm_diff'] > max_tm_diff:
+        # Absolute arm Tm and two-arm balance are SOFT scoring terms by default
+        # (policy.enforce_tm_gate / enforce_tm_diff_gate); the policy answers
+        # True unless the corresponding hard gate is switched on.
+        if not policy.tm_range_ok(tm_3):
+            result['failed_checks'].append('tm_3prime_range')
+        if not policy.tm_range_ok(tm_5):
+            result['failed_checks'].append('tm_5prime_range')
+        if not policy.tm_balance_ok(result['tm_diff']):
             result['failed_checks'].append('tm_diff')
         
         # 6. Target accessibility / RNA structure gate.
