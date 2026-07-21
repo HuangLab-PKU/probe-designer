@@ -66,6 +66,36 @@ class TestRoundTrip:
         assert expected - set(written) == set()
 
 
+class TestBufferKnobsAreReachable:
+    """Every ReactionConditions knob must be settable from a config file.
+
+    ``FilterConfig`` deliberately mirrors ``ReactionConditions`` as flat fields
+    because the generic YAML loader cannot round-trip a nested dataclass. That
+    mirror is a duplication, so it drifts: ``hybrid_nn_model`` was added to
+    ReactionConditions and was unreachable from YAML until this test existed.
+    """
+
+    def test_filter_config_exposes_every_reaction_field(self):
+        from probe_designer.chemistry import ReactionConditions
+
+        reaction_fields = {f.name for f in dataclasses.fields(ReactionConditions)}
+        filter_fields = {f.name for f in dataclasses.fields(FilterConfig)}
+        missing = reaction_fields - filter_fields
+        assert not missing, (
+            f"ReactionConditions knob(s) {sorted(missing)} cannot be set from a "
+            "config file — add the flat field to FilterConfig and forward it in "
+            "reaction_conditions()"
+        )
+
+    def test_values_actually_reach_the_reaction(self):
+        """Present-but-not-forwarded is the same bug one step later."""
+        cfg = FilterConfig(hybrid_nn_model="banerjee2020", mg_mM=4.0, lab_temp_c=42.0)
+        reaction = cfg.reaction_conditions()
+        assert reaction.hybrid_nn_model == "banerjee2020"
+        assert reaction.mg_mM == 4.0
+        assert reaction.lab_temp_c == 42.0
+
+
 class TestNoDeadKeys:
     @pytest.mark.parametrize("name", SHIPPED_CONFIGS)
     def test_shipped_yaml_filter_keys_all_map_to_a_field(self, name):

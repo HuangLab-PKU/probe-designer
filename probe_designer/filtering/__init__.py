@@ -28,6 +28,7 @@ except ImportError:
 
 from probe_designer.config import BlastConfig, FilterConfig
 from probe_designer.chemistry import dna_revcomp_to_rna
+from probe_designer.nn_tables import melting_temperature, nn_model_for
 from probe_designer.policy import ThermoPolicy
 
 
@@ -255,21 +256,23 @@ class SequenceFilter:
         is applied after the nearest-neighbor Tm.
         """
         rc = self.filter_config.reaction_conditions()
-        buffer = rc.tm_nn_kwargs()
+        model = nn_model_for(sequence_type, target_type, rc.hybrid_nn_model)
+        # A DNA:RNA hybrid table needs the RNA-sense strand; the other tables
+        # take the arm as given.
+        to_table_strand = (
+            dna_revcomp_to_rna
+            if sequence_type == "DNA" and target_type == "RNA"
+            else (lambda s: s)
+        )
 
         def arm_tm(seq: str) -> float:
             try:
-                if sequence_type == "DNA" and target_type == "RNA":
-                    tm = mt.Tm_NN(dna_revcomp_to_rna(seq), nn_table=mt.R_DNA_NN1, **buffer)
-                elif sequence_type == "RNA" and target_type == "RNA":
-                    tm = mt.Tm_NN(seq, nn_table=mt.RNA_NN1, **buffer)
-                else:
-                    tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **buffer)
+                tm = melting_temperature(to_table_strand(seq), model, rc)
             except ValueError as exc:
                 # Ambiguous/short arm (e.g. contains N): reject via 0.0, but surface it.
                 logger.warning("Tm computation failed for %r: %s", seq, exc)
                 return 0.0
-            return rc.apply_formamide(tm)
+            return rc.apply_solvents(tm)
 
         return {
             'tm': arm_tm(arm_3prime + arm_5prime),

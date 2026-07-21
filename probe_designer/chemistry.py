@@ -129,6 +129,12 @@ class ReactionConditions:
         saltcorr: Biopython MeltingTemp salt-correction method (1-7). 5 =
             SantaLucia 1998 entropic (+ von Ahsen Mg-equivalent); 7 = Owczarzy
             2008 divalent decision tree (more accurate at high Mg2+).
+        hybrid_nn_model: Which DNA:RNA nearest-neighbor set to use —
+            ``"sugimoto1995"`` (default, the software default everywhere, so our
+            numbers stay comparable with colleagues') or ``"banerjee2020"`` (more
+            accurate at physiological salt: 1.1 C Tm error vs 4.9 C). Affects
+            only the hybrid chemistries; cDNA (DNA:DNA) and RNA:RNA are
+            unchanged. See nn_tables.
     """
 
     monovalent_mM: float = 75.0
@@ -141,6 +147,7 @@ class ReactionConditions:
     lab_temp_c: float = 45.0
     tm_margin_c: float = 5.0
     saltcorr: int = 5
+    hybrid_nn_model: str = "sugimoto1995"
 
     @classmethod
     def from_buffer(
@@ -170,6 +177,15 @@ class ReactionConditions:
         if self.saltcorr not in _VALID_SALTCORR:
             raise ValueError(
                 f"saltcorr must be one of {sorted(_VALID_SALTCORR)}, got {self.saltcorr}"
+            )
+        # Imported here: nn_tables imports nothing from this module, but keeping
+        # the dependency one-directional at module scope would still read oddly.
+        from probe_designer.nn_tables import HYBRID_MODELS
+
+        if self.hybrid_nn_model not in HYBRID_MODELS:
+            raise ValueError(
+                f"hybrid_nn_model must be one of {sorted(HYBRID_MODELS)}, "
+                f"got {self.hybrid_nn_model!r}"
             )
         for name, pct in self.solvents.items():
             if pct < 0:

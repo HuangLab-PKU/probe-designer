@@ -118,6 +118,10 @@ class FilterConfig:
     lab_temp_c: float = 45.0           # hyb anneal temperature; arm-Tm anchor
     tm_margin_c: float = 5.0           # min arm Tm = lab_temp_c + tm_margin_c
     saltcorr: int = 5                  # Biopython salt method (5 = SantaLucia'98 + von Ahsen Mg)
+    # DNA:RNA nearest-neighbor set: "sugimoto1995" (default, the software
+    # default everywhere) or "banerjee2020" (more accurate at physiological
+    # salt). Hybrid chemistries only; see nn_tables.
+    hybrid_nn_model: str = "sugimoto1995"
 
     # Post-BLAST rules
     max_alignments: int = 5  # max allowed alignments (specificity)
@@ -140,6 +144,7 @@ class FilterConfig:
             lab_temp_c=self.lab_temp_c,
             tm_margin_c=self.tm_margin_c,
             saltcorr=self.saltcorr,
+            hybrid_nn_model=self.hybrid_nn_model,
         )
 
     def folding_conditions(self) -> FoldingConditions:
