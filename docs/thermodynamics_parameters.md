@@ -88,11 +88,18 @@ Thermo 5× RT buffer: 250 mM Tris-HCl (pH 8.3), 375 mM KCl, 15 mM MgCl₂, 50 mM
 (<https://assets.thermofisher.com/TFS-Assets/LSG/manuals/MAN0012047_TS_Maxima_H_Minus_Reverse_Transcriptase_2000U_UG.pdf>).
 Tris (~50 mM at 1×, ~+25 mM Na-equiv) omitted as a minor term.
 
-### 4c. Cross-ligation / NUPACK screens (unchanged; to be unified — Phase 2)
+### 4c. Cross-ligation / NUPACK / orthogonality screens (unified 2026-07-20)
 
-`qc/cross_ligation.py` and `ext/nupack/config.py` independently encode the same
-2026-05-26 lab buffer (75 mM monovalent, 10 mM Mg²⁺, 0.1 µM, 55 °C
-formamide-effective). Phase 2 will point these at `ReactionConditions`.
+`qc/cross_ligation.py` and `ext/nupack/config.py` previously each hard-coded the
+lab buffer; both now **derive** their constants from the shared
+`ReactionConditions` defaults, so the screens and the Tm path cannot drift apart
+(values unchanged: 75 mM monovalent, 10 mM Mg²⁺, 0.1 µM, 55 °C formamide-effective).
+
+`filtering/pairwise_duplex.py` (panel orthogonality) previously scored
+padlock–padlock **DNA:DNA** dimers with ViennaRNA's **RNA** Turner parameters;
+it now uses **primer3** (SantaLucia unified DNA NN) at the same buffer. ΔG
+magnitudes are therefore not comparable to pre-2026-07-20 values; the −12 kcal/mol
+default is a permissive log-only threshold, re-tune before using it to drop probes.
 
 ## 5. Tm window anchoring
 
