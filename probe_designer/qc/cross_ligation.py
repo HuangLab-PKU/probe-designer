@@ -67,25 +67,23 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, List, Optional, Set, Tuple
 
+from probe_designer.chemistry import ReactionConditions, reverse_complement
 from probe_designer.qc.dimer_ascii import parse_primer3_dimer_pairing
 
 
-# Default thermodynamic parameters (matches lab buffer 2026-05-26).
-#
-# Lab hybridization buffer:
-#   - Ampligase 1× = 20 mM Tris-HCl + 25 mM KCl + 10 mM MgCl2 + 0.5 mM NAD
-#   - + 50 mM extra KCl ⇒ 75 mM total monovalent (K+)
-#   - + 20% formamide ⇒ destabilizes duplex; modeled as +10 °C effective
-#     temperature shift (0.5 °C / %FA × 20%, midpoint of literature range)
-#   - Reaction at 45 °C lab temperature → 55 °C effective in no-formamide NN model
-#   - Probe concentration 0.05–0.2 μM ⇒ 0.1 μM median (1e-7 M)
+# Buffer parameters DERIVED from the single source of truth (ReactionConditions
+# defaults = protocol rca.md v5.3), so the cross-lig screen and the Tm path never
+# drift apart (audit P5). ReactionConditions is bank-free, keeping qc bank-free.
+#   - 75 mM monovalent (K+), 10 mM Mg2+, 0.1 μM probe, 20% formamide → 55 °C
+#     effective in the no-formamide NN model (45 °C lab + 0.5 °C/%FA × 20%).
+_LAB = ReactionConditions()
 DEFAULT_K: int = 4
 DEFAULT_JUNCTION_WINDOW: int = 3
 DEFAULT_TM_THRESHOLD_C: float = 27.0
-DEFAULT_MV_CONC_MM: float = 75.0          # K+ from Ampligase (25) + extra KCl (50)
-DEFAULT_DV_CONC_MM: float = 10.0          # Mg2+ from Ampligase
-DEFAULT_DNA_CONC_M: float = 1.0e-7        # 0.1 μM probe (panel-dependent median)
-DEFAULT_TEMP_C: float = 55.0              # 45 °C lab + 10 °C formamide-equiv (0.5 °C/%FA × 20%)
+DEFAULT_MV_CONC_MM: float = _LAB.monovalent_mM      # 75 mM K+
+DEFAULT_DV_CONC_MM: float = _LAB.mg_mM              # 10 mM Mg2+
+DEFAULT_DNA_CONC_M: float = _LAB.strand_nM * 1e-9   # 0.1 μM probe
+DEFAULT_TEMP_C: float = _LAB.effective_celsius      # 55 °C formamide-effective
 
 # Vicinity contiguity requirement around the ligation nick. SplintR / PBCV-1
 # ligase's active site clamps ~3 nt on each side of the nick (contiguous
@@ -177,11 +175,7 @@ class _SeedSetV22:
 # ----------------------------------------------------------------------
 
 
-_COMP = {"A": "T", "T": "A", "C": "G", "G": "C", "U": "A", "N": "N"}
-
-
-def _rc(seq: str) -> str:
-    return "".join(_COMP.get(b, "N") for b in reversed(seq.upper()))
+_rc = reverse_complement
 
 
 def _kmers(seq: str, k: int) -> Set[str]:

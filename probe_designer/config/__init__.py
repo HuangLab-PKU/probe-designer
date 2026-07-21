@@ -5,7 +5,7 @@ Manages all configurable parameters for DNA probe design.
 
 import os
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 import json
 import yaml
@@ -97,6 +97,7 @@ class FilterConfig:
     strand_nM: float = 100.0           # 0.1 µM probe
     formamide_pct: float = 20.0        # % formamide (depresses Tm)
     formamide_deg_per_pct: float = 0.5  # °C Tm depression per % formamide
+    solvents: Dict[str, float] = field(default_factory=dict)  # extra co-solvents {name: %}; see chemistry.SOLVENT_TM_COEFF
     lab_temp_c: float = 45.0           # hyb anneal temperature; arm-Tm anchor
     tm_margin_c: float = 5.0           # min arm Tm = lab_temp_c + tm_margin_c
     saltcorr: int = 5                  # Biopython salt method (5 = SantaLucia'98 + von Ahsen Mg)
@@ -118,6 +119,7 @@ class FilterConfig:
             strand_nM=self.strand_nM,
             formamide_pct=self.formamide_pct,
             formamide_deg_per_pct=self.formamide_deg_per_pct,
+            solvents=dict(self.solvents),
             lab_temp_c=self.lab_temp_c,
             tm_margin_c=self.tm_margin_c,
             saltcorr=self.saltcorr,
@@ -393,6 +395,7 @@ class ConfigManager:
                 'strand_nM': self.filter.strand_nM,
                 'formamide_pct': self.filter.formamide_pct,
                 'formamide_deg_per_pct': self.filter.formamide_deg_per_pct,
+                'solvents': dict(self.filter.solvents),
                 'lab_temp_c': self.filter.lab_temp_c,
                 'tm_margin_c': self.filter.tm_margin_c,
                 'saltcorr': self.filter.saltcorr,

@@ -10,6 +10,7 @@ import random  # noqa: F401 (reserved for future stochastic strategies)
 from typing import List, Dict, Any, Tuple, Optional
 from tqdm import tqdm  # noqa: F401 (progress bars may be enabled later)
 
+from .chemistry import reverse_complement
 from .config import SearchConfig, FilterConfig
 from .filtering import SequenceFilter
 
@@ -29,10 +30,6 @@ class SearchStrategy:
         """Search binding sites (must be implemented by subclasses)."""
         raise NotImplementedError
     
-    def _reverse_complement(self, sequence: str) -> str:
-        """Return reverse complement of a DNA sequence."""
-        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N"}
-        return "".join(complement[base] for base in reversed(sequence))
 
 
 class SingleSequenceStrategy(SearchStrategy):
@@ -75,7 +72,7 @@ class SingleSequenceStrategy(SearchStrategy):
         for pos in position_iterator:
             target_seq = sequence[pos:pos + bds_len]
             # Get reverse complement for probe design (DNA probe binding to RNA target)
-            probe_seq = self._reverse_complement(target_seq)
+            probe_seq = reverse_complement(target_seq)
             
             # Split probe sequence into arms (3' arm is front, 5' arm is back for padlock probe)
             arm_3prime = probe_seq[:bds_len//2]  # Front half
@@ -174,7 +171,7 @@ class ExonJunctionStrategy(SearchStrategy):
                 break
             target_seq = sequence[pos:pos + bds_len]
             # Get reverse complement for probe design (DNA probe binding to RNA target)
-            probe_seq = self._reverse_complement(target_seq)
+            probe_seq = reverse_complement(target_seq)
             
             # Split probe sequence into arms (3' arm is front, 5' arm is back for padlock probe)
             arm_3prime = probe_seq[:bds_len//2]  # Front half
@@ -351,7 +348,7 @@ class IsoformAwareStrategy(SearchStrategy):
                     target_seq = self.awareness.get_target_seq(target_regions, strand)
                     
                     # Get reverse complement for probe design (DNA probe binding to RNA target)
-                    probe_seq = self._reverse_complement(target_seq)
+                    probe_seq = reverse_complement(target_seq)
                     
                     # Split probe sequence into arms (3' arm is front, 5' arm is back for padlock probe)
                     arm_3prime = probe_seq[:bds_len//2]  # Front half

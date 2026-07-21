@@ -12,7 +12,61 @@ import math
 import pytest
 from Bio.SeqUtils import MeltingTemp as mt
 
-from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
+from probe_designer.chemistry import (
+    ReactionConditions,
+    dna_revcomp_to_rna,
+    register_solvent,
+    reverse_complement,
+)
+
+
+# ---------------------------------------------------------------------------
+# reverse_complement — the package's single implementation
+# ---------------------------------------------------------------------------
+
+class TestReverseComplement:
+    """Contract for the canonical implementation.
+
+    This replaced seven private copies that had diverged on three axes, so the
+    contract is pinned rather than assumed. Each case below is a behaviour one
+    of the replaced copies depended on; together they are the superset that
+    makes the consolidation safe.
+    """
+
+    def test_basic(self):
+        assert reverse_complement("ACGG") == "CCGT"
+
+    def test_uppercases_lowercase_input(self):
+        # search_strategies and ext/mutation did NOT uppercase and would raise
+        # KeyError here. The canonical version accepts either case.
+        assert reverse_complement("acgg") == "CCGT"
+
+    def test_unknown_base_becomes_n_rather_than_raising(self):
+        # Four of the replaced copies raised KeyError; the two shared helpers
+        # mapped to N. N is chosen so one stray character cannot kill a batch.
+        assert reverse_complement("ACXG") == "CNGT"
+
+    def test_u_is_read_as_t(self):
+        # cross_ligation accepted RNA input; nothing else did.
+        assert reverse_complement("ACGU") == "ACGT"
+
+    def test_gap_is_preserved(self):
+        # ext/tcr aligns clone sequences and needs '-' to survive.
+        assert reverse_complement("AC-G") == "C-GT"
+
+    def test_n_maps_to_itself(self):
+        assert reverse_complement("acgn") == "NCGT"
+
+    def test_double_rc_is_identity(self):
+        arm = "GATCGGATCCATTGCA"
+        assert reverse_complement(reverse_complement(arm)) == arm
+
+    def test_empty(self):
+        assert reverse_complement("") == ""
+
+    def test_dna_revcomp_to_rna_is_the_same_function(self):
+        for seq in ("AAAC", "acgn", "GATCGGATCC", ""):
+            assert dna_revcomp_to_rna(seq) == reverse_complement(seq)
 
 
 # ---------------------------------------------------------------------------
@@ -120,6 +174,53 @@ class TestFormamideCorrection:
     def test_zero_formamide_is_noop(self):
         rc = ReactionConditions(formamide_pct=0.0)
         assert rc.apply_formamide(60.0) == pytest.approx(60.0)
+
+
+class TestFromBuffer:
+    def test_granular_monovalents_fold_to_total(self):
+        # Na/K/Tris are equivalent for Tm; total = Na + K + Tris/2.
+        rc = ReactionConditions.from_buffer(na_mM=25.0, k_mM=50.0)
+        assert rc.monovalent_mM == 75.0
+
+    def test_tris_counts_half(self):
+        rc = ReactionConditions.from_buffer(k_mM=50.0, tris_mM=50.0)
+        assert rc.monovalent_mM == 75.0  # 50 + 50/2
+
+    def test_other_kwargs_pass_through(self):
+        rc = ReactionConditions.from_buffer(k_mM=75.0, mg_mM=4.0, formamide_pct=0.0)
+        assert rc.mg_mM == 4.0 and rc.formamide_pct == 0.0
+
+
+class TestSolvents:
+    def test_default_solvents_empty_matches_formamide_only(self):
+        rc = ReactionConditions()
+        # 20% formamide * 0.5 = 10 C, no extra solvents.
+        assert rc.solvent_tm_depression == pytest.approx(10.0)
+        assert rc.effective_celsius == pytest.approx(55.0)
+
+    def test_extra_solvent_adds_depression(self):
+        rc = ReactionConditions(solvents={"dmso": 10.0})  # +0.6*10 = 6
+        assert rc.solvent_tm_depression == pytest.approx(16.0)
+        assert rc.apply_solvents(60.0) == pytest.approx(44.0)
+        assert rc.effective_celsius == pytest.approx(61.0)
+
+    def test_apply_formamide_alias_still_works(self):
+        assert ReactionConditions().apply_formamide(60.0) == pytest.approx(50.0)
+
+    def test_unknown_solvent_raises_until_registered(self):
+        rc = ReactionConditions(solvents={"betaine": 20.0})
+        with pytest.raises(ValueError, match="register_solvent"):
+            _ = rc.solvent_tm_depression
+        register_solvent("betaine", 0.0)  # isostabilizer ~ no net Tm shift here
+        assert rc.solvent_tm_depression == pytest.approx(10.0)  # formamide only
+
+    def test_negative_solvent_percent_rejected(self):
+        with pytest.raises(ValueError):
+            ReactionConditions(solvents={"dmso": -1.0})
+
+    def test_signature_distinguishes_solvents(self):
+        assert (ReactionConditions().signature()
+                != ReactionConditions(solvents={"dmso": 5.0}).signature())
 
 
 class TestEngineKwargs:

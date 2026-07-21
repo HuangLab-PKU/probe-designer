@@ -16,30 +16,36 @@ destabilization as an effective ``celsius``.
 """
 from __future__ import annotations
 
+from probe_designer.chemistry import ReactionConditions
 
-# Monovalent salt (K+ from Ampligase + extra KCl) — passed as 'sodium' to NUPACK Model
-# (NN model treats Na+ and K+ as equivalent monovalents).
-DEFAULT_SODIUM_M: float = 0.075
+# Single source of truth for the lab buffer: the shared ReactionConditions
+# defaults (protocol rca.md v5.3). These screen constants are DERIVED from it so
+# the cross-lig / NUPACK screens and the Tm path never drift apart (audit P5).
+_LAB = ReactionConditions()
+_NK = _LAB.nupack_kwargs()
 
-# Divalent (Mg2+) from Ampligase buffer
-DEFAULT_MAGNESIUM_M: float = 0.010
+# Monovalent salt (K+) — passed as 'sodium' to NUPACK (NN treats Na+/K+ alike).
+DEFAULT_SODIUM_M: float = _NK["sodium"]
 
-# Effective temperature in no-formamide NN model: 45 °C lab + 10 °C formamide shift
-DEFAULT_CELSIUS: float = 55.0
+# Divalent (Mg2+) from Ampligase buffer.
+DEFAULT_MAGNESIUM_M: float = _NK["magnesium"]
 
-# Informational only — not passed to NUPACK
-DEFAULT_LAB_TEMP_C: float = 45.0
-DEFAULT_FORMAMIDE_PCT: float = 20.0
-DEFAULT_FORMAMIDE_DEG_PER_PCT: float = 0.5
+# Effective temperature in the no-formamide NN model (lab temp + formamide shift).
+DEFAULT_CELSIUS: float = _NK["celsius"]
+
+# Informational only — not passed to NUPACK.
+DEFAULT_LAB_TEMP_C: float = _LAB.lab_temp_c
+DEFAULT_FORMAMIDE_PCT: float = _LAB.formamide_pct
+DEFAULT_FORMAMIDE_DEG_PER_PCT: float = _LAB.formamide_deg_per_pct
 
 # NUPACK ensemble — 'stacking' = coaxial stacking on (DEFAULT, the whole point
 # of using NUPACK over primer3 for nick-junction energetics).
 # 'nostacking' = ablation test; produces less-stable ternary ΔG.
 DEFAULT_ENSEMBLE: str = "stacking"
 
-# Probe strand concentration (each of arm3, arm5, splint).
+# Probe strand concentration (each of arm3, arm5, splint), from the shared buffer.
 # 0.1 μM is the midpoint of the panel-dependent range 0.05–0.2 μM.
-DEFAULT_STRAND_CONC_M: float = 1.0e-7
+DEFAULT_STRAND_CONC_M: float = _LAB.strand_nM * 1e-9
 
 # Productive ternary complex fraction threshold:
 # [arm3·splint·arm5] / [splint]_total > threshold flags as cross-lig risk.

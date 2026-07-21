@@ -43,6 +43,10 @@ class TestFilterConfigBufferFields:
         with pytest.raises(ValueError):
             FilterConfig(mg_mM=-1.0).reaction_conditions()
 
+    def test_solvents_pass_through(self):
+        rc = FilterConfig(solvents={"dmso": 5.0}).reaction_conditions()
+        assert rc.solvents == {"dmso": 5.0}
+
 
 class TestBufferYamlRoundTrip:
     def test_load_config_picks_up_buffer_keys(self):

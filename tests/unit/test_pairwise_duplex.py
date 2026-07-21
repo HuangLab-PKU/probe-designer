@@ -1,16 +1,24 @@
-"""Tests for filtering/pairwise_duplex.py (Phase 1B, 2026-05-14)."""
+"""Tests for filtering/pairwise_duplex.py — primer3 DNA backend (audit R5/P3).
+
+Rewritten 2026-07-20: the backend moved from ViennaRNA ``duplexfold`` (RNA
+Turner parameters — the wrong physics for a DNA:DNA padlock dimer, and the
+source of the dot-bracket/T→U behaviour these tests used to pin) to primer3's
+SantaLucia DNA nearest-neighbor model evaluated at the real buffer. ΔG
+magnitudes are not comparable to the old RNA-parameter values, so assertions are
+relational where possible.
+"""
 from __future__ import annotations
 
 import pytest
 
-from probe_designer.filtering.pairwise_duplex import (
+pytest.importorskip("primer3")
+
+from probe_designer.chemistry import ReactionConditions           # noqa: E402
+from probe_designer.filtering.pairwise_duplex import (            # noqa: E402
     DEFAULT_DG_THRESHOLD,
-    DuplexHit,
-    _parse_duplex_spans,
     predict_pairwise_duplex,
     screen_all_pairs,
 )
-
 
 REV_COMP_PAIR = (
     "GATGATGATGATGATGATGC",        # 20-mer
@@ -18,7 +26,7 @@ REV_COMP_PAIR = (
 )
 RANDOM_PAIR = (
     "ACGTACGTACGTACGTACGT",
-    "TTTAAACCCGGGAAATTTCC",
+    "AAAGAAAGAAAGAAAGAAAG",
 )
 
 
@@ -26,18 +34,13 @@ class TestPredictPairwiseDuplex:
     def test_reverse_complement_pair_returns_strong_duplex(self):
         hit = predict_pairwise_duplex(*REV_COMP_PAIR)
         assert hit is not None
-        assert hit.delta_g < -20.0, f"expected strong duplex, got {hit.delta_g}"
-        assert "(" in hit.structure and ")" in hit.structure
-        assert "&" in hit.structure
+        assert hit.delta_g < -10.0, f"expected strong duplex, got {hit.delta_g}"
 
-    def test_random_pair_returns_weak_or_none(self):
-        hit = predict_pairwise_duplex(*RANDOM_PAIR)
-        # Either no duplex or a weak one — let the orthogonality threshold
-        # be the actual gate; here we just assert it's nothing dramatic.
-        if hit is not None:
-            assert hit.delta_g > -10.0, (
-                f"random pair shouldn't bind strongly; got {hit.delta_g}"
-            )
+    def test_random_pair_much_weaker_than_rc(self):
+        rc = predict_pairwise_duplex(*REV_COMP_PAIR)
+        rnd = predict_pairwise_duplex(*RANDOM_PAIR)
+        rnd_dg = rnd.delta_g if rnd is not None else 0.0
+        assert rc.delta_g < rnd_dg - 5.0
 
     def test_returns_none_on_empty_strand(self):
         assert predict_pairwise_duplex("", "ACGT") is None
@@ -50,44 +53,39 @@ class TestPredictPairwiseDuplex:
         assert hit.probe_a_id == "ProbeA"
         assert hit.probe_b_id == "ProbeB"
 
-    def test_dna_letters_normalized_to_rna(self):
-        """T→U substitution is transparent at the API level: same energy
-        either way."""
-        hit_dna = predict_pairwise_duplex(
-            "GATGATGATGATGATGATGC", "GCATCATCATCATCATCATC",
+    def test_structure_is_primer3_ascii(self):
+        hit = predict_pairwise_duplex(*REV_COMP_PAIR)
+        assert "SEQ" in hit.structure or "STR" in hit.structure
+
+    def test_spans_within_bounds_and_nonempty(self):
+        a, b = REV_COMP_PAIR
+        hit = predict_pairwise_duplex(a, b)
+        (a0, a1), (b0, b1) = hit.span_a, hit.span_b
+        assert 0 <= a0 < a1 <= len(a)
+        assert 0 <= b0 < b1 <= len(b)
+
+
+class TestBufferAwareness:
+    """The screen now sees the real buffer (audit P5/R5), not a bare temperature."""
+
+    def test_higher_temperature_weakens_duplex(self):
+        cold = predict_pairwise_duplex(
+            *REV_COMP_PAIR,
+            reaction=ReactionConditions(lab_temp_c=25.0, formamide_pct=0.0),
         )
-        hit_rna = predict_pairwise_duplex(
-            "GAUGAUGAUGAUGAUGAUGC", "GCAUCAUCAUCAUCAUCAUC",
+        hot = predict_pairwise_duplex(
+            *REV_COMP_PAIR,
+            reaction=ReactionConditions(lab_temp_c=70.0, formamide_pct=0.0),
         )
-        assert hit_dna is not None and hit_rna is not None
-        assert hit_dna.delta_g == pytest.approx(hit_rna.delta_g)
+        assert hot.delta_g > cold.delta_g
 
-    def test_temperature_change_weakens_duplex(self):
-        """At higher temperature, duplex ΔG should be less negative
-        (weaker pairing). This is the 'formamide approximation' knob."""
-        hit_cold = predict_pairwise_duplex(*REV_COMP_PAIR, temperature=20.0)
-        hit_hot = predict_pairwise_duplex(*REV_COMP_PAIR, temperature=60.0)
-        assert hit_cold is not None and hit_hot is not None
-        assert hit_hot.delta_g > hit_cold.delta_g, (
-            f"hot ({hit_hot.delta_g}) should be > cold ({hit_cold.delta_g})"
-        )
-
-
-class TestParseDuplexSpans:
-    def test_full_match_spans_both_strands(self):
-        # structure with 20 brackets each side, i=20, j=1
-        struct = "(" * 20 + "&" + ")" * 20
-        span_a, span_b = _parse_duplex_spans(struct, i=20, j=1)
-        assert span_a == (0, 20)
-        assert span_b == (0, 20)
-
-    def test_partial_match_in_middle(self):
-        # 5-bp duplex; left brackets are 5, structure positions 6..10 on A
-        # (1-indexed). i = 10. Right is 5 brackets, j = 1 on B.
-        struct = "(((((&)))))"
-        span_a, span_b = _parse_duplex_spans(struct, i=10, j=1)
-        assert span_a == (5, 10)
-        assert span_b == (0, 5)
+    def test_formamide_raises_effective_temperature(self):
+        no_fa = predict_pairwise_duplex(
+            *REV_COMP_PAIR, reaction=ReactionConditions(formamide_pct=0.0))
+        with_fa = predict_pairwise_duplex(
+            *REV_COMP_PAIR, reaction=ReactionConditions(formamide_pct=20.0))
+        # formamide -> hotter effective temperature -> weaker duplex
+        assert with_fa.delta_g > no_fa.delta_g
 
 
 class TestScreenAllPairs:
@@ -95,33 +93,26 @@ class TestScreenAllPairs:
         assert screen_all_pairs([]) == []
 
     def test_single_probe_returns_empty(self):
-        assert screen_all_pairs([("only", "ACGT")]) == []
+        assert screen_all_pairs([("only", "ACGTACGTACGTACGTACGT")]) == []
 
-    def test_flags_only_below_threshold(self):
-        # 4 probes:
-        # A and B are RC of each other → strong duplex
-        # C and D are random → weak/no duplex
+    def test_flags_complementary_pair(self):
         probes = [
-            ("A", "GATGATGATGATGATGATGC"),
-            ("B", "GCATCATCATCATCATCATC"),
-            ("C", "ACGTACGTACGTACGTACGT"),
-            ("D", "AAAAATTTTGGGGCCCCTTT"),
+            ("A", REV_COMP_PAIR[0]),
+            ("B", REV_COMP_PAIR[1]),
+            ("C", "AAAGAAAGAAAGAAAGAAAG"),
         ]
-        # default threshold -12 kcal/mol
-        hits = screen_all_pairs(probes)
-        # AB pair must be flagged
+        hits = screen_all_pairs(probes, dg_threshold=-10.0)
         ab_hits = [h for h in hits
                    if {h.probe_a_id, h.probe_b_id} == {"A", "B"}]
         assert len(ab_hits) == 1
-        assert ab_hits[0].delta_g <= -12.0
+        assert ab_hits[0].delta_g <= -10.0
 
     def test_threshold_kwarg_respected(self):
-        probes = [
-            ("A", "GATGATGATGATGATGATGC"),
-            ("B", "GCATCATCATCATCATCATC"),
-        ]
-        # A very tight threshold (impossible to reach) returns no hits.
+        probes = [("A", REV_COMP_PAIR[0]), ("B", REV_COMP_PAIR[1])]
+        # Unreachable threshold -> nothing passes.
         assert screen_all_pairs(probes, dg_threshold=-9999.0) == []
-        # A very loose threshold (everything passes) returns the pair.
-        loose = screen_all_pairs(probes, dg_threshold=0.0)
-        assert len(loose) == 1
+        # Loose threshold -> the pair is returned.
+        assert len(screen_all_pairs(probes, dg_threshold=0.0)) == 1
+
+    def test_default_threshold_constant(self):
+        assert DEFAULT_DG_THRESHOLD == -12.0

@@ -15,7 +15,11 @@ from typing import Any, Dict, List, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
-from probe_designer.chemistry import ReactionConditions, dna_revcomp_to_rna
+from probe_designer.chemistry import (
+    ReactionConditions,
+    dna_revcomp_to_rna,
+    reverse_complement,
+)
 
 try:
     import RNA  # ViennaRNA bindings — provides MFE via RNA.fold
@@ -24,10 +28,9 @@ except ImportError:
     _HAS_VIENNARNA = False
 
 
-def _reverse_complement(seq: str) -> str:
-    """Return the reverse complement of a DNA sequence."""
-    comp = {"A": "T", "T": "A", "C": "G", "G": "C", "-": "-", "N": "N"}
-    return "".join(comp[b] for b in reversed(seq.upper()))
+# Gap-preserving: aligned clone sequences carry '-', which the canonical
+# implementation passes through unchanged.
+_reverse_complement = reverse_complement
 
 
 def validate_subseq_in_target(target_seq: str, allowed_subseq: str) -> int:

@@ -35,16 +35,29 @@ error) is the modern set; see the audit for the upgrade plan.
 | Salt-correction method | `saltcorr = 5` | `chemistry.ReactionConditions.saltcorr` → `tm_nn_kwargs()` | **SantaLucia 1998** entropic correction (Biopython method 5), with the **von Ahsen et al. 2001** (*Clin Chem* 47:1956) Mg²⁺→Na⁺-equivalent conversion applied automatically when Mg≠0 (Biopython `MeltingTemp.salt_correction:534`). Recommended combination per **von Ahsen, Wittwer & Schütz 2011**, *Brief Bioinform* 12:514. |
 | Alternative (high Mg) | `saltcorr = 7` | same | **Owczarzy et al. 2008**, *Biochemistry* 47:5336 (divalent decision tree). Slightly more conservative at ≥8 mM Mg²⁺; user-selectable. |
 
-## 3. Formamide correction
+## 3. Co-solvent correction (flexible)
 
-| Parameter | Value | Set at | Source |
-|---|---|---|---|
-| Model | linear (`chem_correction`, `fmdmethod=1`): `Tm -= factor × %formamide` | `ReactionConditions.apply_formamide` | **McConaughy et al. 1969**, *Biochemistry* 8:3289 (via Biopython `chem_correction`). |
-| Coefficient | `formamide_deg_per_pct = 0.5` °C/% | `ReactionConditions` | Chosen to **match the existing cross-lig / NUPACK screen model** (`qc/cross_ligation.py`, `ext/nupack/config.py` both used 0.5 °C/%). Literature range is 0.6–0.72 (Biopython default 0.65); 0.5 is on the conservative end. **Tunable** — revisit if calibration data warrants. |
+Co-solvents depress Tm ~linearly (`Tm -= Σ coeff × %`). Formamide has a dedicated
+field; any other solvent goes in `ReactionConditions.solvents` keyed to the
+`SOLVENT_TM_COEFF` registry (`register_solvent(name, coeff)` adds one).
 
-The same coefficient drives the ΔG-screen effective temperature
-(`effective_celsius = lab_temp_c + formamide_pct × formamide_deg_per_pct`), so
-the Tm-domain and ΔG-domain treatments stay numerically consistent.
+| Solvent | Coefficient (°C/%) | Source |
+|---|---|---|
+| Formamide | `formamide_deg_per_pct = 0.5` | **McConaughy 1969** (via Biopython `chem_correction`). Matches the cross-lig/NUPACK screens (both 0.5); literature 0.6–0.72, Biopython default 0.65 — 0.5 is conservative, **tunable**. |
+| DMSO | `SOLVENT_TM_COEFF["dmso"] = 0.6` | **von Ahsen 2001** (typical 0.5–0.75). |
+| other (betaine, glycol, …) | user-supplied via `register_solvent` | No built-in NN term — supply a **lab-calibrated** coefficient (approximate). |
+
+`ReactionConditions.solvent_tm_depression` sums these; the same value drives the
+ΔG-screen effective temperature (`effective_celsius = lab_temp_c + depression`),
+keeping the Tm-domain and ΔG-domain treatments consistent.
+
+**Flexibility & its limit.** Tm-from-buffer is only as flexible as the correction
+*physics*: monovalent cations (Na/K/Tris) are **equivalent** for Tm (ionic
+strength) — set the total `monovalent_mM` or use `ReactionConditions.from_buffer(
+na_mM=, k_mM=, tris_mM=)`; **Mg²⁺ is the only modelled divalent** (approximate a
+novel divalent as Mg²⁺-equivalent); solvents beyond formamide/DMSO need an
+empirical coefficient. A component with no physical model **fails fast** rather
+than silently returning a wrong Tm.
 
 ## 4. Reaction buffers
 
@@ -75,11 +88,18 @@ Thermo 5× RT buffer: 250 mM Tris-HCl (pH 8.3), 375 mM KCl, 15 mM MgCl₂, 50 mM
 (<https://assets.thermofisher.com/TFS-Assets/LSG/manuals/MAN0012047_TS_Maxima_H_Minus_Reverse_Transcriptase_2000U_UG.pdf>).
 Tris (~50 mM at 1×, ~+25 mM Na-equiv) omitted as a minor term.
 
-### 4c. Cross-ligation / NUPACK screens (unchanged; to be unified — Phase 2)
+### 4c. Cross-ligation / NUPACK / orthogonality screens (unified 2026-07-20)
 
-`qc/cross_ligation.py` and `ext/nupack/config.py` independently encode the same
-2026-05-26 lab buffer (75 mM monovalent, 10 mM Mg²⁺, 0.1 µM, 55 °C
-formamide-effective). Phase 2 will point these at `ReactionConditions`.
+`qc/cross_ligation.py` and `ext/nupack/config.py` previously each hard-coded the
+lab buffer; both now **derive** their constants from the shared
+`ReactionConditions` defaults, so the screens and the Tm path cannot drift apart
+(values unchanged: 75 mM monovalent, 10 mM Mg²⁺, 0.1 µM, 55 °C formamide-effective).
+
+`filtering/pairwise_duplex.py` (panel orthogonality) previously scored
+padlock–padlock **DNA:DNA** dimers with ViennaRNA's **RNA** Turner parameters;
+it now uses **primer3** (SantaLucia unified DNA NN) at the same buffer. ΔG
+magnitudes are therefore not comparable to pre-2026-07-20 values; the −12 kcal/mol
+default is a permissive log-only threshold, re-tune before using it to drop probes.
 
 ## 5. Tm window anchoring
 
