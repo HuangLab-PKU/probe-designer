@@ -36,10 +36,14 @@ filter:
   # each candidate window is gated. 0.30 is recommended once Phase 1A is
   # validated against a wet-lab panel; keep at 0 to use the legacy self-fold
   # MFE check for now.
+  # Geometry: Lange 2012 (W = L + 50, L ~ 100). The former W=70/L=40 could not
+  # represent a base pair spanning >40 nt, so sites behind a long-range stem
+  # read as open. Temperature is omitted on purpose — it then tracks the
+  # reaction (lab_temp_c + solvent depression), keeping this profile identical
+  # to the one written into the reference annotation. Set a number to pin it.
   min_accessibility: 0.0
-  plfold_window: 70
-  plfold_span: 40
-  plfold_temperature: 37.0   # raise to 47-55 to approximate formamide
+  plfold_window: 150
+  plfold_span: 100
 
 blast:
   blast_type: "local"

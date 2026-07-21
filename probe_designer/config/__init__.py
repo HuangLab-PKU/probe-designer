@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional
 import json
 import yaml
 
-from probe_designer.chemistry import ReactionConditions
+from probe_designer.chemistry import FoldingConditions, ReactionConditions
 
 
 @dataclass
@@ -80,10 +80,17 @@ class FilterConfig:
     # gates each candidate window on its mean accessibility. When
     # min_accessibility == 0 (default), the legacy check_rna_structure
     # self-fold path runs instead. See filtering/accessibility.py.
+    # Geometry re-anchored 2026-07-21 (audit R9) to Lange 2012: W = L + 50 with
+    # L ~ 100. The old W=70/L=40 could not represent a base pair spanning >40 nt,
+    # so sites behind a long-range stem read as open (mean p_unpaired over-stated
+    # by ~0.10 on real transcripts). Build a FoldingConditions via
+    # folding_conditions(); see chemistry.FoldingConditions.
     min_accessibility: float = 0.0  # 0 disables; recommended 0.30 when on
-    plfold_window: int = 70         # RNAplfold W (sliding window size)
-    plfold_span: int = 40           # RNAplfold L (max bp span within window)
-    plfold_temperature: float = 37.0  # °C; raise to 47-55 to approximate formamide
+    plfold_window: int = 150        # RNAplfold W (sliding window size)
+    plfold_span: int = 100          # RNAplfold L (max bp span within window)
+    # None = track the reaction (ReactionConditions.effective_celsius), so the
+    # accessibility that filters candidates matches the reference annotation.
+    plfold_temperature: Optional[float] = None
 
     # --- Reaction buffer (2026-07-17): the real hybridization conditions used
     #     for every Tm/ΔG calculation. Flat fields so the generic YAML loader
@@ -123,6 +130,17 @@ class FilterConfig:
             lab_temp_c=self.lab_temp_c,
             tm_margin_c=self.tm_margin_c,
             saltcorr=self.saltcorr,
+        )
+
+    def folding_conditions(self) -> FoldingConditions:
+        """Materialize the flat RNAplfold fields into a FoldingConditions.
+
+        Validation (fail-fast) happens in FoldingConditions.__post_init__.
+        """
+        return FoldingConditions(
+            window=self.plfold_window,
+            span=self.plfold_span,
+            temperature_c=self.plfold_temperature,
         )
 
 

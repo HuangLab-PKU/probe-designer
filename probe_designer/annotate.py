@@ -20,19 +20,14 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 
-from probe_designer.chemistry import ReactionConditions
+from probe_designer.chemistry import FoldingConditions, ReactionConditions
 from probe_designer.filtering.thermo_profile import compute_tm_profile, write_bedgraph
 
 try:
-    from probe_designer.filtering.accessibility import (
-        DEFAULT_SPAN,
-        DEFAULT_WINDOW,
-        compute_plfold_profile,
-    )
+    from probe_designer.filtering.accessibility import compute_plfold_profile
     _HAS_ACCESSIBILITY = True
 except ImportError:  # ViennaRNA missing
     _HAS_ACCESSIBILITY = False
-    DEFAULT_WINDOW, DEFAULT_SPAN = 70, 40
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +43,7 @@ def build_reference_annotations(
     chrom: Optional[str] = None,
     start: int = 0,
     accessibility: bool = True,
-    plfold_window: int = DEFAULT_WINDOW,
-    plfold_span: int = DEFAULT_SPAN,
+    folding: Optional[FoldingConditions] = None,
 ) -> List[Path]:
     """Write the first-batch thermodynamic annotation tracks for one reference.
 
@@ -64,7 +58,8 @@ def build_reference_annotations(
         chrom: bedGraph chrom column (defaults to ``reference_id``).
         start: 0-based reference offset of ``seq[0]`` (for genomic placement).
         accessibility: also write the RNAplfold accessibility track.
-        plfold_window, plfold_span: RNAplfold W / L.
+        folding: RNAplfold geometry + temperature; defaults to the Lange 2012
+            geometry folding at the reaction's solvent-effective temperature.
 
     Returns:
         Paths of the tracks written.
@@ -72,6 +67,7 @@ def build_reference_annotations(
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     chrom = chrom or reference_id
+    folding = folding or FoldingConditions()
     sig = reaction.signature()
     written: List[Path] = []
 
@@ -87,11 +83,11 @@ def build_reference_annotations(
         if not _HAS_ACCESSIBILITY:
             logger.warning("ViennaRNA not available; skipping accessibility track")
         else:
-            eff_t = reaction.effective_celsius
-            acc = compute_plfold_profile(
-                seq, window=plfold_window, span=plfold_span, temperature=eff_t,
+            acc = compute_plfold_profile(seq, **folding.plfold_kwargs(reaction))
+            acc_path = (
+                out_dir
+                / f"{reference_id}_accessibility_{folding.signature(reaction)}.bedgraph"
             )
-            acc_path = out_dir / f"{reference_id}_accessibility_T{eff_t:g}.bedgraph"
             write_bedgraph(
                 acc, chrom, start, acc_path,
                 track_name=f"{reference_id}_accessibility",
@@ -111,6 +107,7 @@ def build_canonical_genome_annotations(
     arm_length: int = 20,
     chemistry: str = "dRNA",
     accessibility: bool = True,
+    folding: Optional[FoldingConditions] = None,
     gene: Optional[str] = None,
 ) -> List[Path]:
     """Genome-coordinate bedGraph tracks for ONE (canonical) transcript.
@@ -133,6 +130,7 @@ def build_canonical_genome_annotations(
     strand = int(iso.get("strand", 1))
     chrom = str(iso.get("seq_region_name") or iso.get("display_name") or "chr")
     label = gene or iso.get("display_name") or "gene"
+    folding = folding or FoldingConditions()
     sig = reaction.signature()
     written: List[Path] = []
 
@@ -145,8 +143,10 @@ def build_canonical_genome_annotations(
     written.append(tm_path)
 
     if accessibility and _HAS_ACCESSIBILITY:
-        acc = compute_plfold_profile(seq, temperature=reaction.effective_celsius)
-        acc_path = out_dir / f"{label}_accessibility_T{reaction.effective_celsius:g}.genome.bedgraph"
+        acc = compute_plfold_profile(seq, **folding.plfold_kwargs(reaction))
+        acc_path = (
+            out_dir / f"{label}_accessibility_{folding.signature(reaction)}.genome.bedgraph"
+        )
         write_genome_bedgraph(
             project_profile_to_genome(acc, exons, strand), chrom, acc_path,
             track_name=f"{label}_accessibility",
@@ -164,6 +164,7 @@ def emit_annotations_for_sequences(
     arm_length: int = 20,
     chemistry: str = "dRNA",
     accessibility: bool = True,
+    folding: Optional[FoldingConditions] = None,
 ) -> List[Path]:
     """Write annotation tracks for many references (``{reference_id: seq}``).
 
@@ -178,7 +179,7 @@ def emit_annotations_for_sequences(
         written.extend(build_reference_annotations(
             seq, str(reference_id), reaction,
             out_dir=out_dir, arm_length=arm_length,
-            chemistry=chemistry, accessibility=accessibility,
+            chemistry=chemistry, accessibility=accessibility, folding=folding,
         ))
     return written
 

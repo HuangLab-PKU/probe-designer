@@ -25,7 +25,7 @@ Tm-domain and ΔG-domain treatments consistent.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
@@ -275,3 +275,86 @@ class ReactionConditions:
             f"_st{self.strand_nM:g}_fa{self.formamide_pct:g}"
             f"_fd{self.formamide_deg_per_pct:g}_sc{self.saltcorr}{sv}"
         )
+
+
+# ViennaRNA's own convention when no reaction context is available. Real runs
+# pass a ReactionConditions and fold at its solvent-effective temperature.
+DEFAULT_FOLD_TEMPERATURE_C = 37.0
+
+
+@dataclass(frozen=True)
+class FoldingConditions:
+    """RNAplfold window geometry + temperature for target-accessibility profiles.
+
+    The companion of :class:`ReactionConditions` for the structure side: where
+    that object answers "what buffer does the arm anneal in", this one answers
+    "over how much sequence context, and at what temperature, do we ask whether
+    the site is open".
+
+    Geometry defaults follow Lange 2012 (NAR 40:5215), which shows ViennaRNA's
+    W = L = 70 default is artifact-prone for accessibility: a span shorter than
+    the real base-pair distance cannot represent a long-range stem, so a site
+    locked behind one reads as open. The recommendation is L ~ 100 with
+    W = L + 50. (Pre-2026-07-21 this package used W = 70, L = 40 — shorter still.)
+
+    Attributes:
+        window: RNAplfold ``W``, the sliding window size (nt).
+        span: RNAplfold ``L``, the maximum base-pair span within the window (nt).
+            Must not exceed ``window``.
+        temperature_c: Folding temperature (C). ``None`` (default) means *track
+            the reaction* — resolved to :attr:`ReactionConditions.effective_celsius`
+            so the accessibility used to filter candidates is the same
+            accessibility written into the reference annotation. Set a number to
+            pin it independently of the buffer.
+    """
+
+    window: int = 150
+    span: int = 100
+    temperature_c: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        """Validate the geometry, failing fast with an actionable message."""
+        if self.window <= 0:
+            raise ValueError(f"window (W) must be > 0, got {self.window}")
+        if self.span <= 0:
+            raise ValueError(f"span (L) must be > 0, got {self.span}")
+        if self.span > self.window:
+            raise ValueError(
+                f"span (L={self.span}) must not exceed window (W={self.window}); "
+                "RNAplfold cannot pair further apart than the window it sees"
+            )
+
+    def temperature_for(self, reaction: Optional["ReactionConditions"] = None) -> float:
+        """Resolve the folding temperature against a reaction (C).
+
+        An explicit ``temperature_c`` always wins; otherwise the reaction's
+        solvent-effective temperature is used, falling back to the bare
+        ViennaRNA convention when no reaction is supplied.
+        """
+        if self.temperature_c is not None:
+            return float(self.temperature_c)
+        if reaction is not None:
+            return reaction.effective_celsius
+        return DEFAULT_FOLD_TEMPERATURE_C
+
+    def plfold_kwargs(self, reaction: Optional["ReactionConditions"] = None) -> dict:
+        """Keyword arguments for ``filtering.accessibility.compute_plfold_profile``.
+
+        Mirrors :meth:`ReactionConditions.tm_nn_kwargs` — splat it into the
+        primitive so callers never hand-carry the geometry triple again.
+        """
+        return {
+            "window": self.window,
+            "span": self.span,
+            "temperature": self.temperature_for(reaction),
+        }
+
+    def signature(self, reaction: Optional["ReactionConditions"] = None) -> str:
+        """Compact, filesystem-safe key of everything that changes the profile.
+
+        The geometry belongs in the key, not just the temperature: widening the
+        span shifts mean p_unpaired by ~0.10 on real transcripts, so two runs
+        with different W/L must not collide in a cache or an annotation
+        directory. Mirrors :meth:`ReactionConditions.signature`.
+        """
+        return f"W{self.window}_L{self.span}_T{self.temperature_for(reaction):g}"

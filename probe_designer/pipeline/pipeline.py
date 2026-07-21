@@ -289,6 +289,7 @@ class Pipeline:
         from probe_designer.search_strategies import IsoformAwareness
 
         reaction = self.config.filter.reaction_conditions()
+        folding = self.config.filter.folding_conditions()
         arm_len = max(1, int(self.config.search.binding_site_length) // 2)
 
         seqs: Dict[str, str] = {}
@@ -311,6 +312,7 @@ class Pipeline:
 
         written = emit_annotations_for_sequences(
             seqs, reaction, self._annotations_dir, arm_length=arm_len,
+            folding=folding,
         )
 
         # Canonical-transcript genome projection (for IGV overlay on the
@@ -325,7 +327,7 @@ class Pipeline:
                     written += build_canonical_genome_annotations(
                         canonical, seqs[cname], reaction,
                         out_dir=self._annotations_dir / "genome",
-                        arm_length=arm_len, gene=gene,
+                        arm_length=arm_len, folding=folding, gene=gene,
                     )
                 except Exception as exc:
                     logger.warning("[%s] genome-projection annotation failed: %s",

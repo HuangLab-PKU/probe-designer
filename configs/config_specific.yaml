@@ -32,10 +32,11 @@ filter:
   require_specificity: true
   final_probes_per_gene: 3
   # Phase 1A: target-accessibility gate (RNAplfold). 0 disables; set to 0.30 to enable.
+  # Geometry per Lange 2012 (W = L + 50, L ~ 100); omitting plfold_temperature
+  # makes folding track the reaction temperature. See config_consensus.yaml.
   min_accessibility: 0.0
-  plfold_window: 70
-  plfold_span: 40
-  plfold_temperature: 37.0
+  plfold_window: 150
+  plfold_span: 100
 
 blast:
   blast_type: "local"

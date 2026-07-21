@@ -244,9 +244,12 @@ class IsoformAwareStrategy(SearchStrategy):
         iso_profiles: Dict[str, Any] = {}
         if min_acc > 0:
             from .filtering.accessibility import compute_plfold_profile  # local import to keep startup light
-            plfold_W = int(getattr(self.filter_config, 'plfold_window', 70))
-            plfold_L = int(getattr(self.filter_config, 'plfold_span', 40))
-            plfold_T = float(getattr(self.filter_config, 'plfold_temperature', 37.0))
+            # Geometry + temperature come from the config objects, so the
+            # profile that gates candidates is byte-identical to the one the
+            # annotation writer emits for the same conditions (audit R9).
+            plfold_kwargs = self.filter_config.folding_conditions().plfold_kwargs(
+                self.filter_config.reaction_conditions()
+            )
             for iso in self.isoforms:
                 try:
                     mrna = self.awareness.get_isoform_mrna(iso)
@@ -256,7 +259,7 @@ class IsoformAwareStrategy(SearchStrategy):
                     _w.warn(f"plfold: skipping isoform {iso.get('display_name')}: {exc}")
                     continue
                 iso_profiles[iso['display_name']] = compute_plfold_profile(
-                    mrna, window=plfold_W, span=plfold_L, temperature=plfold_T,
+                    mrna, **plfold_kwargs,
                 )
 
         # Setup progress bars if requested
