@@ -30,7 +30,9 @@ filter:
   min_free_energy: -10.0
   check_rna_structure: true
   require_specificity: true
-  final_probes_per_gene: 3
+  # NOTE: probes per gene is a SELECTION knob, not a filter one — use the
+  # `--top-n` CLI option. The former `final_probes_per_gene` key here was never
+  # a FilterConfig field, so the loader silently ignored it.
   # Phase 1A (2026-05-14): target-accessibility gate. When > 0, RNAplfold
   # profiles are computed per isoform and the mean unpaired-probability of
   # each candidate window is gated. 0.30 is recommended once Phase 1A is

@@ -31,7 +31,9 @@ filter:
   min_free_energy: -10.0
   check_rna_structure: true
   require_specificity: true
-  final_probes_per_gene: 3
+  # NOTE: probes per gene is a SELECTION knob, not a filter one — use the
+  # `--top-n` CLI option. The former `final_probes_per_gene` key here was never
+  # a FilterConfig field, so the loader silently ignored it.
 
 blast:
   blast_type: "local"

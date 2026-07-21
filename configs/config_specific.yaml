@@ -30,7 +30,9 @@ filter:
   min_free_energy: -10.0
   check_rna_structure: true
   require_specificity: true
-  final_probes_per_gene: 3
+  # NOTE: probes per gene is a SELECTION knob, not a filter one — use the
+  # `--top-n` CLI option. The former `final_probes_per_gene` key here was never
+  # a FilterConfig field, so the loader silently ignored it.
   # Phase 1A: target-accessibility gate (RNAplfold). 0 disables; set to 0.30 to enable.
   # Geometry per Lange 2012 (W = L + 50, L ~ 100); omitting plfold_temperature
   # makes folding track the reaction temperature. See config_consensus.yaml.
