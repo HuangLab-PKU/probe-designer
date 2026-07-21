@@ -10,7 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "pandas",
-    "biopython",
+    "biopython>=1.78",
     "requests",
     "pyyaml",
     "tqdm",
@@ -18,6 +18,9 @@ dependencies = [
     "beautifulsoup4",
     "typer>=0.12",
     "python-dotenv>=1.0",
+    # DNA nearest-neighbor duplex energies; imported unguarded by the
+    # cross-ligation and orthogonality screens (audit R10).
+    "primer3-py>=2.0.0",
 ]
 
 [project.optional-dependencies]
