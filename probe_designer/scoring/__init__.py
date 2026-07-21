@@ -78,11 +78,15 @@ def compute_target_score(
     if arm3 and arm3[-1] in "GCgc":
         score += 0.5
 
+    # `free_energy` is None when no ΔG was computed for this site (audit R8) —
+    # the cDNA path and any accessibility-gated run never populate it. Absent
+    # and zero both contribute nothing, which is why the historical 0.0
+    # sentinel went unnoticed.
     # NOTE: docstring claims 'dG=0 -> 1.0 (best)' but the guard is `if mfe < 0`
-    # so mfe=0 actually contributes 0. Phase 1 characterization tests lock
+    # so a genuine mfe=0 also contributes 0. Phase 1 characterization tests lock
     # this behavior; behavior change is a separate decision.
-    mfe = site.get("free_energy", 0)
-    if mfe < 0:
+    mfe = site.get("free_energy")
+    if mfe is not None and mfe < 0:
         score += max(0.0, 1.0 - abs(mfe) / 10.0)
 
     return round(score, 3)

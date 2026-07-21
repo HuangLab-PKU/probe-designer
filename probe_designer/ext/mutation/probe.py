@@ -24,6 +24,18 @@ from probe_designer.config import SearchConfig, FilterConfig, BlastConfig
 from probe_designer.filtering import SequenceFilter
 
 
+def mfe_penalty_from(free_energy: Optional[float]) -> float:
+    """Positive structure penalty from a target self-fold ΔG (lower = better).
+
+    ``free_energy`` is ``None`` whenever no ΔG was computed for the site — the
+    cDNA path and any accessibility-gated run never populate it (audit R8) — in
+    which case the term contributes nothing rather than raising on ``-None``.
+    """
+    if free_energy is None:
+        return 0.0
+    return -float(free_energy)
+
+
 class MutationProbeDesigner:
     """Designs padlock probes for mutation detection."""
     
@@ -284,8 +296,9 @@ class MutationProbeDesigner:
                 # Calculate score (lower is better)
                 tm_diff = abs(thermal_result['tm_5prime'] - thermal_result['tm_3prime'])
                 arm_len_diff = abs(arm5_len - ini_arm_len) + abs(arm3_len - ini_arm_len)
-                mfe_penalty = -thermal_result['free_energy']  # Convert to positive penalty
-                score = tm_diff + arm_len_diff + mfe_penalty
+                score = tm_diff + arm_len_diff + mfe_penalty_from(
+                    thermal_result['free_energy']
+                )
                 
                 candidate = {
                     'arm5_len': arm5_len,

@@ -102,7 +102,11 @@ class SequenceFilter:
             'tm_3prime': 0.0,
             'tm_5prime': 0.0,
             'tm_diff': 0.0,
-            'free_energy': 0.0,
+            # None = not computed. The self-fold MFE below only runs on the
+            # legacy RNA path; on cDNA, or whenever accessibility supersedes it,
+            # there is no ΔG to report and 0.0 would read as "unstructured"
+            # (audit R8).
+            'free_energy': None,
             'has_consecutive_g': False,
             'failed_checks': [],
             'arm_3prime_length': len(arm_3prime),
@@ -217,13 +221,16 @@ class SequenceFilter:
             if not _HAS_VIENNARNA:
                 warnings.warn("ViennaRNA not installed; skipping RNA structure check")
             else:
-                try:
-                    _, mfe = RNA.fold(target_sequence)
-                    result['free_energy'] = mfe
-                    if mfe < min_free_energy:
-                        result['failed_checks'].append('rna_structure')
-                except Exception:
-                    result['failed_checks'].append('rna_structure_error')
+                # No try/except: a ViennaRNA failure here is a real problem
+                # (bad sequence, broken install) and must surface rather than
+                # be recorded as a filter result. The previous bare
+                # `except Exception` swallowed the traceback and reported it as
+                # a 'rna_structure_error' check, hiding install issues behind
+                # what looked like ordinary probe rejections.
+                _, mfe = RNA.fold(target_sequence)
+                result['free_energy'] = float(mfe)
+                if mfe < min_free_energy:
+                    result['failed_checks'].append('rna_structure')
         
         # 7. Determine if all checks passed
         result['passed'] = len(result['failed_checks']) == 0
