@@ -9,8 +9,9 @@ Added in Phase 1:
   between selections (migrated from webapp task_runner._auto_select_top_n).
 """
 
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Optional
 
+from ..policy import DEFAULT_POLICY, ThermoPolicy
 from .scorer import compute_off_target_score
 from .selection import select_score_peaks, select_top_n_with_gap
 
@@ -26,20 +27,26 @@ __all__ = [
 
 def compute_target_score(
     site: Dict[str, Any],
-    min_arm_tm: float = 50.0,
-    max_tm_diff: float = 10.0,
+    policy: Optional[ThermoPolicy] = None,
     total_isoforms: int = 1,
 ) -> float:
     """Compute composite quality score for a target region (0-10 scale).
 
-    Components (higher = better):
+    Components (higher = better) and their weights:
     1. isoform_coverage (0-3): fraction of isoforms covered
     2. blast_support (0-2): same-gene mRNA hit count (after specificity filter)
-    3. tm_proximity (0-2): arms closer to min_arm_tm preferred
+    3. tm_proximity (0-2): arm Tm near the policy target
     4. tm_balance (0-1): smaller |tm_5prime - tm_3prime|
     5. terminal_gc (0-1): G/C at padlock ligation point (arm5 5'-end, arm3 3'-end)
     6. delta_g (0-1): lower MFE = more stable = better
+
+    The weights live here; the Tm *thresholds and shapes* live on
+    :class:`~probe_designer.policy.ThermoPolicy` so the ranker and the filter
+    cannot disagree about them (audit R7). Pre-2026-07-21 this took loose
+    ``min_arm_tm`` / ``max_tm_diff`` floats that defaulted independently of
+    FilterConfig — pass ``ThermoPolicy.resolve(config)`` instead.
     """
+    policy = policy or DEFAULT_POLICY
     score = 0.0
 
     overlap = site.get("isoform_overlap_num", 1)
@@ -60,19 +67,9 @@ def compute_target_score(
     tm5 = site.get("tm_5prime", 0)
     tm3 = site.get("tm_3prime", 0)
     if tm5 > 0 and tm3 > 0:
-        avg_tm = (tm5 + tm3) / 2
-        # Two-sided proximity to the reaction-anchored target Tm
-        # (min_arm_tm = lab_temp_c + tm_margin_c). Peaks at the target and
-        # falls off in BOTH directions: too-low arms won't stay bound at the
-        # hyb temperature, too-high arms lose specificity / Tm uniformity.
-        # (Pre-2026-07-19 this was one-sided — only penalized excess above.)
-        tm_dev = abs(avg_tm - min_arm_tm)
-        tm_range = 20.0
-        score += max(0, 2.0 * (1.0 - tm_dev / tm_range))
+        score += 2.0 * policy.tm_range_score((tm5 + tm3) / 2)
 
-    tm_diff = abs(tm5 - tm3)
-    if max_tm_diff > 0:
-        score += max(0, 1.0 * (1.0 - tm_diff / max_tm_diff))
+    score += 1.0 * policy.tm_balance_score(abs(tm5 - tm3))
 
     arm5 = site.get("arm_5prime", "")
     arm3 = site.get("arm_3prime", "")
@@ -81,11 +78,15 @@ def compute_target_score(
     if arm3 and arm3[-1] in "GCgc":
         score += 0.5
 
+    # `free_energy` is None when no ΔG was computed for this site (audit R8) —
+    # the cDNA path and any accessibility-gated run never populate it. Absent
+    # and zero both contribute nothing, which is why the historical 0.0
+    # sentinel went unnoticed.
     # NOTE: docstring claims 'dG=0 -> 1.0 (best)' but the guard is `if mfe < 0`
-    # so mfe=0 actually contributes 0. Phase 1 characterization tests lock
+    # so a genuine mfe=0 also contributes 0. Phase 1 characterization tests lock
     # this behavior; behavior change is a separate decision.
-    mfe = site.get("free_energy", 0)
-    if mfe < 0:
+    mfe = site.get("free_energy")
+    if mfe is not None and mfe < 0:
         score += max(0.0, 1.0 - abs(mfe) / 10.0)
 
     return round(score, 3)

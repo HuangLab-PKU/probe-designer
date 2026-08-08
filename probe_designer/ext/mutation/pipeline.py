@@ -137,17 +137,23 @@ def _build_filter_config(cfg: MutationConfig, chemistry: str) -> FilterConfig:
 
 
 def _build_plp_params(cfg: MutationConfig, chemistry: str) -> Dict[str, Any]:
-    chem = cfg.chemistry_params[chemistry]
+    """Arm-geometry parameters for candidate enumeration.
+
+    Geometry only. Every thermodynamic and composition rule (Tm window, GC,
+    homopolymers, MFE) reaches the designer through :func:`_build_filter_config`
+    — one path, so a threshold cannot be set in one place and read from another.
+
+    Until 2026-07-21 this also carried G_min/G_max/G_consecutive/Tm_low/Tm_high/
+    max_Tm_dif/mfe_thre, none of which any live code read: they were consumed by
+    the legacy ``plp_evaluation`` path that FilterConfig replaced. Dead keys that
+    look live are how ``max_arm_len_dif=cfg.max_tm_diff`` — a budget in
+    nucleotides fed a tolerance in degrees Celsius — went unnoticed (audit R4/R7).
+    """
     return dict(
-        G_min=cfg.g_content_range[0], G_max=cfg.g_content_range[1],
-        G_consecutive=cfg.g_consecutive_max,
-        Tm_low=chem.tm_range[0], Tm_high=chem.tm_range[1],
-        max_Tm_dif=cfg.max_tm_diff,
-        mfe_thre=cfg.mfe_min,
         ini_arm_len=cfg.ini_arm_len,
         min_arm_len=cfg.arm_len_range[0],
         max_arm_len=cfg.arm_len_range[1],
-        max_arm_len_dif=cfg.max_tm_diff,
+        max_arm_len_diff=cfg.max_arm_len_diff,
     )
 
 

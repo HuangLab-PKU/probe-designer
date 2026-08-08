@@ -87,52 +87,56 @@
 
 ### 3. Filter 配置
 
-```json
-"filter": {
-  "min_g_content": 0.3,
-  "max_g_content": 0.7,
-  "max_consecutive_g": 3,
-  "min_tm": 60.0,
-  "max_tm": 80.0,
-  "max_tm_diff": 5.0,
-  "min_free_energy": -5.0,
-  "check_rna_structure": true,
-  "max_alignments": 10,
-  "require_specificity": true,
-  "target_organisms": ["Mus musculus", "Homo sapiens"],
-  "final_probes_per_gene": 3
-}
+> **Source of truth:** `probe_designer/config/FilterConfig` (defaults) and
+> `configs/config_template.yaml` (annotated template). The values below are
+> illustrative; when they disagree with the dataclass, the dataclass wins.
+
+```yaml
+filter:
+  min_gc_content: 0.35       # Schema-v2 gate (GC%, not G-only)
+  max_gc_content: 0.65
+  max_consecutive_g: 5
+  min_tm: 50.0               # arm-Tm target = lab_temp_c + tm_margin_c
+  max_tm: 70.0
+  max_tm_diff: 5.0           # two-arm balance tolerance
+  enforce_tm_gate: false     # Tm rules are scoring references, not cutoffs
+  enforce_tm_diff_gate: false
+  min_free_energy: -10.0
+  check_rna_structure: true
+  max_alignments: 5
+  require_specificity: true
+  target_organisms: ["Mus musculus", "Homo sapiens"]
+  final_probes_per_gene: 3
 ```
 
-#### min_g_content / max_g_content
-- **含义**: G碱基含量的最小/最大值（0-1之间）
-- **可能的值**: 0.0-1.0
-- **推荐值**: `0.3-0.7`
-- **默认值**: `0.3` / `0.7`
+#### min_gc_content / max_gc_content
+- **含义**: 每条臂的 G+C 含量下/上限（Schema-v2 实际生效的门槛）
+- **推荐值**: `0.35-0.65`（2026-05-13 BZ23/TNBC 审计锚定）
+- **默认值**: `0.35` / `0.65`
+- 旧的 `min_g_content` / `max_g_content` 只数 G，已废弃，仅为向后兼容保留，不再生效。
 
 #### max_consecutive_g
-- **含义**: 允许的最大连续G碱基数量
-- **可能的值**: 正整数
-- **推荐值**: `3-4`
-- **默认值**: `3`
+- **含义**: 允许的最大连续 G 碱基数量（A/T/C 同样有各自的门槛）
+- **默认值**: `5`
 
 #### min_tm / max_tm
-- **含义**: 熔解温度的最小/最大值（摄氏度）
-- **可能的值**: 正数
-- **推荐值**: `50-80°C`
-- **默认值**: `60.0` / `80.0`
+- **含义**: 臂熔解温度的目标与上界（摄氏度），锚定到反应温度
+  `lab_temp_c + tm_margin_c`，并在真实缓冲液（含 Mg²⁺ 与甲酰胺）下计算
+- **默认值**: `50.0` / `70.0`
+- **注意**: 默认是**打分参考**而非硬门槛 —— 离目标越远排名越低，但不会被丢弃。
+  需要恢复硬性拒绝时把 `enforce_tm_gate` 设为 `true`。
 
 #### max_tm_diff
-- **含义**: 3'和5'臂之间的最大熔解温度差异
-- **可能的值**: 正数
-- **推荐值**: `5-10°C`
+- **含义**: 3' 与 5' 臂之间的熔解温度差异容忍度
+- **推荐值**: `3-5°C`（Larsson 2010 / Krzywkowski 2017）
 - **默认值**: `5.0`
+- **注意**: 同样是打分参考；`enforce_tm_diff_gate` 才会让它变成硬门槛。在 232 条已下单
+  探针上，5°C 的硬门槛会拒掉 17.7%，而作为打分参考则零代价。
 
 #### min_free_energy
-- **含义**: RNA二级结构的最小自由能（kcal/mol）
+- **含义**: RNA 二级结构的最小自由能（kcal/mol）
 - **可能的值**: 负数或0
-- **推荐值**: `-10.0` 到 `0.0`
-- **默认值**: `-5.0`
+- **默认值**: `-10.0`
 
 #### check_rna_structure
 - **含义**: 是否检查RNA二级结构
@@ -365,16 +369,19 @@
 ```
 
 ### 高特异性探针设计
-```json
-{
-  "filter": {
-    "min_tm": 65.0,
-    "max_tm": 75.0,
-    "max_tm_diff": 3.0,
-    "max_consecutive_g": 2
-  }
-}
+
+收紧容忍度并把它们打开成硬门槛 —— 只有在你确实愿意为特异性丢掉候选时才这么做。
+
+```yaml
+filter:
+  max_tm_diff: 3.0            # 更严格的双臂平衡
+  max_consecutive_g: 4
+  enforce_tm_gate: true       # 让 [min_tm, max_tm] 真正拒绝候选
+  enforce_tm_diff_gate: true
 ```
+
+若只是想提高杂交温度，改 `lab_temp_c` 即可 —— `min_tm` 会跟着
+`lab_temp_c + tm_margin_c` 一起移动，不需要手动改阈值。
 
 ### 快速筛选模式
 ```json

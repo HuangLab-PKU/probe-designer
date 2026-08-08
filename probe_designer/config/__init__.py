@@ -3,14 +3,16 @@ Configuration management module
 Manages all configurable parameters for DNA probe design.
 """
 
+import dataclasses
 import os
+import warnings
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 import json
 import yaml
 
-from probe_designer.chemistry import ReactionConditions
+from probe_designer.chemistry import FoldingConditions, ReactionConditions
 
 
 @dataclass
@@ -65,13 +67,21 @@ class FilterConfig:
     # (experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt).
     min_tm: float = 50.0  # min melting temperature (°C); = lab_temp_c + tm_margin_c
     max_tm: float = 70.0  # max melting temperature (°C); = lab_temp_c + 25
-    max_tm_diff: float = 10.0  # max Tm difference between 3' and 5' halves
+    # Two-arm balance. Tightened 10 -> 5 on 2026-07-21 (audit R4) to the
+    # Larsson 2010 / Krzywkowski 2017 field practice. It is a SCORING reference,
+    # not a cutoff: as a hard gate 5 C would have rejected 17.7% of 232 shipped
+    # probes (19.7% of cDNA), while as a reference it costs nothing and sharpens
+    # ranking exactly where the discrimination matters.
+    max_tm_diff: float = 5.0  # max Tm difference between 3' and 5' halves
     # 2026-07-19: the hard Tm-range gate is OFF by default. Absolute arm Tm is
     # now a SOFT scoring term (scoring.compute_target_score tm_proximity, peaked
     # at the reaction-anchored target min_tm) rather than a pass/fail cutoff, so
     # candidates rank by score instead of being dropped on Tm. min_tm/max_tm
     # remain the scoring target/reference. Set True to restore hard rejection.
+    # 2026-07-21: the balance rule joined it, for the same reason (audit R4).
+    # Both are read through policy.ThermoPolicy, shared with the ranker.
     enforce_tm_gate: bool = False
+    enforce_tm_diff_gate: bool = False
     min_free_energy: float = -10.0  # min free energy (kcal/mol)
     check_rna_structure: bool = False  # whether to check RNA secondary structure
     # --- Phase 1A: target-accessibility gate (RNAplfold) ---
@@ -80,10 +90,17 @@ class FilterConfig:
     # gates each candidate window on its mean accessibility. When
     # min_accessibility == 0 (default), the legacy check_rna_structure
     # self-fold path runs instead. See filtering/accessibility.py.
+    # Geometry re-anchored 2026-07-21 (audit R9) to Lange 2012: W = L + 50 with
+    # L ~ 100. The old W=70/L=40 could not represent a base pair spanning >40 nt,
+    # so sites behind a long-range stem read as open (mean p_unpaired over-stated
+    # by ~0.10 on real transcripts). Build a FoldingConditions via
+    # folding_conditions(); see chemistry.FoldingConditions.
     min_accessibility: float = 0.0  # 0 disables; recommended 0.30 when on
-    plfold_window: int = 70         # RNAplfold W (sliding window size)
-    plfold_span: int = 40           # RNAplfold L (max bp span within window)
-    plfold_temperature: float = 37.0  # °C; raise to 47-55 to approximate formamide
+    plfold_window: int = 150        # RNAplfold W (sliding window size)
+    plfold_span: int = 100          # RNAplfold L (max bp span within window)
+    # None = track the reaction (ReactionConditions.effective_celsius), so the
+    # accessibility that filters candidates matches the reference annotation.
+    plfold_temperature: Optional[float] = None
 
     # --- Reaction buffer (2026-07-17): the real hybridization conditions used
     #     for every Tm/ΔG calculation. Flat fields so the generic YAML loader
@@ -123,6 +140,17 @@ class FilterConfig:
             lab_temp_c=self.lab_temp_c,
             tm_margin_c=self.tm_margin_c,
             saltcorr=self.saltcorr,
+        )
+
+    def folding_conditions(self) -> FoldingConditions:
+        """Materialize the flat RNAplfold fields into a FoldingConditions.
+
+        Validation (fail-fast) happens in FoldingConditions.__post_init__.
+        """
+        return FoldingConditions(
+            window=self.plfold_window,
+            span=self.plfold_span,
+            temperature_c=self.plfold_temperature,
         )
 
 
@@ -313,6 +341,19 @@ class ConfigManager:
                     setattr(self.search, key, value)
         
         if 'filter' in config_data:
+            # Warn rather than silently discard: an unrecognised key is either a
+            # typo (`formamide_pc`) or a knob that never existed, and both used
+            # to vanish without a word. `final_probes_per_gene` lived in three
+            # shipped YAMLs that way while the real control was --top-n (R7).
+            unknown = [k for k in config_data['filter'] if not hasattr(self.filter, k)]
+            if unknown:
+                warnings.warn(
+                    f"{config_file}: ignoring unknown filter option(s) "
+                    f"{sorted(unknown)} — not a FilterConfig field. Check for a "
+                    "typo; probes-per-gene is set with --top-n, not in the config.",
+                    UserWarning,
+                    stacklevel=2,
+                )
             for key, value in config_data['filter'].items():
                 if hasattr(self.filter, key):
                     setattr(self.filter, key, value)
@@ -372,34 +413,12 @@ class ConfigManager:
                 'window_size': getattr(self.search, 'window_size', 50),
                 'step_size': self.search.step_size
             },
-            'filter': {
-                'min_gc_content': self.filter.min_gc_content,
-                'max_gc_content': self.filter.max_gc_content,
-                'min_g_content': self.filter.min_g_content,  # deprecated
-                'max_g_content': self.filter.max_g_content,  # deprecated
-                'max_consecutive_g': self.filter.max_consecutive_g,
-                'max_consecutive_a': self.filter.max_consecutive_a,
-                'max_consecutive_t': self.filter.max_consecutive_t,
-                'max_consecutive_c': self.filter.max_consecutive_c,
-                'min_tm': self.filter.min_tm,
-                'max_tm': self.filter.max_tm,
-                'max_tm_diff': self.filter.max_tm_diff,
-                'min_free_energy': self.filter.min_free_energy,
-                'check_rna_structure': self.filter.check_rna_structure,
-                'require_specificity': self.filter.require_specificity,
-                'final_probes_per_gene': getattr(self.filter, 'final_probes_per_gene', 3),
-                # Reaction buffer (2026-07-17)
-                'monovalent_mM': self.filter.monovalent_mM,
-                'mg_mM': self.filter.mg_mM,
-                'dntp_mM': self.filter.dntp_mM,
-                'strand_nM': self.filter.strand_nM,
-                'formamide_pct': self.filter.formamide_pct,
-                'formamide_deg_per_pct': self.filter.formamide_deg_per_pct,
-                'solvents': dict(self.filter.solvents),
-                'lab_temp_c': self.filter.lab_temp_c,
-                'tm_margin_c': self.filter.tm_margin_c,
-                'saltcorr': self.filter.saltcorr,
-            },
+            # Generated from the dataclass, never hand-listed: this block used
+            # to mirror FilterConfig's fields by hand and silently dropped every
+            # field added after it was written (enforce_tm_gate, the whole
+            # RNAplfold block, max_alignments, target_organisms), so a
+            # save -> load round trip lost settings (audit R7).
+            'filter': dataclasses.asdict(self.filter),
             'blast': {
                 'blast_type': self.blast.blast_type,
                 'database': self.blast.database,

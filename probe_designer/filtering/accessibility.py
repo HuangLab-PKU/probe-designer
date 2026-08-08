@@ -13,13 +13,19 @@ length-``len(seq)+1`` tuple of ``(_, p_unpaired_ulen1)`` rows. Index 0 is
 a placeholder; positions 1..N map to base 1..N. We expose a clean
 ``compute_plfold_profile`` returning a 0-indexed numpy array of length N.
 
+Window geometry (2026-07-21, audit R9): W and L come from
+``chemistry.FoldingConditions``, defaulting to Lange 2012's W = L + 50 with
+L ≈ 100. The previous W = 70 / L = 40 could not represent a base pair spanning
+more than 40 nt, so any site locked behind a long-range stem read as open —
+on real transcripts the shorter geometry over-states mean p_unpaired by ≈ 0.10.
+
 Experimental-conditions note: ViennaRNA defaults assume buffered conditions
-with no denaturant. Our hybridization buffer (~20% formamide, ~50 mM Na+,
-blocking tRNA, 37 °C) destabilizes RNA secondary structure — windows
-accessible at default plfold are *more* accessible in the wet-lab buffer,
-so the default gate is conservative. ``plfold_temperature`` is the only
-knob exposed; raising it to 47–55 °C is the documented re-calibration
-path if Phase 1A over-rejects probes that wet-lab confirms work.
+with no denaturant. Our hybridization buffer (~20% formamide) destabilizes RNA
+secondary structure, so folding happens at the *solvent-effective* temperature
+rather than a nominal 37 °C. ``FoldingConditions.temperature_c`` is ``None`` by
+default, meaning "track ``ReactionConditions.effective_celsius``" — this is what
+keeps the accessibility used to filter identical to the accessibility written
+into the reference annotation. Pin it to a number to decouple the two.
 
 Caching: per-(transcript_id, len, W, L, temperature) profiles are stored
 as ``.npy`` files under a caller-supplied directory. The cache key omits
@@ -34,6 +40,11 @@ from typing import Iterable, Optional, Sequence
 
 import numpy as np
 
+from probe_designer.chemistry import (
+    DEFAULT_FOLD_TEMPERATURE_C,
+    FoldingConditions,
+)
+
 try:
     import RNA  # ViennaRNA Python bindings (>= 2.7.0)
     _HAS_VIENNARNA = True
@@ -43,9 +54,13 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_WINDOW = 70
-DEFAULT_SPAN = 40
-DEFAULT_TEMPERATURE = 37.0
+# Single source of truth for the geometry: chemistry.FoldingConditions (audit
+# R9 / Lange 2012). These aliases stay so callers can keep importing constants,
+# but they are derived, not a second copy.
+_DEFAULTS = FoldingConditions()
+DEFAULT_WINDOW = _DEFAULTS.window
+DEFAULT_SPAN = _DEFAULTS.span
+DEFAULT_TEMPERATURE = DEFAULT_FOLD_TEMPERATURE_C
 
 
 def compute_plfold_profile(
@@ -60,11 +75,14 @@ def compute_plfold_profile(
     Args:
         seq: transcript sequence (DNA or RNA letters; U/T are equivalent for
             ViennaRNA's purposes — internally normalised).
-        window: sliding window size W (default 70). Lower for short
-            transcripts (e.g. 40 for CDR3 contexts).
-        span: maximum base-pair span L within the window (default 40).
-        temperature: folding temperature in °C (default 37.0). Raise to
-            approximate formamide-driven destabilization.
+        window: sliding window size W (default 150 = L + 50, Lange 2012).
+            Lower for short transcripts (e.g. 40 for CDR3 contexts); it is
+            clipped to ``len(seq)`` automatically.
+        span: maximum base-pair span L within the window (default 100).
+        temperature: folding temperature in °C (default 37.0, the bare
+            ViennaRNA convention). Callers with a buffer should pass
+            ``**FoldingConditions().plfold_kwargs(reaction)`` instead of
+            hand-picking this.
 
     Returns:
         ``np.ndarray`` of length ``len(seq)`` with ``p_unpaired`` ∈ [0, 1]

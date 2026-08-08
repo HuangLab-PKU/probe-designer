@@ -18,6 +18,13 @@ ipython>=8.0.0
 # ViennaRNA is now available on Windows, Linux, and macOS
 ViennaRNA>=2.7.0
 
+# Thermodynamics — DNA nearest-neighbor (SantaLucia) duplex/dimer energies.
+# Production path: qc/cross_ligation.py (cross-ligation screen) and
+# filtering/pairwise_duplex.py (panel orthogonality). Declared 2026-07-21
+# (audit R10) — it was imported but undeclared, so a fresh install ImportError'd
+# at run time instead of failing at install time.
+primer3-py>=2.0.0
+
 # Phase 3 (2026-05-14) — scRNA-seq panel-level QC (anndata + scanpy adapters).
 # The QC core works on raw NumPy matrices without these; install only if
 # you use compute_expression_qc_from_anndata or the --scrna-seq CLI flag.

@@ -48,9 +48,17 @@ filter:
   max_consecutive_a: 5  # Maximum consecutive A nucleotides per arm (Schema-v2)
   max_consecutive_t: 5  # Maximum consecutive T nucleotides per arm (Schema-v2)
   max_consecutive_c: 5  # Maximum consecutive C nucleotides per arm (Schema-v2)
-  min_tm: 50.0  # Minimum melting temperature (°C); anchored to lab_temp_c + tm_margin_c
-  max_tm: 70.0  # Maximum melting temperature (°C); anchored to lab_temp_c + 25
-  max_tm_diff: 10.0  # Maximum temperature difference between 3' and 5' arms (°C)
+  # Arm-Tm rules. These are SCORING references by default, not cutoffs: a
+  # candidate far from the target ranks lower but is not discarded, because the
+  # hybrid-Tm model carries a few degrees of error and a cliff throws away good
+  # probes for landing on the wrong side of it. Flip the enforce_* switches to
+  # restore hard rejection. Both the filter and the ranker read these through
+  # policy.ThermoPolicy, so they cannot drift apart.
+  min_tm: 50.0  # Arm-Tm target (°C); anchored to lab_temp_c + tm_margin_c
+  max_tm: 70.0  # Upper arm-Tm bound (°C); anchored to lab_temp_c + 25
+  max_tm_diff: 5.0  # Two-arm Tm balance tolerance (°C); Larsson 2010 / Krzywkowski 2017
+  enforce_tm_gate: false       # true = reject arms outside [min_tm, max_tm]
+  enforce_tm_diff_gate: false  # true = reject probes whose arms differ by > max_tm_diff
   min_free_energy: -10.0  # Minimum RNA secondary structure free energy (kcal/mol)
   check_rna_structure: true  # Whether to check RNA secondary structure
 

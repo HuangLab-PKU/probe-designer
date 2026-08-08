@@ -116,13 +116,74 @@ arms (`experiments/20260717_tm_buffer_config_impl/output/impact_summary.txt`).
 
 **Soft Tm scoring (2026-07-19).** The hard [min_tm, max_tm] gate is **off by
 default** (`FilterConfig.enforce_tm_gate = False`); absolute arm Tm is instead a
-**soft, two-sided** scoring term (`scoring.compute_target_score` `tm_proximity`)
-that peaks at the reaction-anchored target (`min_tm` = `lab_temp_c + tm_margin_c`,
-≈ 50 °C — a few °C above the 45 °C hyb temp so arms stay bound, per Krzywkowski
-2017) and falls off in both directions. Candidates rank by score rather than
-being dropped on Tm. `min_tm`/`max_tm` are the scoring target/reference; set
-`enforce_tm_gate = True` to restore the hard cutoff. TCR's per-clone selection
-(`ext/tcr/probe.filter_by_chemistry_tm`) still hard-gates — separate follow-up.
+**soft, two-sided** scoring term that peaks at the reaction-anchored target
+(`min_tm` = `lab_temp_c + tm_margin_c`, ≈ 50 °C — a few °C above the 45 °C hyb
+temp so arms stay bound, per Krzywkowski 2017) and falls off in both directions.
+Candidates rank by score rather than being dropped on Tm. `min_tm`/`max_tm` are
+the scoring target/reference; set `enforce_tm_gate = True` to restore the hard
+cutoff. TCR's per-clone selection also went soft in the same change.
+
+### 5a. One rule, one definition — `policy.ThermoPolicy` (2026-07-21)
+
+The arm-Tm rules used to exist **twice**: `filtering/` held the thresholds it
+rejects on, `scoring/` held its own copies to rank with — and they had drifted
+(`compute_target_score` defaulted to `min_arm_tm=50 / max_tm_diff=10` regardless
+of `FilterConfig`, whose own `min_tm` default of 45 contradicted every shipped
+YAML's 50). That is audit **R7**, and its cause is duplication rather than any
+one wrong number.
+
+`ThermoPolicy` now owns both the thresholds **and** their normalized 0–1 scoring
+shapes; `scoring` keeps only the composite *weights* (how much Tm proximity is
+worth against isoform coverage is a ranking decision, not a thermodynamic one),
+and `filtering` keeps its per-call override surface. Build one with
+`ThermoPolicy.resolve(filter_config)` or `ThermoPolicy.from_reaction(reaction)`
+— the latter re-anchors the target when you change `lab_temp_c`, so raising the
+hyb temperature moves what counts as a good arm without editing a threshold.
+
+| Parameter | Value | Set at | Source |
+|---|---|---|---|
+| Two-arm Tm balance | **5 °C** | `ThermoPolicy.max_tm_diff`; `FilterConfig.max_tm_diff`; `MutationConfig.max_tm_diff` | **Larsson et al. 2010** *Nat Methods* 7:395; **Krzywkowski & Nilsson 2017** — the two arms must be comparable; field practice ≤ 3–5 °C. |
+| Tm proximity falloff | **20 °C** | `ThermoPolicy.tm_falloff_c` | Deliberately wide: hybrid-Tm model error is a few °C (Banerjee 2020 reports 1.1 °C at best), so a narrow falloff would rank on noise. |
+
+**Impact of R4 (balance 10 → 5 °C).** Measured before changing anything, on 232
+shipped probes at the corrected buffer: as a **hard gate**, 5 °C rejects **17.7 %**
+(19.7 % of cDNA, 3.4 % of dRNA); 10 °C rejects 0.9 %. So the tolerance tightened
+as a **scoring reference** and the gate became soft
+(`enforce_tm_diff_gate = False`, matching `enforce_tm_gate`) — ranking gains the
+discrimination field practice asks for, and no probe is discarded. Set
+`enforce_tm_diff_gate = True` for a hard cutoff.
+(`experiments/20260717_tm_buffer_config_impl/output/phase3_summary.txt`)
+
+### 5b. Target accessibility — `chemistry.FoldingConditions` (2026-07-21)
+
+Accessibility asks whether a candidate window is *open* in the folded transcript
+(local RNAplfold `p_unpaired`, Lange 2012), which beats a per-window self-fold
+MFE and puts us ahead of MERFISH/Xenium (they filter only *probe* self-structure).
+The geometry that question is asked over used to be three loose numbers repeated
+across `FilterConfig`, `search_strategies`, `annotate`, `accessibility` and two
+YAMLs — the same duplication the buffer had before `ReactionConditions`, with the
+same consequence: `build_canonical_genome_annotations` silently ignored the
+caller's geometry, and the filter folded at a nominal 37 °C while the annotation
+writer folded at the solvent-effective temperature, so the two disagreed about
+the same transcript.
+
+| Parameter | Value | Set at | Source |
+|---|---|---|---|
+| Span `L` | **100 nt** | `FoldingConditions.span`; `FilterConfig.plfold_span` | **Lange et al. 2012**, *NAR* 40:5215 — the ViennaRNA `W = L = 70` default is artifact-prone; recommended `L ≈ 100`. |
+| Window `W` | **150 nt** (`= L + 50`) | `FoldingConditions.window`; `FilterConfig.plfold_window` | Lange 2012, `W = L + 50`. |
+| Folding temperature | **tracks the reaction** (`effective_celsius` ≈ 55 °C) | `FoldingConditions.temperature_c = None`; `FilterConfig.plfold_temperature` | Folding must happen in the same buffer the arm anneals in; `None` means "derive", so the accessibility that *filters* is the accessibility that gets *annotated*. Pin a number to decouple. |
+| Aggregation | mean `p_unpaired` over the arm footprint, expression-weighted across isoforms | `accessibility.mean_open_probability` / `aggregate_open_probability` | Lange 2012 (average over the footprint). |
+
+**Impact of R9 (`W=70,L=40` → `W=150,L=100`).** On 5 real transcripts the old
+geometry **over-stated** mean `p_unpaired` by **0.10** (0.64 → 0.54), with
+|Δ| > 0.1 at **half** of all bases — a span shorter than the real base-pair
+distance cannot represent a long-range stem, so a site locked behind one reads
+as open. Gate impact is negligible (**0.1 %** of 40-nt windows cross a 0.30
+accessibility gate), and the gate is off by default (`min_accessibility = 0`).
+`FoldingConditions.signature()` keys the geometry as well as the temperature, so
+profiles computed under different `W`/`L` cannot collide in a cache or an
+annotation directory.
+(`experiments/20260717_tm_buffer_config_impl/output/phase3_summary.txt`)
 
 ## 7. Tm as a reference annotation
 
@@ -163,3 +224,13 @@ window anchor (a junction-spanning arm is annotated at its anchor, not split).
 Biopython **1.85** · primer3-py **2.3.0** · ViennaRNA **2.7.0** · NUPACK **4.0.1.8**.
 Biopython changed its default `saltcorr` (5→0) across versions, so it is **set
 explicitly** everywhere (never relied on as a default).
+
+**Declaration (R10, 2026-07-21).** `primer3-py` backs the cross-ligation screen
+and the panel orthogonality screen — both production paths that import it
+unguarded — but was declared in neither `requirements.txt` nor `pyproject.toml`,
+so a fresh install only worked if the environment happened to provide it. It is
+now a hard dependency (`primer3-py>=2.0.0`) in both. `tests/unit/test_packaging_deps.py`
+lints the *class* of bug (imported-but-undeclared) across the thermodynamic
+libraries rather than re-asserting this one case. NUPACK stays undeclared on
+purpose: it needs academic registration and a manual install, and every call
+site is gated behind `has_nupack()`.

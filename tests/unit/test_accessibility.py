@@ -58,6 +58,42 @@ class TestComputePlfoldProfile:
         assert hot.mean() > cold.mean()
 
 
+class TestWindowGeometry:
+    """Audit R9 — why the Lange 2012 geometry (W=L+50, L~100) replaced W=70/L=40.
+
+    A span shorter than the real base-pair distance cannot represent a
+    long-range stem, so the site reads as *open* when it is in fact locked.
+    That is the artifact Lange 2012 describes, and the reason the default
+    over-estimates accessibility.
+    """
+
+    # 10 nt AT + 20 nt GC stem + 30 nt AT loop + its reverse complement + 10 nt AT.
+    # Outermost pair spans 69 nt: invisible to L=40, resolvable at L=100.
+    _STEM = "GGCCGGCCGGAAGGCCGGCC"
+    _RC_STEM = "GGCCGGCCTTCCGGCCGGCC"
+    SEQ = ("ATATATATAT" + _STEM + "ATATATATATATATATATATATATATATATAT"[:30]
+           + _RC_STEM + "ATATATATAT")
+    STEM_A = slice(10, 30)
+
+    def test_short_span_overestimates_accessibility_of_a_long_range_stem(self):
+        short = compute_plfold_profile(self.SEQ, window=70, span=40)
+        lange = compute_plfold_profile(self.SEQ, window=150, span=100)
+        # The stem is paired in reality; the longer span must see it as *less* open.
+        assert lange[self.STEM_A].mean() < short[self.STEM_A].mean()
+
+    def test_defaults_use_the_lange_geometry(self):
+        """A bare call must not silently fall back to the artifact-prone default."""
+        from probe_designer.filtering.accessibility import (
+            DEFAULT_SPAN,
+            DEFAULT_WINDOW,
+        )
+
+        assert (DEFAULT_WINDOW, DEFAULT_SPAN) == (150, 100)
+        default = compute_plfold_profile(self.SEQ)
+        lange = compute_plfold_profile(self.SEQ, window=150, span=100)
+        assert np.allclose(default, lange)
+
+
 class TestMeanOpenProbability:
     def test_correct_window_average(self):
         prof = np.array([0.1, 0.2, 0.3, 0.4, 0.5])

@@ -27,6 +27,7 @@ from probe_designer.pipeline.hooks import (
     ProgressHook,
 )
 from probe_designer.pipeline.result import GeneResult, PipelineResult
+from probe_designer.policy import ThermoPolicy
 from probe_designer.scoring import (
     compute_target_score,
     select_score_peaks,
@@ -234,8 +235,19 @@ class Pipeline:
             return result
 
         # 3. Pre-BLAST thermal filter (strategy-agnostic)
+        #    Isolated per gene like the search and BLAST stages: the filter now
+        #    lets a ViennaRNA failure propagate instead of recording it as an
+        #    ordinary probe rejection (audit R8), and without a boundary here one
+        #    degenerate target sequence would abort an entire multi-gene run.
+        #    The error stays visible in result.errors rather than being
+        #    downgraded to a per-candidate failed_check.
         self.progress.on_stage(gene, "pre_blast", {"n_in": len(sites)})
-        filtered_by_gene = self._seq_filter.pre_blast_filter({gene: sites})
+        try:
+            filtered_by_gene = self._seq_filter.pre_blast_filter({gene: sites})
+        except Exception as exc:
+            result.errors.append(f"pre-BLAST filter failed: {exc}")
+            logger.warning("[%s] pre-BLAST filter failed: %s", gene, exc)
+            return result
         sites = filtered_by_gene.get(gene, [])
         self.progress.on_stage(gene, "pre_blast", {"n_out": len(sites)})
 
@@ -266,8 +278,7 @@ class Pipeline:
         for site in sites:
             site["score"] = compute_target_score(
                 site,
-                min_arm_tm=self.config.filter.min_tm,
-                max_tm_diff=self.config.filter.max_tm_diff,
+                policy=ThermoPolicy.resolve(self.config.filter),
                 total_isoforms=total_isoforms,
             )
         selected = select_score_peaks(sites, min_distance=min_gap, max_n=top_n)
@@ -289,6 +300,7 @@ class Pipeline:
         from probe_designer.search_strategies import IsoformAwareness
 
         reaction = self.config.filter.reaction_conditions()
+        folding = self.config.filter.folding_conditions()
         arm_len = max(1, int(self.config.search.binding_site_length) // 2)
 
         seqs: Dict[str, str] = {}
@@ -311,6 +323,7 @@ class Pipeline:
 
         written = emit_annotations_for_sequences(
             seqs, reaction, self._annotations_dir, arm_length=arm_len,
+            folding=folding,
         )
 
         # Canonical-transcript genome projection (for IGV overlay on the
@@ -325,7 +338,7 @@ class Pipeline:
                     written += build_canonical_genome_annotations(
                         canonical, seqs[cname], reaction,
                         out_dir=self._annotations_dir / "genome",
-                        arm_length=arm_len, gene=gene,
+                        arm_length=arm_len, folding=folding, gene=gene,
                     )
                 except Exception as exc:
                     logger.warning("[%s] genome-projection annotation failed: %s",

@@ -183,14 +183,11 @@ class TcrProbeDesigner:
             g_5 = target_seq[:arm_len].count("G") / arm_len
             g_3 = target_seq[arm_len:].count("G") / arm_len
 
-            # MFE via ViennaRNA when available; 0.0 otherwise.
-            if _HAS_VIENNARNA:
-                try:
-                    _, mfe = RNA.fold(target_seq)
-                except Exception:
-                    mfe = 0.0
-            else:
-                mfe = 0.0
+            # MFE via ViennaRNA; None when unavailable (audit R8 — 0.0 would read
+            # as "unstructured" rather than "not computed"). No try/except: a
+            # ViennaRNA failure is a real problem and must surface, matching the
+            # mRNA path; the pipeline isolates it per gene.
+            mfe = RNA.fold(target_seq)[1] if _HAS_VIENNARNA else None
 
             sites.append({
                 "gene_name": name,
@@ -217,7 +214,7 @@ class TcrProbeDesigner:
                 "g_content": round((g_5 + g_3) / 2, 3),
                 "g_content_5prime": round(g_5, 3),
                 "g_content_3prime": round(g_3, 3),
-                "mfe": round(mfe, 2),
+                "mfe": None if mfe is None else round(mfe, 2),
                 # Allowed-subseq bounds (kept under cdr3_* keys for backwards
                 # compatibility with downstream Tm-landscape + xlsx readers).
                 "cdr3_start": sub_start,

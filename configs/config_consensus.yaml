@@ -26,20 +26,26 @@ filter:
   max_consecutive_c: 5
   min_tm: 50.0   # = lab_temp_c + tm_margin_c (45 + 5), re-anchored 2026-07-17
   max_tm: 70.0   # = lab_temp_c + 25
-  max_tm_diff: 10.0
+  max_tm_diff: 5.0    # two-arm balance tolerance (°C); scoring reference, gate is soft
   min_free_energy: -10.0
   check_rna_structure: true
   require_specificity: true
-  final_probes_per_gene: 3
+  # NOTE: probes per gene is a SELECTION knob, not a filter one — use the
+  # `--top-n` CLI option. The former `final_probes_per_gene` key here was never
+  # a FilterConfig field, so the loader silently ignored it.
   # Phase 1A (2026-05-14): target-accessibility gate. When > 0, RNAplfold
   # profiles are computed per isoform and the mean unpaired-probability of
   # each candidate window is gated. 0.30 is recommended once Phase 1A is
   # validated against a wet-lab panel; keep at 0 to use the legacy self-fold
   # MFE check for now.
+  # Geometry: Lange 2012 (W = L + 50, L ~ 100). The former W=70/L=40 could not
+  # represent a base pair spanning >40 nt, so sites behind a long-range stem
+  # read as open. Temperature is omitted on purpose — it then tracks the
+  # reaction (lab_temp_c + solvent depression), keeping this profile identical
+  # to the one written into the reference annotation. Set a number to pin it.
   min_accessibility: 0.0
-  plfold_window: 70
-  plfold_span: 40
-  plfold_temperature: 37.0   # raise to 47-55 to approximate formamide
+  plfold_window: 150
+  plfold_span: 100
 
 blast:
   blast_type: "local"
