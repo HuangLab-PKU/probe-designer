@@ -20,7 +20,9 @@ from probe_designer.ext.mutation.pipeline import run_mutation_pipeline
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 GENOME = REPO_ROOT / "data" / "genome" / "GRCh38.fa"
-BACKBONE = REPO_ROOT / "experiments" / "SPRINTseq_369_add_A_backbone.xlsx"
+# The backbone moved out of the experiments root when that tree was emptied
+# ("every loose file moves to its own layer"); the bank is now its only home.
+BACKBONE = REPO_ROOT / "backbones" / "SP369_add_A_v1" / "sequences.xlsx"
 BZ07_INPUT = (REPO_ROOT / "experiments" / "20260425_ZCH_BZ07_mut"
               / "input" / "BZ07_mutations.xlsx")
 

@@ -16,7 +16,9 @@ from probe_designer.ext.tcr.pipeline import run_tcr_pipeline
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-BACKBONE = REPO_ROOT / "experiments" / "SPRINTseq_369_add_A_backbone.xlsx"
+# The backbone moved out of the experiments root when that tree was emptied
+# ("every loose file moves to its own layer"); the bank is now its only home.
+BACKBONE = REPO_ROOT / "backbones" / "SP369_add_A_v1" / "sequences.xlsx"
 BZ23_TCR_INPUT = (
     REPO_ROOT / "experiments" / "20260418_ZCH_BZ23_TCR"
     / "input" / "BZ23_tcr_clones.xlsx"
