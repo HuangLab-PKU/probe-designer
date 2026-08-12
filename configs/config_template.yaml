@@ -24,7 +24,14 @@ search:
   
   # Search parameters (for single_sequence strategy)
   step_size: 1  # Step size for sliding window search (optional, only for single_sequence)
-  
+
+  # Isoform crediting (isoform_consensus / isoform_specific)
+  min_isoform_arm_nt: 16  # nt of the window that must be contiguous on EACH side of the
+                          # ligation junction in an isoform's own mRNA before that isoform
+                          # counts as targeted. 0 = credit any isoform the junction pairs on.
+  require_protein_coding: true  # drop sites that bind no protein-coding transcript of their
+                                # own gene (genes without one are exempt, with a warning)
+
   # Gene list file
   genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file argument)
 

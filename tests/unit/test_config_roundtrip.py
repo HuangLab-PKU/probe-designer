@@ -19,7 +19,7 @@ import dataclasses
 import pytest
 import yaml
 
-from probe_designer.config import ConfigManager, FilterConfig
+from probe_designer.config import ConfigManager, FilterConfig, SearchConfig
 
 SHIPPED_CONFIGS = [
     "config_consensus.yaml",
@@ -65,6 +65,31 @@ class TestRoundTrip:
         expected = {f.name for f in dataclasses.fields(FilterConfig)}
         assert expected - set(written) == set()
 
+    def test_every_search_field_survives_save_then_load(self, tmp_path):
+        # Same hand-written-dict trap as `filter`, one section over. The
+        # isoform-crediting knobs added 2026-08-02 are safety gates: losing
+        # them on a round trip silently reverts a run to the old behaviour.
+        cm = ConfigManager()
+        cm.search.min_isoform_arm_nt = 18
+        cm.search.require_protein_coding = False
+        cm.search.binding_site_length = 36
+        cm.search.step_size = 2
+
+        out = tmp_path / "roundtrip_search.yaml"
+        cm.save_config(str(out))
+
+        restored = ConfigManager()
+        restored.load_config(str(out))
+        assert dataclasses.asdict(restored.search) == dataclasses.asdict(cm.search)
+
+    def test_saved_yaml_carries_every_search_field(self, tmp_path):
+        cm = ConfigManager()
+        out = tmp_path / "full_search.yaml"
+        cm.save_config(str(out))
+        written = yaml.safe_load(out.read_text(encoding="utf-8"))["search"]
+        expected = {f.name for f in dataclasses.fields(SearchConfig)}
+        assert expected - set(written) == set()
+
 
 class TestBufferKnobsAreReachable:
     """Every ReactionConditions knob must be settable from a config file.
@@ -108,6 +133,16 @@ class TestNoDeadKeys:
             f"loader therefore ignores: {sorted(unknown)}"
         )
 
+    @pytest.mark.parametrize("name", SHIPPED_CONFIGS)
+    def test_shipped_yaml_search_keys_all_map_to_a_field(self, name):
+        data = yaml.safe_load((_configs_dir() / name).read_text(encoding="utf-8"))
+        known = {f.name for f in dataclasses.fields(SearchConfig)}
+        unknown = set(data.get("search") or {}) - known
+        assert not unknown, (
+            f"{name} sets search keys that SearchConfig does not define and the "
+            f"loader therefore ignores: {sorted(unknown)}"
+        )
+
     def test_loader_warns_instead_of_silently_dropping(self, tmp_path):
         cfg = tmp_path / "typo.yaml"
         cfg.write_text(
@@ -115,4 +150,13 @@ class TestNoDeadKeys:
         )
         cm = ConfigManager()
         with pytest.warns(UserWarning, match="formamide_pc"):
+            cm.load_config(str(cfg))
+
+    def test_loader_warns_on_an_unknown_search_key(self, tmp_path):
+        cfg = tmp_path / "typo_search.yaml"
+        cfg.write_text(
+            yaml.safe_dump({"search": {"min_isoform_arm": 16}}), encoding="utf-8",
+        )
+        cm = ConfigManager()
+        with pytest.warns(UserWarning, match="min_isoform_arm"):
             cm.load_config(str(cfg))

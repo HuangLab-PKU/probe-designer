@@ -32,6 +32,21 @@ class SearchConfig:
     search_strategy: str = "isoform_consensus"  # single_sequence, isoform_consensus, isoform_specific, exon_junction
     step_size: Optional[int] = None  # step size for single_sequence strategy
     genes_file: Optional[str] = None  # path to gene list file (can be overridden by command line)
+    # --- isoform crediting (isoform_consensus only), added 2026-08-02 ---
+    # An isoform counts as targeted when a contiguous run of ITS mRNA covers the
+    # ligation junction with at least this many window nt on each side — the
+    # lab's junction-centred core rule. Before this, `isoforms_union` credited
+    # any isoform merely overlapping the window, which inflated the coverage
+    # count AND (since the count is a ranking key) preferred windows straddling
+    # a splice boundary. See probe_designer/isoform_coverage.py and
+    # experiments/20260727_CRC_BRAF_round1/DESIGNER_ISSUE_isoform_coverage.md.
+    # 16 nt is the shortest arm that holds at the lab's 37 C / 10 nM hyb.
+    min_isoform_arm_nt: int = 16
+    # Drop candidates that bind no protein-coding transcript of their own gene.
+    # Six sites in the 2026-07-27 CRC panel were built on retained-intron or
+    # Ensembl-only transcripts and hit 0 coding transcripts at full length.
+    # Ignored (with a warning) for genes that have no coding transcript at all.
+    require_protein_coding: bool = True
 
 
 @dataclass
@@ -127,6 +142,12 @@ class FilterConfig:
     max_alignments: int = 5  # max allowed alignments (specificity)
     require_specificity: bool = True  # enforce specificity in BLAST filter
     target_organisms: List[str] = None  # target organisms to allow
+    # Fraction of the probe a same-gene alignment must span to count as a real
+    # on-target hit. Added 2026-08-02: the check was identity-only, so a probe
+    # matching its own gene over 32 of its 40 nt — what a site designed on a
+    # minor isoform looks like against the canonical transcript — passed like a
+    # 40/40 one. 0.95 leaves room for a trimmed terminal mismatch.
+    min_same_gene_coverage: float = 0.95
 
     def reaction_conditions(self) -> ReactionConditions:
         """Materialize the flat buffer fields into a ReactionConditions.
@@ -341,10 +362,23 @@ class ConfigManager:
                     setattr(self.database, key, value)
         
         if 'search' in config_data:
+            # Same reasoning as the `filter` block below: a key the loader
+            # cannot map is either a typo or a knob that never existed, and
+            # both used to vanish in silence (`window_size` sat in three
+            # shipped YAMLs that way).
+            unknown = [k for k in config_data['search'] if not hasattr(self.search, k)]
+            if unknown:
+                warnings.warn(
+                    f"{config_file}: ignoring unknown search option(s) "
+                    f"{sorted(unknown)} — not a SearchConfig field. Check for a "
+                    "typo; probes-per-gene is set with --top-n, not in the config.",
+                    UserWarning,
+                    stacklevel=2,
+                )
             for key, value in config_data['search'].items():
                 if hasattr(self.search, key):
                     setattr(self.search, key, value)
-        
+
         if 'filter' in config_data:
             # Warn rather than silently discard: an unrecognised key is either a
             # typo (`formamide_pc`) or a knob that never existed, and both used
@@ -411,13 +445,12 @@ class ConfigManager:
                 'coord_system_version': self.database.coord_system_version,
                 'max_retries': self.database.max_retries
             },
-            'search': {
-                'search_strategy': self.search.search_strategy,
-                'binding_site_length': self.search.binding_site_length,
-                'max_binding_sites': self.search.max_binding_sites,
-                'window_size': getattr(self.search, 'window_size', 50),
-                'step_size': self.search.step_size
-            },
+            # Generated from the dataclass for the same reason as `filter`
+            # below: the hand-listed version dropped every field added after it
+            # was written, and `min_isoform_arm_nt` / `require_protein_coding`
+            # are safety gates whose silent loss reverts a run to the old,
+            # over-crediting behaviour (audit R7, generalized 2026-08-02).
+            'search': dataclasses.asdict(self.search),
             # Generated from the dataclass, never hand-listed: this block used
             # to mirror FilterConfig's fields by hand and silently dropped every
             # field added after it was written (enforce_tm_gate, the whole

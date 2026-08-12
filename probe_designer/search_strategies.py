@@ -7,12 +7,14 @@ import os
 import sys
 import json
 import random  # noqa: F401 (reserved for future stochastic strategies)
+import warnings
 from typing import List, Dict, Any, Tuple, Optional
 from tqdm import tqdm  # noqa: F401 (progress bars may be enabled later)
 
 from .chemistry import reverse_complement
 from .config import SearchConfig, FilterConfig
 from .filtering import SequenceFilter
+from .isoform_coverage import IsoformCoverageIndex, coding_first
 
 
 class SearchStrategy:
@@ -208,26 +210,60 @@ class ExonJunctionStrategy(SearchStrategy):
 
 class IsoformAwareStrategy(SearchStrategy):
     """Unified strategy for isoform-aware probe design.
-    
+
     Supports two modes:
     - 'specific': Design probes unique to single isoforms (uses isoforms_intersection)
-    - 'consensus': Design probes that bind as many isoforms as possible (uses isoforms_union)
+    - 'consensus': Design probes that bind every isoform whose mRNA can actually
+      be ligated across the window (see probe_designer.isoform_coverage)
     """
-    
-    def __init__(self, search_config: SearchConfig, filter_config: FilterConfig, isoforms: List[Dict], 
+
+    def __init__(self, search_config: SearchConfig, filter_config: FilterConfig, isoforms: List[Dict],
                  genome_accessor=None, mode: str = 'consensus', show_progress: bool = False):
         super().__init__(search_config, filter_config, show_progress)
         if mode not in ('specific', 'consensus'):
             raise ValueError(f"Mode must be 'specific' or 'consensus', got '{mode}'")
         self.mode = mode
-        self.isoforms = isoforms
+        # Protein-coding transcripts first: the search walks isoforms in order
+        # and the position-dedup keeps whichever reached a window first, so
+        # this decides which transcript a shipped probe is recorded against.
+        self.isoforms = coding_first(isoforms) if isoforms else isoforms
         self.genome_accessor = genome_accessor
         self.awareness = IsoformAwareness(self.isoforms, self.genome_accessor) if (self.isoforms and self.genome_accessor) else None
         if not self.awareness:
             raise ValueError(f"IsoformAwareStrategy requires isoforms and genome_accessor")
-    
+
+        self.min_isoform_arm_nt = int(getattr(search_config, 'min_isoform_arm_nt', 16))
+        self.require_protein_coding = bool(
+            getattr(search_config, 'require_protein_coding', True)
+        )
+        self.coverage_index = IsoformCoverageIndex(self.isoforms)
+        if self.mode == 'consensus':
+            half_window = search_config.binding_site_length // 2
+            if self.min_isoform_arm_nt > half_window:
+                raise ValueError(
+                    f"min_isoform_arm_nt={self.min_isoform_arm_nt} exceeds half the "
+                    f"binding site ({half_window} nt); no window could satisfy it"
+                )
+        # Warned from search_binding_sites, where the gene name is known — in a
+        # multi-gene panel an unattributed warning is not actionable.
+        self._exempt_from_protein_coding = (
+            self.mode == 'consensus'
+            and self.require_protein_coding
+            and not self.coverage_index.has_protein_coding()
+        )
+        if self._exempt_from_protein_coding:
+            self.require_protein_coding = False
+
     def search_binding_sites(self, sequence: str, gene_name: str) -> List[Dict[str, Any]]:
         """Search binding sites using isoform-aware approach."""
+        if self._exempt_from_protein_coding:
+            warnings.warn(
+                f"[{gene_name}] no protein_coding transcript in the isoform set; "
+                "require_protein_coding is ignored for this gene and its sites "
+                "are credited to non-coding transcripts only.",
+                UserWarning,
+                stacklevel=2,
+            )
         # Initialize genome sequence (may take time on first call)
         _ = self.awareness.get_genome_seq()
 
@@ -330,6 +366,7 @@ class IsoformAwareStrategy(SearchStrategy):
                         regions.extend(self.awareness.get_overlapping_regions(reg_start, reg_end))
                     
                     # Determine target isoforms based on mode
+                    coverage: Dict[str, Any] = {}
                     if self.mode == 'specific':
                         target_isoforms = self.awareness.isoforms_intersection(regions)
                         # Only proceed if this position is unique to the current isoform
@@ -340,13 +377,31 @@ class IsoformAwareStrategy(SearchStrategy):
                             continue
                         covered = target_isoforms
                     elif self.mode == 'consensus':  # consensus mode
-                        covered = set(self.awareness.isoforms_union(regions))
+                        # An isoform is credited only when a contiguous run of
+                        # its own mRNA spans the ligation junction with
+                        # min_isoform_arm_nt on each side — mere overlap, which
+                        # `isoforms_union` used to accept, is not binding.
+                        coverage = self.coverage_index.credit(
+                            target_regions, strand, self.min_isoform_arm_nt,
+                        )
+                        covered = set(coverage)
                         if not covered:
                             current_pos += 1
-                            if position_pbar: 
+                            if position_pbar:
                                 position_pbar.update(1)
                             continue
-                    
+                        # A site that binds no protein-coding transcript of its
+                        # own gene cannot report that gene's expression, however
+                        # good its thermodynamics look.
+                        if self.require_protein_coding and not any(
+                            self.coverage_index.is_productive_isoform(name)
+                            for name in covered
+                        ):
+                            current_pos += 1
+                            if position_pbar:
+                                position_pbar.update(1)
+                            continue
+
                     # Get target sequence from regions
                     target_seq = self.awareness.get_target_seq(target_regions, strand)
                     
@@ -466,8 +521,23 @@ class IsoformAwareStrategy(SearchStrategy):
                         probe_dict['isoform_overlap_num'] = len(covered)
                         probe_dict['segments'] = target_regions  # Alias for target_regions
                     else:  # consensus
-                        probe_dict['target_isoforms'] = sorted(list(covered))
+                        probe_dict['target_isoforms'] = sorted(covered)
                         probe_dict['isoform_overlap_num'] = len(covered)
+                        # Per-isoform arm geometry: how much of each arm
+                        # survives in that transcript. Full length on the host
+                        # by construction; short where an exon boundary eats
+                        # into a distal end.
+                        probe_dict['isoform_coverage'] = {
+                            name: {
+                                'arm_3prime_nt': cov.arm_3prime_nt,
+                                'arm_5prime_nt': cov.arm_5prime_nt,
+                            }
+                            for name, cov in sorted(coverage.items())
+                        }
+                        probe_dict['protein_coding_overlap_num'] = sum(
+                            1 for name in covered
+                            if self.coverage_index.is_productive_isoform(name)
+                        )
                     
                     candidates.append(probe_dict)
                     current_pos += 1

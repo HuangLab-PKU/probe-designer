@@ -10,7 +10,6 @@ search:
   search_strategy: "isoform_specific"
   binding_site_length: 40
   max_binding_sites: 100
-  window_size: 50
   step_size: 1
   genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file)
 
