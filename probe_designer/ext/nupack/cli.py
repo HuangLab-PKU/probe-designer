@@ -43,10 +43,11 @@ def _run_ternary(
     out_dir: Optional[Path] = None,
 ) -> None:
     """Standalone ternary run on a bank-tracked pool."""
+    from probe_book.root import find_root
     from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
     from probe_designer.qc.cross_ligation import screen_cross_ligation_v2
 
-    repo_root = repo_root or Path.cwd()
+    repo_root = find_root(repo_root)
     out_dir = out_dir or (repo_root / "pools" / pool_id / "pool_check")
     out_dir.mkdir(parents=True, exist_ok=True)
 

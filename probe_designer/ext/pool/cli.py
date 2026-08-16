@@ -80,11 +80,12 @@ def check(
         )
 
     try:
+        from probe_book.root import find_root
         from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    root = (repo_root or Path.cwd()).resolve()
+    root = find_root(repo_root)
     try:
         probes = load_pool_as_probes_for_screen(pool_id, root)
     except (ImportError, FileNotFoundError) as exc:
@@ -154,10 +155,11 @@ def create_design(
     try:
         from probe_book.pool import PoolKind, PoolManifest
         from probe_book.probe import ProbeRegistry
+        from probe_book.root import find_root
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    root = (repo_root or Path.cwd()).resolve()
+    root = find_root(repo_root)
 
     probe_ids: List[str] = list(probe)
     if probes_file:
@@ -223,10 +225,11 @@ def promote(
     """
     try:
         from probe_book.pool import PoolKind, PoolManifest
+        from probe_book.root import find_root
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    root = (repo_root or Path.cwd()).resolve()
+    root = find_root(repo_root)
     mpath = root / "pools" / pool_id / "manifest.yaml"
     if not mpath.exists():
         raise typer.BadParameter(f"pool manifest not found: {mpath}")
