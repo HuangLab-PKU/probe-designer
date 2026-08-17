@@ -216,9 +216,9 @@ def command(
 
         splint_probes = None
         if target_pool:
-            from probe_book.root import find_root
+            from probe_book.root import resolve_root
             from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
-            root = find_root(repo_root)
+            root = resolve_root(repo_root)
             try:
                 splint_probes = load_pool_as_probes_for_screen(target_pool, root)
             except (ImportError, FileNotFoundError) as exc:

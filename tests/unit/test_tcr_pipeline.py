@@ -16,9 +16,15 @@ from probe_designer.ext.tcr.pipeline import run_tcr_pipeline
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+# The ledger became its own repo on 2026-08-16, so backbones/ sits one level
+# down while experiments/ stayed put. Probed inline rather than imported from
+# probe_book, because designer does not depend on the bank; falling back to
+# REPO_ROOT keeps this working against a pre-split checkout.
+_NESTED = REPO_ROOT / "ledger"
+LEDGER = _NESTED if (_NESTED / ".probe-ledger").is_file() else REPO_ROOT
 # The backbone moved out of the experiments root when that tree was emptied
 # ("every loose file moves to its own layer"); the bank is now its only home.
-BACKBONE = REPO_ROOT / "backbones" / "SP369_add_A_v1" / "sequences.xlsx"
+BACKBONE = LEDGER / "backbones" / "SP369_add_A_v1" / "sequences.xlsx"
 BZ23_TCR_INPUT = (
     REPO_ROOT / "experiments" / "20260418_ZCH_BZ23_TCR"
     / "input" / "BZ23_tcr_clones.xlsx"
