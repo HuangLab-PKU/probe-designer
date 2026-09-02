@@ -1,10 +1,14 @@
-"""Unit tests for ``probe_designer.qc.cross_ligation`` — v2 cross-lig screen.
+"""Unit tests for ``probe_designer.qc.cross_ligation`` — the v3 register scan.
 
-Tests the asymmetric (ligator: ``arm3+arm5`` rotated; splint: full assembled
-sequence) primer3-based screen with ligation-junction geometry verification
-via the ASCII parser.
+The tests that matter here are the **adversarial** ones. v2.2 passed a suite of
+perfect-match fixtures while being blind to any productive register that was
+not also the globally most stable alignment, which is the normal case in a real
+pool. ``test_productive_register_hidden_behind_*`` reproduces exactly that and
+is the regression guard for the 2026-09-02 audit; a perfect-match fixture alone
+proves almost nothing.
 
-This module has NO bank dependency (V3's static check enforces that).
+This module has NO bank dependency (the static check in
+``test_no_bank_import_in_qc.py`` enforces that for the package).
 """
 from __future__ import annotations
 
@@ -12,348 +16,366 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("primer3")
-
-
-from probe_designer.qc.cross_ligation import (  # noqa: E402
-    ProbeForScreen,
-    LigationDimer,
-    screen_cross_ligation_v2,
-    write_dimer_report,
+from probe_designer.chemistry import ReactionConditions, reverse_complement as rc
+from probe_designer.qc.cross_ligation import (
     DEFAULT_TM_THRESHOLD_C,
     DEFAULT_VICINITY_N,
-    _check_per_arm_vicinity,
+    LigationDimer,
+    ProbeForScreen,
+    build_v2_geom,
+    find_ligation_registers,
+    junction_block,
+    screen_cross_ligation_v2,
+    screen_self_circularisation,
+    write_dimer_report,
+    write_self_circ_report,
+    _build_geometry,
+    _fray_trim,
+    _register_window,
 )
 
 
-# ----------------------------------------------------------------------
-# Fixtures
-# ----------------------------------------------------------------------
+BB = "TCCCTACACGACGCTCTTCCG"
+# Fillers with no complementarity to the arms below, and none to each other.
+F1 = "GAGGAAGAGGAAGAGGAAGAGGA"
+F2 = "CTCCTTCTCCTTCTCCTTCTCCT"
+F3 = "AGAGGAAGAGGAAGAGGAAGAG"
+
+ARM5_A = "ACGTGCAGTCATGGCTAACG"
+ARM3_A = "TTGCCAGATCGTACGATCCA"
+#: The rotated ligator: arm3 then arm5, with the ligation nick in the middle.
+ROTATED_A = ARM3_A + ARM5_A
+#: A splint perfectly templating A's whole 40 nt ligation footprint.
+SPLINT40 = rc(ROTATED_A)
+#: 12 nt each side of the nick — comfortably ligation-competent on its own.
+CORE24 = SPLINT40[8:32]
+
+PROBE_A = ProbeForScreen("A", "dRNA", ARM5_A, ARM3_A, ARM5_A + BB + ARM3_A, "GENE_A")
 
 
-def _make_probe(probe_id: str, arm5: str, arm3: str, *,
-                chemistry: str = "dRNA", bb: str = "TCCCTACACGACGCTCTTCCG",
-                target: str = "TEST") -> ProbeForScreen:
-    """Helper: build a ProbeForScreen with sequence = arm5 + bb + arm3."""
-    return ProbeForScreen(
-        probe_id=probe_id, chemistry=chemistry,
-        probe_arm5=arm5, probe_arm3=arm3,
-        sequence=(arm5 + bb + arm3).upper(),
-        target=target,
+def _probe(pid: str, seq: str, target: str = "GENE_B") -> ProbeForScreen:
+    """A splint-side probe carrying ``seq``; its own arms are incidental."""
+    return ProbeForScreen(pid, "dRNA", seq[:20], seq[-20:], seq, target)
+
+
+def _ligator_hits(probes, ligator_id="A"):
+    _, dimers = screen_cross_ligation_v2(probes, include_self_pairs=False)
+    return [
+        d for d in dimers
+        if d.seq_a_id == ligator_id and d.seq_b_id != ligator_id
+    ]
+
+
+def _is_flagged(probes, ligator_id="A") -> bool:
+    return any(
+        d.flagged_overall and d.a_can_ligate_on_b
+        for d in _ligator_hits(probes, ligator_id)
     )
 
 
-# Safe pair — random arms with no meaningful complementarity at the junction
-SAFE_A = _make_probe("safe_A", "GCATAGCAGCAGCAGCATAG", "TGTGTGTGCACGCACGCATG", target="G1")
-SAFE_B = _make_probe("safe_B", "AAGAAGAAGAAGAAGAAGAA", "TTCTTCTTCTTCTTCTTCTT", target="G2")
+# ----------------------------------------------------------------------
+# Geometry primitives
+# ----------------------------------------------------------------------
 
 
-# True v2 cross-lig pair — B's arm5 is EXACTLY RC(A's rotated arm3+arm5),
-# so A's full 40-nt ligator (arm3+arm5) pairs contiguously inside B's arm5
-# WITHOUT spanning bb. The junction (A's pos 19/20) lands at adjacent B
-# positions inside that 20-nt region. Ligation-competent in v2.
-#
-# Build inputs:
-#   A's rotated = arm3_A + arm5_A (40 nt, junction at pos 19/20)
-#   B's arm5 = RC(A's rotated) — must be contiguous inside B
-#
-# Pick A:
-#   arm3_A = "GGGGGAAAATTTCCCAAGGG"  (20 nt — last base = 'G' is A's 3'-OH)
-#   arm5_A = "CCCAATTGCGCAATATCATG"  (20 nt — first base = 'C' is A's 5'-P)
-#   A_rotated = "GGGGGAAAATTTCCCAAGGGCCCAATTGCGCAATATCATG"
-#   RC(A_rotated) = "CATGATATTGCGCAATTGGGCCCTTGGGAAATTTTCCCCC"
-# So B's arm5 = RC(A_rotated). For the test we only care that v2's screen
-# finds the geometric match; pick arbitrary other B fields.
-_XLIG_A_ARM3 = "GGGGGAAAATTTCCCAAGGG"
-_XLIG_A_ARM5 = "CCCAATTGCGCAATATCATG"
-_XLIG_B_ARM5 = "CATGATATTGCGCAATTGGGCCCTTGGGAAATTTTCCCCC"  # RC of (arm3_A + arm5_A)
-
-XLIG_A = _make_probe("xlig_A", _XLIG_A_ARM5, _XLIG_A_ARM3, target="GX")
-# B is asymmetric — its full sequence (used as splint) must contain B's own
-# arm5 + bb + arm3. The arm5 here is 40 nt (= same as A_rotated length); the
-# arm3 is short and irrelevant. The screen treats this as a valid B.
-# NOTE: B's own ligator side won't be a clean cross-lig pair with A; we only
-# require A-as-ligator-on-B-as-splint to flag.
-XLIG_B = ProbeForScreen(
-    probe_id="xlig_B", chemistry="dRNA",
-    probe_arm5=_XLIG_B_ARM5,
-    probe_arm3="AAGCTTAACTGGCCATAAGT",          # arbitrary 20 nt
-    sequence=(_XLIG_B_ARM5 + "TCCCTACACGACGCTCTTCCG" + "AAGCTTAACTGGCCATAAGT").upper(),
-    target="GY",
-)
+def test_junction_block_is_last_of_arm3_then_first_of_arm5():
+    block = junction_block(ARM3_A, ARM5_A, 3)
+    assert len(block) == 2 * (3 + 1)
+    assert block == ARM3_A[-4:] + ARM5_A[:4]
 
 
-# Self-pair pattern (same gene, different probes that cross-lig) — mimics the
-# TNFRSF18 case found in the TNBC audit
-SELF_X1 = _make_probe("self_X1", "ACTGGCAGCTTCTGGCGTCT", "GCCCCGCTCTTCCTCGGGGA", target="GSELF")
-SELF_X2 = _make_probe("self_X2", "CCAAGCTGGGCCGAGGTCAG", "TCAGCTGCCAGATGTGCAGT", target="GSELF")
+def test_junction_block_empty_when_an_arm_is_too_short():
+    assert junction_block("AC", ARM5_A, 3) == ""
+    assert junction_block(ARM3_A, "AC", 3) == ""
 
 
-# iLock probe — junction sits one position earlier (arm3[1:] rotation)
-# Use an arm3 whose first base is irrelevant; the test just verifies the
-# offset arithmetic. We don't care about correct iLock biology here.
-ILOCK_A = ProbeForScreen(
-    probe_id="ilock_A", chemistry="iLock",
-    probe_arm5="GCAGCAGCAGCAGCAGCAGC",
-    probe_arm3="ATGCTGCTGCTGCTGCTGCTG",  # 21 nt — arm3[1:] = TGCTGCTGCTGCTGCTGCTG (20 nt)
-    sequence=("CGTTGCTGTGGCG"          # flap (13 nt)
-              + "G"                    # arm3[-1] linker (1 nt)
-              + "gcagcagcagcagcagcagc"  # arm5 lowercase (20 nt)
-              + "TCCCTACACGACGCTCTTCCG"  # bb (21 nt)
-              + "atgctgctgctgctgctgctg"  # arm3 lowercase (21 nt)
-              ).upper(),
-    target="GIL",
-)
+def test_find_registers_is_exact_on_a_constructed_splint():
+    """The needle sits at a known offset, so ``j`` is known exactly."""
+    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    splint = F1 + rc(geom.junction_block) + F2
+    registers = find_ligation_registers(geom, splint, DEFAULT_VICINITY_N)
+    assert registers == [len(F1) + DEFAULT_VICINITY_N]
+
+
+def test_register_window_puts_the_nick_between_j_and_j_plus_one():
+    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    splint = F1 + SPLINT40 + F2
+    j = find_ligation_registers(geom, splint, DEFAULT_VICINITY_N)[0]
+    lig_sub, c_sub, nick_idx = _register_window(
+        geom.ligator, len(geom.arm3_effective), len(geom.arm5), splint, j,
+    )
+    # arm3's 3'-OH is the base just before the nick; arm5's 5'-P just after.
+    assert lig_sub[nick_idx - 1] == geom.arm3_effective[-1]
+    assert lig_sub[nick_idx] == geom.arm5[0]
+    # And on a perfect splint the whole 40 nt pairs.
+    assert all(a != b for a, b in zip(lig_sub, c_sub))  # complementary, never equal
+    assert len(lig_sub) == len(ROTATED_A)
+
+
+def test_fray_trim_stops_at_two_consecutive_mismatches():
+    lig = "AAAA" + "GG" + "AAAA"
+    #     paired    mism   paired-again-but-unreachable
+    c = "TTTT" + "AA" + "TTTT"
+    left, right = _fray_trim(lig, c, nick_idx=2)
+    assert (left, right) == (0, 4), "helix must stop at the 2-mismatch run"
+
+
+def test_fray_trim_walks_through_a_single_mismatch():
+    lig = "AAAA" + "G" + "AAAA"
+    c = "TTTT" + "A" + "TTTT"
+    left, right = _fray_trim(lig, c, nick_idx=2)
+    assert (left, right) == (0, 9)
 
 
 # ----------------------------------------------------------------------
-# screen_cross_ligation_v2 — core behavior
+# Core screen behaviour
 # ----------------------------------------------------------------------
 
 
 def test_empty_probe_list_returns_empty():
-    tier1, dimers = screen_cross_ligation_v2([])
+    assert screen_cross_ligation_v2([]) == ([], [])
+
+
+def test_single_probe_has_no_cross_pair():
+    tier1, dimers = screen_cross_ligation_v2([PROBE_A], include_self_pairs=False)
     assert tier1 == [] and dimers == []
 
 
-def test_single_probe_no_pair():
-    tier1, dimers = screen_cross_ligation_v2([SAFE_A])
-    assert tier1 == [] and dimers == []
-
-
-def test_safe_pair_not_flagged():
-    """SAFE_A + SAFE_B should NOT flag (no junction-templating complementarity)."""
-    tier1, dimers = screen_cross_ligation_v2([SAFE_A, SAFE_B])
-    # Even if Tier 1 produces some seed hits by random k-mer collision, the
-    # Tier 2 ligation geometry check should kill them.
-    confirmed = [d for d in dimers if d.flagged_overall and d.a_can_ligate_on_b]
-    assert confirmed == []
-
-
-def test_xlig_pair_flagged_a_as_ligator():
-    """B's arm5 is RC of A's rotated arm3+arm5. v2 must flag A-as-ligator with
-    a_can_ligate_on_b=True (both junction positions paired on adjacent B
-    positions). B-as-ligator side is not required to flag (B's arms don't
-    contain the RC of B's own rotated form in A's splint).
-    """
-    tier1, dimers = screen_cross_ligation_v2([XLIG_A, XLIG_B])
-    a_as_ligator = [d for d in dimers if d.seq_a_id == "xlig_A"]
-    confirmed = [d for d in a_as_ligator if d.flagged_overall and d.a_can_ligate_on_b]
-    assert len(confirmed) >= 1, (
-        f"expected ≥1 confirmed A-as-ligator dimer; got dimers="
-        f"{[(d.seq_a_id, d.seq_b_id, d.flagged_overall, d.a_can_ligate_on_b, d.overall_tm_c) for d in dimers]}"
+def test_safe_pair_produces_no_register_at_all():
+    safe_a = ProbeForScreen(
+        "safe_A", "dRNA", "GCATAGCAGCAGCAGCATAG", "TGTGTGTGCACGCACGCATG",
+        "GCATAGCAGCAGCAGCATAG" + BB + "TGTGTGTGCACGCACGCATG", "G1",
     )
+    safe_b = ProbeForScreen(
+        "safe_B", "dRNA", "AAGAAGAAGAAGAAGAAGAA", "TTCTTCTTCTTCTTCTTCTT",
+        "AAGAAGAAGAAGAAGAAGAA" + BB + "TTCTTCTTCTTCTTCTTCTT", "G2",
+    )
+    tier1, dimers = screen_cross_ligation_v2(
+        [safe_a, safe_b], include_self_pairs=False,
+    )
+    assert tier1 == [] and dimers == []
 
 
-def test_xlig_pair_junction_b_positions_adjacent():
-    """v2.2: confirmed dimers must have b_3oh_pos - b_5p_pos == 1 (B's 5'→3'
-    index decreases by 1 across the nick because both arms anneal antiparallel
-    to B)."""
-    _, dimers = screen_cross_ligation_v2([XLIG_A, XLIG_B])
-    confirmed = [d for d in dimers if d.a_can_ligate_on_b]
-    assert confirmed, "test premise failed: no confirmed dimers"
-    for d in confirmed:
+def test_perfect_splint_is_flagged():
+    assert _is_flagged([PROBE_A, _probe("B", F1 + SPLINT40 + F2)])
+
+
+def test_flagged_dimer_has_nick_adjacent_geometry():
+    """``b_3oh - b_5p == +1``: both arms anneal antiparallel to the splint."""
+    for d in _ligator_hits([PROBE_A, _probe("B", F1 + SPLINT40 + F2)]):
         assert d.b_3oh_pos is not None and d.b_5p_pos is not None
-        assert d.b_3oh_pos - d.b_5p_pos == 1, (
-            f"junction not nick-adjacent on B: b_3oh={d.b_3oh_pos}, b_5p={d.b_5p_pos} "
-            f"(expected diff +1) for ligator={d.seq_a_id}"
-        )
+        assert d.b_3oh_pos - d.b_5p_pos == 1
+        assert d.b_5p_pos == d.nick_pos_on_b
 
 
-def test_self_pair_flagged():
-    """Two probes of the same gene with mutually-RC arms should flag in v2."""
-    tier1, dimers = screen_cross_ligation_v2([SELF_X1, SELF_X2])
-    confirmed = [d for d in dimers if d.flagged_overall and d.a_can_ligate_on_b]
-    # Self-pair pattern: arm5 ↔ RC(arm3) intra-gene. May or may not flag in
-    # this specific fixture (depends on actual base composition). Test just
-    # asserts the screen produces a result without crashing — we'll add a
-    # separately-crafted hard-self-pair in the audit comparison run.
-    assert isinstance(dimers, list)
+def test_partial_core_alone_is_flagged():
+    """24 bp across the nick is ligation-competent without the outer 16."""
+    assert _is_flagged([PROBE_A, _probe("B", F1 + CORE24 + F2)])
 
 
 # ----------------------------------------------------------------------
-# iLock arm3-effective handling (v2.2: arm3[1:] drops the overlap base)
+# The regression that v2.2 failed — a productive register that is not argmax
 # ----------------------------------------------------------------------
 
 
-def test_ilock_arm3_effective_uses_arm3_minus_one():
-    """For iLock probes, v2.2's ``build_v2_geom`` returns ``arm3[1:]`` as the
-    effective arm3 (the 1-nt overlap with the invader flap is consumed during
-    Taq FEN cleavage and is NOT part of the ligation substrate).
+@pytest.mark.parametrize("decoy_len", [12, 16, 20])
+def test_productive_register_hidden_behind_a_more_stable_decoy(decoy_len):
+    """The audit's killer case: same productive site, plus a better non-productive one.
+
+    ``CORE24`` is untouched and still ligation-competent. Elsewhere on the SAME
+    splint sits a longer perfect match for arm3 alone, which any argmax-based
+    method reports instead — v2.2 called all three of these safe. Since every
+    probe in a pool shares a backbone, a competing >=12 nt match is the norm,
+    not a contrivance.
     """
-    from probe_designer.qc.cross_ligation import build_v2_geom
-    arm3_eff, arm5, _ = build_v2_geom(ILOCK_A)
-    assert arm3_eff == ILOCK_A.probe_arm3[1:].upper(), (
-        f"iLock arm3_effective should be arm3[1:], got {arm3_eff} vs "
-        f"{ILOCK_A.probe_arm3[1:].upper()}"
-    )
-    assert arm5 == ILOCK_A.probe_arm5.upper()
+    decoy = rc(ARM3_A)[:decoy_len]
+    splint = F1 + decoy + F2 + CORE24 + F3
+    assert _is_flagged([PROBE_A, _probe("B", splint)])
 
 
-def test_ilock_screen_runs_without_crashing():
-    """Smoke test: iLock probe paired with another probe — screen should run
-    end-to-end and any confirmed dimer must satisfy nick-adjacency on B."""
-    _, dimers = screen_cross_ligation_v2([ILOCK_A, XLIG_B])
-    for d in dimers:
-        if d.seq_a_id == "ilock_A" and d.a_can_ligate_on_b:
-            assert d.b_3oh_pos is not None and d.b_5p_pos is not None
-            assert d.b_3oh_pos - d.b_5p_pos == 1
+def test_decoy_without_a_productive_register_stays_clean():
+    """The mirror image: a strong arm3 match but no nick — must not fire."""
+    splint = F1 + rc(ARM3_A) + F2 + F3
+    assert not _is_flagged([PROBE_A, _probe("B", splint)])
+    assert _ligator_hits([PROBE_A, _probe("B", splint)]) == []
 
 
-# ----------------------------------------------------------------------
-# Sanity assertion
-# ----------------------------------------------------------------------
+def test_register_tm_beats_either_arm_alone():
+    """The productive complex is one duplex across the nick, not two halves.
 
-
-def test_sanity_arm5_must_be_in_sequence():
-    """A ProbeForScreen whose sequence does NOT contain arm5 must raise
-    ValueError naming the probe_id.
+    Scoring the arms separately is what made a real site look weak enough to
+    lose its argmax; the joint duplex is the quantity that decides occupancy.
     """
-    bad = ProbeForScreen(
-        probe_id="bogus", chemistry="dRNA",
-        probe_arm5="GGGGGGGGGGGGGGGGGGGG",
-        probe_arm3="AAAAAAAAAAAAAAAAAAAA",
-        sequence="CCCCCCCCCCCCCCCCCCCC",   # no arm5 inside
-        target="X",
+    d = max(
+        _ligator_hits([PROBE_A, _probe("B", F1 + CORE24 + F2)]),
+        key=lambda x: x.overall_tm_c,
     )
-    with pytest.raises(ValueError) as exc:
-        screen_cross_ligation_v2([bad, SAFE_A])
-    assert "bogus" in str(exc.value)
+    assert d.overall_tm_c > d.arm3_tm_c
+    assert d.overall_tm_c > d.arm5_tm_c
+
+
+def test_limiting_arm_tm_is_the_min_not_the_max():
+    """Ligation needs BOTH arms annealed; v2.2 aggregated with ``max``."""
+    for d in _ligator_hits([PROBE_A, _probe("B", F1 + CORE24 + F2)]):
+        assert d.limiting_arm_tm_c == min(d.arm3_tm_c, d.arm5_tm_c)
 
 
 # ----------------------------------------------------------------------
-# Per-arm vicinity check — SplintR active-site clamp (v2.2 split-fragment)
+# Self-pairs and self-circularisation — unscreened before v3
 # ----------------------------------------------------------------------
 
 
-def test_default_vicinity_n_is_3():
-    """SplintR's active site clamps ~3 nt each side of the nick. The default
-    should match that — Lohman 2014 / Krzywkowski 2017 evidence."""
-    assert DEFAULT_VICINITY_N == 3
+def test_self_pair_is_screened_when_requested():
+    """A probe templating another copy of itself: ``combinations`` excluded it."""
+    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    # Give A a backbone carrying the RC of its own junction block, so a second
+    # copy of A can act as its splint.
+    seq = ARM5_A + "TCCCTA" + rc(geom.junction_block) + "CGCTCTTCCG" + ARM3_A
+    self_lig = ProbeForScreen("S", "dRNA", ARM5_A, ARM3_A, seq, "GENE_S")
+
+    _, without = screen_cross_ligation_v2([self_lig], include_self_pairs=False)
+    _, with_self = screen_cross_ligation_v2([self_lig], include_self_pairs=True)
+    assert without == []
+    assert [d for d in with_self if d.is_self_pair], "self-pair must be reachable"
 
 
-def test_vicinity_disabled_when_n_zero():
-    """``n_each_side = 0`` is the documented escape hatch — returns False
-    unconditionally (caller should ignore the field)."""
-    assert not _check_per_arm_vicinity("", "", 20, 20, 0)
+def test_self_circularisation_is_detected():
+    """One molecule presenting its own 3'-OH and 5'-P — no splint at all."""
+    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    spacer = "TCCCTACACGACGCTCTTCCGATCTACGT"   # long enough to clear both arms
+    seq = ARM5_A + spacer + rc(geom.junction_block) + spacer + ARM3_A
+    folder = ProbeForScreen("SC", "dRNA", ARM5_A, ARM3_A, seq, "GENE_SC")
+
+    hits = screen_self_circularisation([folder, PROBE_A])
+    assert [h.probe_id for h in hits] == ["SC"]
+    assert hits[0].junction_run_nt >= 2 * (DEFAULT_VICINITY_N + 1)
+    assert "^" in hits[0].alignment
 
 
-def test_vicinity_contiguous_clean_pair():
-    """XLIG_A + XLIG_B — arm3 and arm5 each anneal contiguously over their
-    full length on B's arm5 (which is RC of arm3+arm5). vicinity_contiguous
-    must be True for A-as-ligator."""
-    _, dimers = screen_cross_ligation_v2([XLIG_A, XLIG_B], vicinity_n_each_side=3)
-    confirmed = [
-        d for d in dimers
-        if d.seq_a_id == "xlig_A" and d.flagged_overall
-        and d.a_can_ligate_on_b and d.vicinity_contiguous
-    ]
-    assert confirmed, (
-        f"clean contiguous arm3 + arm5 pair must satisfy vicinity_contiguous; "
-        f"dimers={[(d.seq_a_id, d.seq_b_id, d.a_can_ligate_on_b, d.vicinity_contiguous) for d in dimers]}"
-    )
-
-
-def test_vicinity_field_carries_n_used():
-    """LigationDimer.vicinity_n_each_side records the parameter actually used."""
-    _, dimers = screen_cross_ligation_v2([XLIG_A, XLIG_B], vicinity_n_each_side=4)
-    for d in dimers:
-        if d.a_can_ligate_on_b:
-            assert d.vicinity_n_each_side == 4
-
-
-def test_vicinity_rejects_bulge_at_terminus_minus_1():
-    """Hand-crafted ASCII where arm3's last base (pos 19) is paired but pos 18
-    is unpaired (a bulge immediately upstream of 3'-OH). vicinity check fails."""
-    # arm3 of length 20: positions 0-19. Pair only positions 0-17, 19 (skip 18).
-    arm3_ascii_with_bulge = (
-        "SEQ\t                  T   \n"   # A_top: pos 18 = 'T' (unpaired bulge)
-        "SEQ\tAAAAAAAAAAAAAAAAAA A \n"    # A_mid: pos 0-17 paired + pos 19 paired
-        "STR\tTTTTTTTTTTTTTTTTTT T \n"    # B_mid mirroring
-        "STR\t                  A   \n"   # B_bot
-    )
-    # arm5 of length 20: all positions paired, contiguous (good).
-    arm5_ascii_clean = (
-        "SEQ\t                    \n"
-        "SEQ\tAAAAAAAAAAAAAAAAAAAA\n"
-        "STR\tTTTTTTTTTTTTTTTTTTTT\n"
-        "STR\t                    \n"
-    )
-    ok = _check_per_arm_vicinity(
-        arm3_ascii_with_bulge, arm5_ascii_clean,
-        arm3_eff_len=20, arm5_len=20, n_each_side=3,
-    )
-    assert not ok
-
-
-def test_vicinity_rejects_bulge_at_arm5_pos_1():
-    """Symmetric test for arm5: a bulge immediately downstream of 5'-P fails."""
-    arm3_ascii_clean = (
-        "SEQ\t                    \n"
-        "SEQ\tAAAAAAAAAAAAAAAAAAAA\n"
-        "STR\tTTTTTTTTTTTTTTTTTTTT\n"
-        "STR\t                    \n"
-    )
-    # arm5 of length 20: pos 0 paired, pos 1 unpaired (bulge), pos 2-19 paired
-    arm5_ascii_with_bulge = (
-        "SEQ\t T                  \n"   # A_top: pos 1 = 'T' (unpaired)
-        "SEQ\tA AAAAAAAAAAAAAAAAAA\n"   # A_mid: pos 0 + 2-19 paired
-        "STR\tT TTTTTTTTTTTTTTTTTT\n"
-        "STR\t A                  \n"
-    )
-    ok = _check_per_arm_vicinity(
-        arm3_ascii_clean, arm5_ascii_with_bulge,
-        arm3_eff_len=20, arm5_len=20, n_each_side=3,
-    )
-    assert not ok
+def test_self_circularisation_rejects_registers_overlapping_the_arms():
+    """A base cannot pair with itself, so an overlapping register is not a fold."""
+    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    # Same block, but with no room between the arms — the 40 nt register would
+    # have to reuse arm bases as its own template.
+    seq = ARM5_A + "TCCCTA" + rc(geom.junction_block) + "CGCTCTTCCG" + ARM3_A
+    cramped = ProbeForScreen("CR", "dRNA", ARM5_A, ARM3_A, seq, "GENE_CR")
+    assert screen_self_circularisation([cramped]) == []
 
 
 # ----------------------------------------------------------------------
-# write_dimer_report
+# iLock chemistry
 # ----------------------------------------------------------------------
+
+
+#: Satisfies the invader invariant ``arm5[0] == arm3[-1]`` that
+#: ``ext.mutation.probe.verify_iLock_probe`` enforces — both 'G' here.
+ILOCK = ProbeForScreen(
+    probe_id="ilock_A", chemistry="iLock",
+    probe_arm5="GCAGCAGCAGCAGCAGCAGC",
+    probe_arm3="ATGCTGCTGCTGCTGCTGCTG",     # 21 nt, ends in the shared 'G'
+    sequence=("CGTTGCTGTGGCG"               # flap
+              + "gcagcagcagcagcagcagc"      # arm5
+              + BB
+              + "atgctgctgctgctgctgctg").upper(),
+    target="GIL",
+)
+
+
+def test_ilock_invader_invariant_holds_for_the_fixture():
+    assert ILOCK.probe_arm5[0].upper() == ILOCK.probe_arm3[-1].upper()
+
+
+def test_ilock_removes_arm5_first_base_not_arm3_first_base():
+    """FEN1 cleaves the flap + ``arm5[0]`` block; ``arm3[-1]`` is the 3'-OH.
+
+    v2.2 returned ``arm3[1:]`` with arm5 whole — right 3'-OH base by accident,
+    5'-P one base early, so every iLock register was out of phase.
+    """
+    arm3_eff, arm5_eff, _ = build_v2_geom(ILOCK)
+    assert arm3_eff == ILOCK.probe_arm3.upper(), "arm3 must stay whole"
+    assert arm5_eff == ILOCK.probe_arm5[1:].upper(), "arm5 loses its first base"
+    assert arm3_eff[-1] == ILOCK.probe_arm3[-1].upper()   # the 3'-OH
+
+
+def test_ilock_junction_block_does_not_duplicate_the_snp_base():
+    """The shared base appears once at the nick, on the arm3 side."""
+    geom = _build_geometry(ILOCK, DEFAULT_VICINITY_N)
+    arm3 = ILOCK.probe_arm3.upper()
+    arm5 = ILOCK.probe_arm5.upper()
+    assert geom.junction_block == arm3[-4:] + arm5[1:5]
+    # The wrong v2.2 form would have carried arm3[-1] and arm5[0] — the same
+    # nucleotide — on both sides of the nick.
+    assert geom.junction_block != arm3[-4:] + arm5[:4]
+
+
+def test_non_ilock_arms_are_untouched():
+    arm3_eff, arm5_eff, _ = build_v2_geom(PROBE_A)
+    assert arm3_eff == ARM3_A and arm5_eff == ARM5_A
+
+
+# ----------------------------------------------------------------------
+# Guards and reports
+# ----------------------------------------------------------------------
+
+
+def test_disabling_the_clamp_is_rejected():
+    """n=0 would admit every position on every splint — fail loudly instead."""
+    with pytest.raises(ValueError, match="vicinity_n_each_side"):
+        screen_cross_ligation_v2([PROBE_A], vicinity_n_each_side=0)
+
+
+def test_arm_missing_from_sequence_raises():
+    bad = ProbeForScreen("bad", "dRNA", ARM5_A, ARM3_A, "ACGT" * 10, "G")
+    with pytest.raises(ValueError, match="registry inconsistent"):
+        screen_cross_ligation_v2([bad, PROBE_A])
+
+
+def test_threshold_is_honoured():
+    probes = [PROBE_A, _probe("B", F1 + SPLINT40 + F2)]
+    assert _is_flagged(probes)
+    _, dimers = screen_cross_ligation_v2(
+        probes, tm_threshold_c=200.0, include_self_pairs=False,
+    )
+    assert dimers, "the register still exists"
+    assert not any(d.flagged_overall for d in dimers), "but nothing clears 200 C"
 
 
 def test_write_dimer_report_smoke(tmp_path: Path):
-    _, dimers = screen_cross_ligation_v2([XLIG_A, XLIG_B])
-    out = tmp_path / "report.tsv"
+    _, dimers = screen_cross_ligation_v2(
+        [PROBE_A, _probe("B", F1 + SPLINT40 + F2)], include_self_pairs=False,
+    )
+    out = tmp_path / "dimers.tsv"
     write_dimer_report(dimers, out)
-    assert out.exists() and out.stat().st_size > 0
-
     text = out.read_text(encoding="utf-8")
-    # v2.2 schema headers
-    assert "seq_a_id" in text
-    assert "overall_tm_c" in text
-    assert "arm3_tm_c" in text
-    assert "arm5_tm_c" in text
-    assert "arm3_dimer_structure" in text
-    assert "arm5_dimer_structure" in text
-    assert "a_can_ligate_on_b" in text
-    assert "vicinity_contiguous" in text
-    assert "vicinity_n_each_side" in text
-    assert "b_3oh_pos" in text
+    header, *rows = text.splitlines()
+    for column in ("seq_a_id", "overall_tm_c", "limiting_arm_tm_c",
+                   "junction_run_nt", "nick_pos_on_b", "alignment"):
+        assert column in header
+    assert len(rows) == len(dimers)
+    assert "\\n" in rows[0], "the alignment must be escaped onto one line"
 
 
-def test_write_dimer_report_empty(tmp_path: Path):
-    """Writer must handle the no-dimers case (empty TSV with header only)."""
+def test_write_dimer_report_empty_writes_header_only(tmp_path: Path):
     out = tmp_path / "empty.tsv"
     write_dimer_report([], out)
-    assert out.exists()
-    text = out.read_text(encoding="utf-8")
-    assert "seq_a_id" in text   # header present
-    assert text.count("\n") == 1   # only header line
+    assert out.read_text(encoding="utf-8").strip().startswith("seq_a_id")
 
 
-# ----------------------------------------------------------------------
-# Bank-independence smoke (V3's static check covers this more strictly)
-# ----------------------------------------------------------------------
+def test_write_self_circ_report_smoke(tmp_path: Path):
+    out = tmp_path / "selfcirc.tsv"
+    write_self_circ_report([], out)
+    assert "probe_id" in out.read_text(encoding="utf-8")
 
 
-def test_no_bank_import_runtime():
-    """Importing cross_ligation should not transitively import probe_book."""
-    import sys
-    # Even if probe_book is installed, the cross_ligation module shouldn't
-    # have triggered its import as a side effect.
-    import probe_designer.qc.cross_ligation  # noqa: F401
-    # We don't assert probe_book is NOT in sys.modules — other tests may
-    # have loaded it earlier. We just assert cross_ligation doesn't
-    # statically reference it (the V3 AST test enforces this strictly).
+def test_reaction_conditions_change_the_score():
+    """The buffer is a parameter, not a constant baked into the screen."""
+    probes = [PROBE_A, _probe("B", F1 + SPLINT40 + F2)]
+    hot = ReactionConditions(monovalent_mM=500.0)
+    cold = ReactionConditions(monovalent_mM=10.0)
+    _, hot_dimers = screen_cross_ligation_v2(
+        probes, reaction=hot, include_self_pairs=False,
+    )
+    _, cold_dimers = screen_cross_ligation_v2(
+        probes, reaction=cold, include_self_pairs=False,
+    )
+    assert hot_dimers[0].overall_tm_c > cold_dimers[0].overall_tm_c

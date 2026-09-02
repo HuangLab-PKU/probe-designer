@@ -1,26 +1,52 @@
-"""NUPACK 4 ternary-complex cross-ligation Tier 3 (v2.3).
+"""NUPACK cross-ligation Tier 3 — split arms, with the tether restored as
+effective concentration.
 
-Given probes A (ligator) and B (splint), build a 3-strand NUPACK tube
-``{A.arm3_effective, A.arm5, B.sequence}``, enumerate complexes up to
-size 3 with ``SetSpec(max_size=3)``, find the productive
-(arm3·splint·arm5) ternary complex, and report:
+Given ligator A and splint B, build a 3-strand tube
+``{A.arm3_effective, A.arm5_effective, B.sequence}``, enumerate complexes up to
+size 3, find the productive (arm3 . splint . arm5) ternary and report its free
+energy (including coaxial stacking at the nick), its equilibrium concentration,
+the fraction of splint tied up in it, and whether the MFE structure puts A's
+3'-OH and 5'-P on adjacent bases of B.
 
-* its full ternary ΔG (incl. coaxial stacking at the nick, via
-  ``Model(ensemble='stacking')`` — the DEFAULT)
-* its equilibrium concentration at lab strand concentrations
-* fraction of splint participating in productive ternary
-* MFE dot-bracket structure of the ternary
-* MFE-geometry flags: nick-adjacent + per-arm vicinity ±n contiguous
+**Why the arms are split — and why they must stay split.** The obvious model is
+one tethered ligator strand plus the splint, so the backbone loop is handled by
+the partition function. It does not work: a padlock wrapped on a splint is a
+**pseudoknot**, and NUPACK's ensemble is nested (pseudoknot-free), so that
+complex cannot be represented at all. Verified 2026-09-02 on a minimal case — a
+32 nt ligator whose two 10 nt arms perfectly complement adjacent blocks of a
+20 nt splint: the MFE pairs one arm (10 bp, -15.1 kcal/mol) and leaves the other
+entirely unpaired, because pairing both would cross. Concretely, with the strands
+concatenated as (ligator | splint), the pair from A's 5'-P and the pair from its
+3'-OH always cross, at any register. Splitting the arms into separate strands is
+what makes the geometry expressible; it is a workaround for a model limitation,
+not a claim that the arms are independent. **Do not "fix" this back to two
+strands.**
 
-This module is the OPTIONAL Tier 3 above qc/cross_ligation.py's v2.2
-split-fragment screen. ``import nupack`` is LAZY — top-level
-``from probe_designer.ext.nupack.check import screen_ternary`` succeeds
-without nupack installed; only :func:`screen_ternary` itself raises a
-clear ImportError.
+**What the split does cost, and how it is paid back.** Free arms lose the
+tether: in reality, once one arm binds, the other is held next to the site at an
+effective local concentration set by the backbone loop, not at the bulk probe
+concentration. That is a large factor — roughly 500 uM for a 55 nt loop against
+0.1 uM in the tube, i.e. ~5000x — and v2.3 dropped it entirely by giving the
+arms the bulk concentration. Here the arm strands enter the tube at
+:func:`tether_effective_concentration` instead, which restores the dominant part
+of the cooperativity inside a model that can actually express the complex.
+
+The result is an **upper bound** on the productive complex: both arms get the
+tethered concentration, though physically only the second one to bind does.
+Upper-bounding is the right direction for a safety screen, and this is Tier 3 —
+the screening decision belongs to ``qc.cross_ligation``'s register scan, which is
+exhaustive and costs microseconds. This module answers the more expensive
+question, *how much* splint is tied up, for the handful of pairs that flags.
+Feed it ``prefilter_pairs``; a full N x (N-1) sweep is neither affordable nor
+useful.
+
+``import nupack`` is LAZY — importing this module succeeds without NUPACK
+installed; only :func:`screen_ternary` raises a clear ImportError.
 """
 from __future__ import annotations
 
 import csv
+import math
 from dataclasses import dataclass
 from itertools import combinations
 from pathlib import Path
@@ -40,48 +66,105 @@ from probe_designer.ext.nupack.config import (
 
 
 # ----------------------------------------------------------------------
+# The tether
+# ----------------------------------------------------------------------
+
+#: ssDNA persistence length (nm) and rise per nucleotide (nm), for the
+#: worm-like-chain mean-square end-to-end distance used below. Values are the
+#: standard ones for ssDNA at ~100 mM monovalent salt.
+SSDNA_PERSISTENCE_NM: float = 1.5
+SSDNA_RISE_PER_NT_NM: float = 0.63
+
+_AVOGADRO_PER_NM3_TO_M: float = 1e24 / 6.02214076e23   # molecules/nm^3 -> mol/L
+
+
+def tether_effective_concentration(loop_nt: int) -> float:
+    """Effective local concentration (M) of one chain end at the other.
+
+    Jacobson-Stockmayer: the probability density of finding the far end of a
+    Gaussian chain at the origin, ``(3 / (2 pi <r^2>))^(3/2)``, converted to
+    molar. ``<r^2> = 2 * l_p * L_c`` for a worm-like chain, with ``L_c`` the
+    contour length of the loop.
+
+    This is what the backbone buys a padlock: for a 55 nt loop it comes out
+    around 5e-4 M, five thousand times the ~1e-7 M bulk probe concentration.
+    Modelling the arms as free oligos at bulk concentration throws that away.
+
+    Raises ``ValueError`` for a non-positive loop, which would be a probe whose
+    arms are contiguous — not a padlock.
+    """
+    if loop_nt <= 0:
+        raise ValueError(
+            f"tether loop must be > 0 nt, got {loop_nt}; a padlock's arms are "
+            f"joined by a backbone, and with no loop there is nothing to tether"
+        )
+    contour_nm = SSDNA_RISE_PER_NT_NM * loop_nt
+    mean_square_nm2 = 2.0 * SSDNA_PERSISTENCE_NM * contour_nm
+    density_per_nm3 = (3.0 / (2.0 * math.pi * mean_square_nm2)) ** 1.5
+    return density_per_nm3 * _AVOGADRO_PER_NM3_TO_M
+
+
+def _loop_length_nt(probe: ProbeForScreen) -> int:
+    """Backbone nucleotides between the two arms of one probe."""
+    arm3_eff, arm5_eff, seq = build_v2_geom(probe)
+    arm5_end = seq.index(arm5_eff) + len(arm5_eff)
+    arm3_start = seq.rindex(arm3_eff)
+    return arm3_start - arm5_end
+
+
+# ----------------------------------------------------------------------
 # Public dataclass
 # ----------------------------------------------------------------------
 
 
 @dataclass
 class TernaryHit:
-    """One NUPACK ternary complex evaluation for an (A-ligator, B-splint) pair."""
+    """One NUPACK ternary evaluation for an (A-ligator, B-splint) pair."""
     seq_a_id: str
     seq_b_id: str
     a_target: str = ""
     b_target: str = ""
-    # Concatenation order in dot-bracket: arm3 + splint + arm5
+    # Concatenation order in the canonical dot-bracket: arm3 + splint + arm5
     arm3_len: int = 0
     splint_len: int = 0
     arm5_len: int = 0
     # NUPACK results
-    ternary_dg_kcal: float = 0.0          # full ternary ΔG at celsius (incl. coaxial)
-    ternary_concentration_m: float = 0.0  # equilibrium [arm3·splint·arm5]
+    ternary_dg_kcal: float = 0.0          # full ternary dG at celsius (incl. coaxial)
+    ternary_concentration_m: float = 0.0  # equilibrium [arm3.splint.arm5]
     ternary_fraction_of_b: float = 0.0    # ternary / total splint
     mfe_dotbracket: str = ""              # dot-bracket with '+' between strands
-    mfe_nick_adjacent: bool = False       # arm3 3'-OH + arm5 5'-P pair on adjacent splint bases
-    mfe_vicinity_contiguous: bool = False # per-arm ±n bases contiguous from terminus
-    b_3oh_pos: Optional[int] = None       # splint canonical 5'→3' partner of arm3 last base
-    b_5p_pos: Optional[int] = None        # splint canonical 5'→3' partner of arm5 first base
+    mfe_nick_adjacent: bool = False       # 3'-OH and 5'-P on adjacent splint bases
+    mfe_vicinity_contiguous: bool = False  # per-arm +/-n contiguous from terminus
+    b_3oh_pos: Optional[int] = None       # splint 5'->3' partner of arm3's last base
+    b_5p_pos: Optional[int] = None        # splint 5'->3' partner of arm5's first base
     # Audit / reproducibility
+    tether_loop_nt: int = 0
+    arm_conc_m: float = 0.0               # effective concentration used for the arms
     ensemble_used: str = "stacking"
     celsius_used: float = 55.0
     sodium_m: float = 0.075
     magnesium_m: float = 0.010
-    strand_conc_m: float = 1.0e-7
+    strand_conc_m: float = 1.0e-7         # bulk concentration of the splint
     vicinity_n_each_side: int = 3
+
+    @property
+    def flagged(self) -> bool:
+        """Enough splint tied up in a nick-adjacent complex to matter."""
+        return (
+            self.mfe_nick_adjacent
+            and self.mfe_vicinity_contiguous
+            and self.ternary_fraction_of_b > DEFAULT_FRACTION_THRESHOLD
+        )
 
 
 # ----------------------------------------------------------------------
-# Helpers: dot-bracket parsing for 3-strand concatenated structure
+# Dot-bracket parsing
 # ----------------------------------------------------------------------
 
 
 def _parse_dotbracket_pairs(dotbracket: str) -> Dict[int, int]:
-    """Parse a dot-bracket string (with '+' strand separators) into a
-    base-pair dict ``{pos_i: pos_j}`` where positions are CONCATENATED
-    coordinates (ignoring '+' chars).
+    """Parse a dot-bracket string (with '+' strand separators) into
+    ``{pos_i: pos_j}`` in CONCATENATED coordinates (ignoring '+' chars).
     """
     pairs: Dict[int, int] = {}
     stack: list[int] = []
@@ -93,7 +176,6 @@ def _parse_dotbracket_pairs(dotbracket: str) -> Dict[int, int]:
             stack.append(pos)
         elif ch == ")":
             if not stack:
-                # Malformed — silently skip
                 pos += 1
                 continue
             opener = stack.pop()
@@ -107,26 +189,22 @@ def _check_mfe_nick_geometry(
     pairs: Dict[int, int], arm3_len: int, splint_len: int,
 ) -> Tuple[bool, Optional[int], Optional[int]]:
     """In concatenated coords (arm3 | splint | arm5):
-        arm3's 3'-OH = concat pos (arm3_len - 1)
-        arm5's 5'-P  = concat pos (arm3_len + splint_len)
-    Returns ``(can_ligate, b_3oh, b_5p)`` where b_3oh / b_5p are splint
-    canonical 5'→3' positions (concat partner minus arm3_len). can_ligate
-    requires both ends pair to splint AND b_3oh - b_5p == 1.
-    """
-    arm3_3oh_concat = arm3_len - 1
-    arm5_5p_concat = arm3_len + splint_len
 
-    p3 = pairs.get(arm3_3oh_concat)
-    p5 = pairs.get(arm5_5p_concat)
+        arm3's 3'-OH = concat pos ``arm3_len - 1``
+        arm5's 5'-P  = concat pos ``arm3_len + splint_len``
+
+    Both must pair into the splint, and ``b_3oh - b_5p == 1`` — the same
+    antiparallel arithmetic the register scan uses. Splint-local positions are
+    returned.
+    """
+    p3 = pairs.get(arm3_len - 1)
+    p5 = pairs.get(arm3_len + splint_len)
     if p3 is None or p5 is None:
         return False, None, None
-    # Both partners must fall inside the splint range
-    if not (arm3_len <= p3 < arm3_len + splint_len):
+    lo, hi = arm3_len, arm3_len + splint_len
+    if not (lo <= p3 < hi) or not (lo <= p5 < hi):
         return False, None, None
-    if not (arm3_len <= p5 < arm3_len + splint_len):
-        return False, None, None
-    b_3oh = p3 - arm3_len
-    b_5p = p5 - arm3_len
+    b_3oh, b_5p = p3 - arm3_len, p5 - arm3_len
     return (b_3oh - b_5p == 1), b_3oh, b_5p
 
 
@@ -134,46 +212,36 @@ def _check_mfe_vicinity_contiguous(
     pairs: Dict[int, int], arm3_len: int, splint_len: int, arm5_len: int,
     n_each_side: int,
 ) -> bool:
-    """Per-arm vicinity contiguity on the MFE ternary structure.
+    """Ligase-clamp contiguity on both sides of the nick in the MFE structure.
 
-    arm3 (concat positions ``[0 .. arm3_len-1]``): last n+1 positions
-    must all pair to splint AND splint partners form strict descending run.
-    arm5 (concat positions ``[arm3_len+splint_len .. end]``): first n+1
-    positions same requirement.
+    arm3's last ``n+1`` bases and arm5's first ``n+1`` must each pair into the
+    splint along a strictly descending run — antiparallel, one base at a time,
+    no bulges.
     """
     if n_each_side <= 0:
         return False
     if arm3_len <= n_each_side or arm5_len <= n_each_side:
         return False
+    lo, hi = arm3_len, arm3_len + splint_len
+    arm5_base = arm3_len + splint_len
 
-    # arm3: positions [arm3_len - 1 - n .. arm3_len - 1] in concat coords
-    arm3_concat_positions = list(range(arm3_len - 1 - n_each_side, arm3_len))
-    for a in arm3_concat_positions:
-        p = pairs.get(a)
-        if p is None or not (arm3_len <= p < arm3_len + splint_len):
+    for positions in (
+        range(arm3_len - 1 - n_each_side, arm3_len),          # arm3 side
+        range(arm5_base, arm5_base + n_each_side + 1),        # arm5 side
+    ):
+        partners = []
+        for a in positions:
+            p = pairs.get(a)
+            if p is None or not (lo <= p < hi):
+                return False
+            partners.append(p - arm3_len)
+        if any(partners[i + 1] - partners[i] != -1 for i in range(len(partners) - 1)):
             return False
-    arm3_b_seq = [pairs[a] - arm3_len for a in arm3_concat_positions]
-    for i in range(len(arm3_b_seq) - 1):
-        if arm3_b_seq[i + 1] - arm3_b_seq[i] != -1:
-            return False
-
-    # arm5: positions [arm3_len+splint_len .. arm3_len+splint_len + n] in concat
-    base = arm3_len + splint_len
-    arm5_concat_positions = list(range(base, base + n_each_side + 1))
-    for a in arm5_concat_positions:
-        p = pairs.get(a)
-        if p is None or not (arm3_len <= p < arm3_len + splint_len):
-            return False
-    arm5_b_seq = [pairs[a] - arm3_len for a in arm5_concat_positions]
-    for i in range(len(arm5_b_seq) - 1):
-        if arm5_b_seq[i + 1] - arm5_b_seq[i] != -1:
-            return False
-
     return True
 
 
 # ----------------------------------------------------------------------
-# Core: single-direction NUPACK ternary call
+# Core: single-direction NUPACK call
 # ----------------------------------------------------------------------
 
 
@@ -182,11 +250,9 @@ def _evaluate_ternary_directional(
     ligator: ProbeForScreen, splint: ProbeForScreen,
     sodium_m: float, magnesium_m: float, celsius: float,
     ensemble: str, strand_conc_m: float, vicinity_n_each_side: int,
+    arm_conc_m: Optional[float] = None,
 ) -> Optional[TernaryHit]:
-    """Run a single 3-strand NUPACK ternary analysis (ligator's arm3 +
-    ligator's arm5 + splint's full sequence). Returns None if NUPACK
-    finds no productive ternary complex (very rare).
-    """
+    """One 3-strand NUPACK analysis. None if the ternary is not enumerated."""
     try:
         import nupack
     except ImportError as exc:
@@ -196,147 +262,109 @@ def _evaluate_ternary_directional(
             "and `pip install nupack-x.x.tar.gz` into the probe-design env."
         ) from exc
 
-    arm3_eff, arm5, splint_seq = build_v2_geom(ligator)
-    _, _, splint_b_seq = build_v2_geom(splint)
-    assert splint_seq != splint_b_seq or splint.probe_id == ligator.probe_id, (
-        "build_v2_geom returned different sequences for two probes — should be impossible"
-    )
-    splint_seq = splint_b_seq   # B's sequence is the splint
+    arm3_eff, arm5_eff, _ = build_v2_geom(ligator)
+    _, _, splint_seq = build_v2_geom(splint)
 
-    # Strands. NUPACK strand names appear in the dot-bracket order — we put
-    # arm3 first, splint second, arm5 third.
+    loop_nt = _loop_length_nt(ligator)
+    if arm_conc_m is None:
+        arm_conc_m = tether_effective_concentration(loop_nt)
+
     s_arm3 = nupack.Strand(arm3_eff, name="arm3")
     s_splint = nupack.Strand(splint_seq, name="splint")
-    s_arm5 = nupack.Strand(arm5, name="arm5")
+    s_arm5 = nupack.Strand(arm5_eff, name="arm5")
 
     tube = nupack.Tube(
-        strands={s_arm3: strand_conc_m, s_splint: strand_conc_m, s_arm5: strand_conc_m},
+        strands={
+            s_arm3: arm_conc_m,
+            s_splint: strand_conc_m,
+            s_arm5: arm_conc_m,
+        },
         complexes=nupack.SetSpec(max_size=3),
         name="cross_lig_tube",
     )
     model = nupack.Model(
-        material="dna",
-        celsius=celsius,
-        sodium=sodium_m,
-        magnesium=magnesium_m,
-        ensemble=ensemble,
+        material="dna", celsius=celsius,
+        sodium=sodium_m, magnesium=magnesium_m, ensemble=ensemble,
     )
+    result = nupack.tube_analysis(tubes=[tube], model=model, compute=["mfe"])
 
-    result = nupack.tube_analysis(
-        tubes=[tube], model=model,
-        compute=["mfe"],
-    )
+    target_strands = {s_arm3, s_splint, s_arm5}
+    productive = None
+    concentration = 0.0
+    free_energy = 0.0
+    splint_total = 0.0
+    for cplx, conc in result.tubes[tube].complex_concentrations.items():
+        strands = list(cplx.strands)
+        if s_splint in strands:
+            splint_total += float(conc) * strands.count(s_splint)
+        if len(strands) == 3 and set(strands) == target_strands:
+            productive = cplx
+            concentration = float(conc)
+            free_energy = float(result.complexes[cplx].free_energy)
 
-    # Find the productive ternary complex (3-strand, contains arm3 + splint + arm5)
-    target_strands = (s_arm3, s_splint, s_arm5)
-    productive_complex = None
-    productive_conc = 0.0
-    productive_dg = 0.0
-    for cplx, data in result.tubes[tube].complex_concentrations.items():
-        strands_in_cplx = tuple(cplx.strands)
-        if (set(strands_in_cplx) == set(target_strands)
-                and len(strands_in_cplx) == 3):
-            productive_complex = cplx
-            productive_conc = float(data)
-            productive_dg = float(result.complexes[cplx].free_energy)
-            break
-
-    if productive_complex is None:
-        # No productive ternary enumerated (essentially never happens with max_size=3)
+    if productive is None:
         return None
 
-    # Compute splint total concentration (sum over all complexes containing splint)
-    splint_total = 0.0
-    for cplx, data in result.tubes[tube].complex_concentrations.items():
-        if s_splint in cplx.strands:
-            splint_total += float(data) * cplx.strands.count(s_splint)
-    fraction_of_b = (productive_conc / splint_total) if splint_total > 0 else 0.0
-
-    # MFE structure of the productive ternary
-    mfe_structures = result.complexes[productive_complex].mfe
+    mfe_structures = result.complexes[productive].mfe
     if not mfe_structures:
         return None
-    mfe_struct = mfe_structures[0]
-    # Order the strands as (arm3, splint, arm5) in the dot-bracket
-    # NUPACK returns the MFE structure in the strand order it stored
-    # internally; we reorder by re-querying with explicit ordering.
-    # The simplest portable approach: get structure as str (which respects
-    # the strand order in the Complex), then parse pair indices in that order.
-    mfe_dotbracket = str(mfe_struct.structure)
+    dotbracket = str(mfe_structures[0].structure)
 
-    # The complex's strands attribute tells us the actual ordering used by NUPACK.
-    # Map strand-name → known sequence length so we can compute concat offsets
-    # without relying on str(Strand) returning the sequence.
+    # Remap NUPACK's own strand ordering onto the canonical (arm3 | splint | arm5).
     name_to_len = {
         "arm3": len(arm3_eff),
         "splint": len(splint_seq),
-        "arm5": len(arm5),
+        "arm5": len(arm5_eff),
     }
-    cplx_strand_order = list(productive_complex.strands)
-    strand_lens = [name_to_len[s.name] for s in cplx_strand_order]
-    offsets = [0]
-    for L in strand_lens:
-        offsets.append(offsets[-1] + L)
-    # Locate each named strand's offset by name (independent of NUPACK ordering)
-    name_offsets = {
-        s.name: offsets[i] for i, s in enumerate(cplx_strand_order)
-    }
-    arm3_offset = name_offsets["arm3"]
-    splint_offset = name_offsets["splint"]
-    arm5_offset = name_offsets["arm5"]
+    offsets: Dict[str, int] = {}
+    cursor = 0
+    for strand in productive.strands:
+        offsets[strand.name] = cursor
+        cursor += name_to_len[strand.name]
 
-    # Parse dot-bracket pairs in the complex's ordering
-    pairs_concat = _parse_dotbracket_pairs(mfe_dotbracket)
-    # Translate to (arm3 | splint | arm5) canonical ordering by remapping concat positions
-    # We need pairs as if order were (arm3, splint, arm5).
-    # Build a remap: original_concat_pos → canonical_concat_pos
     remap: Dict[int, int] = {}
-    # arm3 chunk
     for i in range(len(arm3_eff)):
-        remap[arm3_offset + i] = i
-    # splint chunk
+        remap[offsets["arm3"] + i] = i
     for i in range(len(splint_seq)):
-        remap[splint_offset + i] = len(arm3_eff) + i
-    # arm5 chunk
-    for i in range(len(arm5)):
-        remap[arm5_offset + i] = len(arm3_eff) + len(splint_seq) + i
+        remap[offsets["splint"] + i] = len(arm3_eff) + i
+    for i in range(len(arm5_eff)):
+        remap[offsets["arm5"] + i] = len(arm3_eff) + len(splint_seq) + i
 
-    pairs: Dict[int, int] = {}
-    for k, v in pairs_concat.items():
-        rk = remap.get(k); rv = remap.get(v)
-        if rk is not None and rv is not None:
-            pairs[rk] = rv
+    raw_pairs = _parse_dotbracket_pairs(dotbracket)
+    pairs = {
+        remap[k]: remap[v]
+        for k, v in raw_pairs.items()
+        if k in remap and v in remap
+    }
 
     can_ligate, b_3oh, b_5p = _check_mfe_nick_geometry(
         pairs, len(arm3_eff), len(splint_seq),
     )
     vicinity_ok = (
         _check_mfe_vicinity_contiguous(
-            pairs, len(arm3_eff), len(splint_seq), len(arm5), vicinity_n_each_side,
+            pairs, len(arm3_eff), len(splint_seq), len(arm5_eff),
+            vicinity_n_each_side,
         )
-        if can_ligate and vicinity_n_each_side > 0 else False
+        if can_ligate else False
     )
 
     return TernaryHit(
-        seq_a_id=ligator.probe_id,
-        seq_b_id=splint.probe_id,
-        a_target=ligator.target,
-        b_target=splint.target,
-        arm3_len=len(arm3_eff),
-        splint_len=len(splint_seq),
-        arm5_len=len(arm5),
-        ternary_dg_kcal=productive_dg,
-        ternary_concentration_m=productive_conc,
-        ternary_fraction_of_b=fraction_of_b,
-        mfe_dotbracket=mfe_dotbracket,
+        seq_a_id=ligator.probe_id, seq_b_id=splint.probe_id,
+        a_target=ligator.target, b_target=splint.target,
+        arm3_len=len(arm3_eff), splint_len=len(splint_seq),
+        arm5_len=len(arm5_eff),
+        ternary_dg_kcal=free_energy,
+        ternary_concentration_m=concentration,
+        ternary_fraction_of_b=(
+            concentration / splint_total if splint_total > 0 else 0.0
+        ),
+        mfe_dotbracket=dotbracket,
         mfe_nick_adjacent=can_ligate,
         mfe_vicinity_contiguous=vicinity_ok,
-        b_3oh_pos=b_3oh,
-        b_5p_pos=b_5p,
-        ensemble_used=ensemble,
-        celsius_used=celsius,
-        sodium_m=sodium_m,
-        magnesium_m=magnesium_m,
+        b_3oh_pos=b_3oh, b_5p_pos=b_5p,
+        tether_loop_nt=loop_nt, arm_conc_m=arm_conc_m,
+        ensemble_used=ensemble, celsius_used=celsius,
+        sodium_m=sodium_m, magnesium_m=magnesium_m,
         strand_conc_m=strand_conc_m,
         vicinity_n_each_side=vicinity_n_each_side,
     )
@@ -357,30 +385,36 @@ def screen_ternary(
     ensemble: str = DEFAULT_ENSEMBLE,
     strand_conc_m: float = DEFAULT_STRAND_CONC_M,
     vicinity_n_each_side: int = DEFAULT_VICINITY_N,
+    arm_conc_m: Optional[float] = None,
     on_progress: Optional[Any] = None,
 ) -> List[TernaryHit]:
-    """Run NUPACK 4 ternary-complex screen on (ligator, splint) directional pairs.
+    """NUPACK the productive ternary for directional (ligator, splint) pairs.
 
     Args:
-        probes: full probe list (ProbeForScreen).
-        prefilter_pairs: iterable of ``(ligator_id, splint_id)`` DIRECTIONAL
-            pairs to evaluate. If None, all directional combinations are
-            evaluated (~N×(N-1) calls — VERY slow for large pools).
-        sodium_m, magnesium_m, celsius, ensemble, strand_conc_m: NUPACK Model
-            and tube parameters (see :mod:`probe_designer.ext.nupack.config`).
-        vicinity_n_each_side: per-arm contiguity ±n requirement on MFE structure.
-        on_progress: optional callable ``(idx, total)`` invoked after each
-            pair evaluation, for batch-run progress tracking.
+        probes: full probe list.
+        prefilter_pairs: ``(ligator_id, splint_id)`` DIRECTIONAL pairs to
+            evaluate — normally the pairs ``qc.cross_ligation`` flagged. If
+            None, every directional pair runs, which is O(N^2) NUPACK calls and
+            only sane for a handful of probes.
+        sodium_m, magnesium_m, celsius, ensemble: NUPACK Model parameters.
+        strand_conc_m: bulk concentration of the splint strand.
+        arm_conc_m: concentration for the two arm strands. Defaults to the
+            ligator's own :func:`tether_effective_concentration`, restoring the
+            backbone's cooperativity; pass ``strand_conc_m`` explicitly to get
+            the v2.3 behaviour of untethered free arms.
+        vicinity_n_each_side: ligase-clamp contiguity on the MFE structure.
+        on_progress: optional ``(idx, total)`` callable for progress reporting.
 
-    Returns a list of :class:`TernaryHit`, one per directional pair where
-    the productive ternary was enumerated.
+    Returns one :class:`TernaryHit` per pair whose ternary NUPACK enumerated. A
+    pair that raises is **not** skipped: the exception propagates with both
+    probe ids attached, because a silently dropped pair is indistinguishable
+    from a clean one in the report.
 
     Raises ``ImportError`` if NUPACK 4 is not installed.
     """
     probe_by_id = {p.probe_id: p for p in probes}
 
     if prefilter_pairs is None:
-        # All directional pairs
         pair_list: list[Tuple[str, str]] = []
         for a, b in combinations(probes, 2):
             pair_list.append((a.probe_id, b.probe_id))
@@ -394,22 +428,24 @@ def screen_ternary(
         ligator = probe_by_id.get(lig_id)
         splint = probe_by_id.get(splint_id)
         if ligator is None or splint is None:
-            continue
+            raise KeyError(
+                f"pair ({lig_id}, {splint_id}) references a probe absent from "
+                f"the probe list"
+            )
         try:
             hit = _evaluate_ternary_directional(
                 ligator=ligator, splint=splint,
                 sodium_m=sodium_m, magnesium_m=magnesium_m, celsius=celsius,
                 ensemble=ensemble, strand_conc_m=strand_conc_m,
                 vicinity_n_each_side=vicinity_n_each_side,
+                arm_conc_m=arm_conc_m,
             )
         except ImportError:
-            # NUPACK missing — fatal for the whole audit, not a per-pair issue
             raise
         except Exception as exc:
-            # Single-pair failures (e.g. NUPACK numerical issues on
-            # degenerate sequences) should not kill the whole audit.
-            print(f"  [ternary skip] {lig_id} x {splint_id}: {exc}")
-            hit = None
+            raise RuntimeError(
+                f"NUPACK evaluation failed for ligator={lig_id} splint={splint_id}"
+            ) from exc
         if hit is not None:
             hits.append(hit)
         if on_progress is not None:
@@ -426,8 +462,9 @@ REPORT_COLUMNS: Tuple[str, ...] = (
     "seq_a_id", "seq_b_id", "a_target", "b_target",
     "arm3_len", "splint_len", "arm5_len",
     "ternary_dg_kcal", "ternary_concentration_m", "ternary_fraction_of_b",
-    "mfe_nick_adjacent", "mfe_vicinity_contiguous",
+    "mfe_nick_adjacent", "mfe_vicinity_contiguous", "flagged",
     "b_3oh_pos", "b_5p_pos",
+    "tether_loop_nt", "arm_conc_m",
     "ensemble_used", "celsius_used",
     "sodium_m", "magnesium_m", "strand_conc_m",
     "vicinity_n_each_side",
@@ -436,30 +473,28 @@ REPORT_COLUMNS: Tuple[str, ...] = (
 
 
 def write_ternary_report(hits: List[TernaryHit], tsv_path: Path | str) -> None:
-    """Write a list of TernaryHit to a TSV with v2.3 schema. Sorted by
-    ternary_fraction_of_b descending (most likely cross-lig first).
-    """
+    """Write hits to TSV, most splint tied up first."""
     tsv_path = Path(tsv_path)
     tsv_path.parent.mkdir(parents=True, exist_ok=True)
-    sorted_hits = sorted(hits, key=lambda h: h.ternary_fraction_of_b, reverse=True)
+    ordered = sorted(hits, key=lambda h: h.ternary_fraction_of_b, reverse=True)
 
-    def _esc(s: str) -> str:
-        return (s or "").replace("\n", "\\n").replace("\t", "\\t")
+    def _esc(text: str) -> str:
+        return (text or "").replace("\n", "\\n").replace("\t", "\\t")
 
-    with open(tsv_path, "w", encoding="utf-8", newline="") as f:
-        w = csv.writer(f, delimiter="\t")
-        w.writerow(list(REPORT_COLUMNS))
-        for h in sorted_hits:
-            b3 = h.b_3oh_pos if h.b_3oh_pos is not None else ""
-            b5 = h.b_5p_pos if h.b_5p_pos is not None else ""
-            w.writerow([
+    with open(tsv_path, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(list(REPORT_COLUMNS))
+        for h in ordered:
+            writer.writerow([
                 h.seq_a_id, h.seq_b_id, h.a_target, h.b_target,
                 h.arm3_len, h.splint_len, h.arm5_len,
                 f"{h.ternary_dg_kcal:.3f}",
                 f"{h.ternary_concentration_m:.3e}",
                 f"{h.ternary_fraction_of_b:.3e}",
-                h.mfe_nick_adjacent, h.mfe_vicinity_contiguous,
-                b3, b5,
+                h.mfe_nick_adjacent, h.mfe_vicinity_contiguous, h.flagged,
+                h.b_3oh_pos if h.b_3oh_pos is not None else "",
+                h.b_5p_pos if h.b_5p_pos is not None else "",
+                h.tether_loop_nt, f"{h.arm_conc_m:.3e}",
                 h.ensemble_used, f"{h.celsius_used:.1f}",
                 f"{h.sodium_m:.4f}", f"{h.magnesium_m:.4f}",
                 f"{h.strand_conc_m:.3e}",
@@ -472,5 +507,6 @@ __all__ = [
     "TernaryHit",
     "screen_ternary",
     "write_ternary_report",
+    "tether_effective_concentration",
     "REPORT_COLUMNS",
 ]

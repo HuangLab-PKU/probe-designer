@@ -81,6 +81,40 @@ def extract_binding_query(arm5: str, arm3: str, chemistry: str) -> str:
     return (arm3 + arm5).upper()
 
 
+def binding_query_junction_index(arm3: str) -> int:
+    """0-based index in the binding query where the arm5 side begins.
+
+    The ligation junction sits between ``query[idx-1]`` and ``query[idx]``, so
+    ``idx`` is simply the number of bases on the arm3 side. That is
+    ``len(arm3)`` for **both** chemistries: for iLock,
+    ``extract_binding_query`` drops the duplicated overlap base, and since
+    ``arm5[0] == arm3[-1]`` the string ``arm3[:-1] + arm5`` still carries a full
+    ``arm3`` in its first ``len(arm3)`` positions.
+    """
+    return len(arm3)
+
+
+def hsp_spans_junction(
+    query_from: int, query_to: int, junction_index: int, clamp_nt: int,
+) -> bool:
+    """Whether an HSP covers the ligation junction with the ligase's clamp.
+
+    ``query_from`` / ``query_to`` are BLAST's 1-based inclusive query
+    coordinates. The hit must cover ``clamp_nt`` bases on each side of the
+    junction — anything less cannot be closed by a ligase, so it is an
+    off-target the probe *binds*, not one it can circularise on.
+
+    This distinction is the whole point: a probe whose arm happens to match 15/15
+    somewhere is not a false-signal risk, while a 39/40 hit straddling the
+    junction very much is. Judging on identity alone conflates them.
+    """
+    if query_from <= 0 or query_to <= 0:
+        return False
+    start0 = query_from - 1                 # 0-based inclusive
+    end0 = query_to                         # 0-based exclusive
+    return start0 <= junction_index - clamp_nt and end0 >= junction_index + clamp_nt
+
+
 # ----------------------------------------------------------------------
 # Batched BLAST submission + caching
 # ----------------------------------------------------------------------
@@ -227,12 +261,20 @@ def parse_blast_results(
                             al = int(al_el.text)
                             pct = (ids / al) * 100 if al > 0 else 0.0
                             ev = hsp.find("Hsp_evalue")
+                            qf = hsp.find("Hsp_query-from")
+                            qt = hsp.find("Hsp_query-to")
                             hits.append({
                                 "subject_id": (hit.find("Hit_def").text or ""),
                                 "align_length": al,
                                 "identities": ids,
                                 "match_percentage": pct,
                                 "evalue": float(ev.text) if ev is not None else 1.0,
+                                # 1-based inclusive, BLAST's own convention. Needed
+                                # to ask whether the hit covers the ligation
+                                # junction — an off-target the probe merely binds
+                                # is a different problem from one it can close on.
+                                "query_from": int(qf.text) if qf is not None else 0,
+                                "query_to": int(qt.text) if qt is not None else 0,
                             })
                 results[pid] = hits
         except Exception as e:
@@ -245,56 +287,123 @@ def parse_blast_results(
 # ----------------------------------------------------------------------
 
 
+#: Identity a hit needs before it counts against a probe at all.
+DEFAULT_IDENTITY_THRESHOLD: float = 95.0
+#: Aligned length a hit needs before it counts. Below roughly this the duplex is
+#: not stable at the hybridisation temperature, so a short perfect match inside
+#: one arm is noise. The old rule had no length term and rejected a good probe on
+#: a 15/15 arm-internal hit.
+DEFAULT_MIN_ALIGN_LENGTH: int = 20
+#: Contiguous bases the ligase needs on each side of the nick — see
+#: ``qc.cross_ligation.DEFAULT_VICINITY_N`` and [[reference-splintr-fidelity]].
+DEFAULT_CLAMP_NT: int = 3
+#: How many non-junction off-target binders are tolerated before the probe is
+#: judged promiscuous. These do not miscall, they sequester probe.
+DEFAULT_MAX_OFF_TARGET_BINDING: int = 3
+
+
 def apply_gene_aware_filter(
     seqs: List[Dict],
     blast: Dict[str, List[Dict]],
+    *,
+    identity_threshold: float = DEFAULT_IDENTITY_THRESHOLD,
+    min_align_length: int = DEFAULT_MIN_ALIGN_LENGTH,
+    clamp_nt: int = DEFAULT_CLAMP_NT,
+    max_off_target_binding: int = DEFAULT_MAX_OFF_TARGET_BINDING,
 ) -> Tuple[List[Dict], List[Dict]]:
-    """Split ``seqs`` into (passed, rejected) by the gene-aware rule.
+    """Split ``seqs`` into (passed, rejected), judging hits by ligation competence.
 
-    Each ``seqs`` element must carry ``probe_id`` and ``gene``.
+    Each element must carry ``probe_id``, ``gene``, and either ``junction_index``
+    or ``arm3`` (so the junction can be located in the query).
 
-    Rejection conditions:
-        - Any 100%-identity hit to a different gene, OR
-        - Three or more >=95%-identity hits to different genes.
+    **What changed, and why.** The rule used to be "reject on any 100%-identity
+    off-target hit, or on three >=95% hits", with no reference to alignment
+    length or to *where* on the query the hit fell. That is wrong in both
+    directions. A 15/15 perfect hit sitting inside one arm rejected a perfectly
+    good probe, because identity was computed over the HSP rather than the
+    footprint. Meanwhile a 39/40 hit straddling the ligation junction — an
+    off-target the probe will circularise on and report as real signal — scored
+    97.5%, not 100%, so it needed two more like it before anything happened.
+    That second failure mode is the one eLife 107070 documented in 10x's own
+    Xenium panels.
 
-    Passed records are augmented with ``blast_hits``, ``best_match_percentage``,
-    ``same_gene_exact``. Rejected records carry ``reason`` and
-    ``off_target_subjects``.
+    So a hit is now judged on whether a **ligase could close on it**:
+
+    * ``off_target_ligation_competent`` — spans the junction with ``clamp_nt``
+      bases each side, at or above ``identity_threshold``, at least
+      ``min_align_length`` long. One is enough to reject: it produces signal
+      indistinguishable from the real target.
+    * ``off_target_binding`` — same identity and length, but not spanning the
+      junction. It cannot miscall, only sequester probe, so it takes
+      ``max_off_target_binding`` of them to reject.
+
+    Passed records gain ``blast_hits``, ``best_match_percentage``,
+    ``same_gene_exact``, and ``off_target_binding_hits``. Rejected records carry
+    ``reason`` and ``off_target_subjects``.
+
+    Raises ``ValueError`` if a record cannot supply its junction index — the
+    junction rule silently degrading to the old identity-only behaviour is
+    exactly how this bug survived.
     """
     passed: List[Dict] = []
     rejected: List[Dict] = []
     for s in seqs:
         pid = s["probe_id"]
         gene = s["gene"]
-        alignments = blast.get(pid, [])
-        exact = [a for a in alignments if a.get("match_percentage", 0) == 100.0]
-        off_target_exact = [a for a in exact
-                            if not is_same_gene_hit(a.get("subject_id", ""), gene)]
-        high = [a for a in alignments if a.get("match_percentage", 0) >= 95.0]
-        off_target_high = [a for a in high
-                           if not is_same_gene_hit(a.get("subject_id", ""), gene)]
+        if "junction_index" in s:
+            junction = int(s["junction_index"])
+        elif s.get("arm3"):
+            junction = binding_query_junction_index(s["arm3"])
+        else:
+            raise ValueError(
+                f"probe {pid}: BLAST record carries neither 'junction_index' nor "
+                f"'arm3', so the ligation junction cannot be located in the query "
+                f"— refusing to fall back to an identity-only verdict"
+            )
 
-        if off_target_exact:
+        alignments = blast.get(pid, [])
+        exact = [a for a in alignments if a.get("match_percentage", 0) >= 100.0]
+        credible = [
+            a for a in alignments
+            if a.get("match_percentage", 0) >= identity_threshold
+            and a.get("align_length", 0) >= min_align_length
+        ]
+        off_target = [
+            a for a in credible
+            if not is_same_gene_hit(a.get("subject_id", ""), gene)
+        ]
+        ligatable = [
+            a for a in off_target
+            if hsp_spans_junction(
+                a.get("query_from", 0), a.get("query_to", 0), junction, clamp_nt,
+            )
+        ]
+        binding_only = [a for a in off_target if a not in ligatable]
+
+        if ligatable:
             rejected.append({
                 **s,
-                "reason": "off_target_exact_match",
-                "off_target_subjects": [a["subject_id"][:60]
-                                         for a in off_target_exact[:3]],
+                "reason": "off_target_ligation_competent",
+                "off_target_subjects": [a["subject_id"][:60] for a in ligatable[:3]],
             })
-        elif len(off_target_high) >= 3:
+        elif len(binding_only) >= max_off_target_binding:
             rejected.append({
                 **s,
                 "reason": "multiple_off_target_high_similarity",
                 "off_target_subjects": [a["subject_id"][:60]
-                                         for a in off_target_high[:3]],
+                                        for a in binding_only[:3]],
             })
         else:
             best = max((a.get("match_percentage", 0) for a in alignments), default=0)
+            same_gene_exact = sum(
+                1 for a in exact if is_same_gene_hit(a.get("subject_id", ""), gene)
+            )
             passed.append({
                 **s,
                 "blast_hits": len(alignments),
                 "best_match_percentage": best,
-                "same_gene_exact": len(exact) - len(off_target_exact),
+                "same_gene_exact": same_gene_exact,
+                "off_target_binding_hits": len(binding_only),
             })
     return passed, rejected
 

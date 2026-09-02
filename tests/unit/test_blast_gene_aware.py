@@ -7,8 +7,10 @@ import pytest
 
 from probe_designer.blast.gene_aware import (
     apply_gene_aware_filter,
+    binding_query_junction_index,
     extract_binding_query,
     find_best_per_mutation_record,
+    hsp_spans_junction,
     is_same_gene_hit,
     parse_blast_results,
 )
@@ -77,55 +79,164 @@ class TestIsSameGeneHit:
 # apply_gene_aware_filter — the rejection rule
 # ---------------------------------------------------------------------------
 
+ARM3_20 = "TTGCCAGATCGTACGATCCA"      # 20 nt -> junction at query index 20
+ARM5_20 = "ACGTGCAGTCATGGCTAACG"      # query is arm3 + arm5, 40 nt total
+
+
+def _hit(subject, pct, *, q_from, q_to, align=None):
+    """One BLAST HSP. Query coords are 1-based inclusive, as BLAST reports."""
+    return {
+        "subject_id": subject,
+        "match_percentage": pct,
+        "align_length": align if align is not None else (q_to - q_from + 1),
+        "identities": 0,
+        "evalue": 1e-9,
+        "query_from": q_from,
+        "query_to": q_to,
+    }
+
+
+#: Straddles the junction (query index 20) with room on both sides.
+def _junction_hit(subject, pct=100.0):
+    return _hit(subject, pct, q_from=1, q_to=40)
+
+
+#: Sits wholly inside the arm3 half — a ligase can never close on it.
+def _arm_internal_hit(subject, pct=100.0):
+    return _hit(subject, pct, q_from=3, q_to=17)
+
+
+class TestJunctionHelpers:
+    def test_junction_index_is_arm3_length_for_plain_chemistries(self):
+        assert binding_query_junction_index(ARM3_20) == 20
+
+    def test_junction_index_matches_the_ilock_query_layout(self):
+        """iLock's query drops the duplicated base, so arm3 still fills [0, 20)."""
+        arm3, arm5 = "TTGCCAGATCGTACGATCCG", "GCGTGCAGTCATGGCTAACG"  # share 'G'
+        assert arm5[0] == arm3[-1]
+        query = extract_binding_query(arm5, arm3, "iLock")
+        idx = binding_query_junction_index(arm3)
+        assert query[:idx] == arm3.upper()
+        assert query[idx:] == arm5[1:].upper()
+
+    def test_span_requires_clamp_on_both_sides(self):
+        assert hsp_spans_junction(1, 40, 20, 3)
+        assert hsp_spans_junction(18, 23, 20, 3)          # exactly 3 each side
+        assert not hsp_spans_junction(19, 23, 20, 3)      # 1 short on the arm3 side
+        assert not hsp_spans_junction(18, 22, 20, 3)      # 1 short on the arm5 side
+
+    def test_span_false_for_a_hit_entirely_on_one_side(self):
+        assert not hsp_spans_junction(1, 15, 20, 3)
+        assert not hsp_spans_junction(25, 40, 20, 3)
+
+    def test_span_false_without_coordinates(self):
+        assert not hsp_spans_junction(0, 0, 20, 3)
+
+
 class TestApplyGeneAwareFilter:
     @pytest.fixture
     def base_seq(self):
         return {
             "probe_id": "p1", "gene": "TLR6",
-            "binding_sequence": "GATTACA",
+            "binding_sequence": (ARM3_20 + ARM5_20),
+            "arm3": ARM3_20, "arm5": ARM5_20,
             "original_item": {"Gene.refGene.x": "TLR6"},
             "original_probe": {"score": 0.5},
         }
 
     def test_no_alignments_passes(self, base_seq):
         passed, rejected = apply_gene_aware_filter([base_seq], {"p1": []})
-        assert len(passed) == 1
-        assert len(rejected) == 0
+        assert len(passed) == 1 and not rejected
         assert passed[0]["blast_hits"] == 0
         assert passed[0]["best_match_percentage"] == 0
 
-    def test_same_gene_exact_match_passes(self, base_seq):
-        blast = {"p1": [{"subject_id": "Homo sapiens TLR6 transcript",
-                          "match_percentage": 100.0}]}
+    def test_same_gene_junction_hit_passes(self, base_seq):
+        blast = {"p1": [_junction_hit("Homo sapiens TLR6 transcript")]}
         passed, rejected = apply_gene_aware_filter([base_seq], blast)
         assert len(passed) == 1
         assert passed[0]["same_gene_exact"] == 1
 
-    def test_off_target_exact_match_rejects(self, base_seq):
-        blast = {"p1": [{"subject_id": "Homo sapiens TLR1 transcript",
-                          "match_percentage": 100.0}]}
+    def test_off_target_junction_spanning_perfect_hit_rejects(self, base_seq):
+        blast = {"p1": [_junction_hit("Homo sapiens TLR1 transcript")]}
         passed, rejected = apply_gene_aware_filter([base_seq], blast)
         assert len(rejected) == 1
-        assert rejected[0]["reason"] == "off_target_exact_match"
+        assert rejected[0]["reason"] == "off_target_ligation_competent"
 
-    def test_two_high_similarity_off_target_passes(self, base_seq):
-        # Threshold is "3 or more"; 2 should pass.
+    def test_single_imperfect_junction_hit_rejects(self, base_seq):
+        """39/40 across the junction: the eLife 107070 failure mode.
+
+        Under the old identity-only rule this scored 97.5%, not 100%, so it took
+        three such hits to reject — while being exactly the case that produces
+        signal indistinguishable from the real target.
+        """
+        blast = {"p1": [_junction_hit("Homo sapiens APOBEC3D", pct=97.5)]}
+        passed, rejected = apply_gene_aware_filter([base_seq], blast)
+        assert len(rejected) == 1
+        assert rejected[0]["reason"] == "off_target_ligation_competent"
+
+    def test_short_perfect_hit_inside_one_arm_passes(self, base_seq):
+        """15/15 within arm3: the old rule's false positive.
+
+        100% identity over a fragment the ligase can never close on. It rejected
+        a good probe because identity was measured over the HSP, not the
+        footprint.
+        """
+        blast = {"p1": [_arm_internal_hit("Homo sapiens TLR1 transcript")]}
+        passed, rejected = apply_gene_aware_filter([base_seq], blast)
+        assert len(passed) == 1, rejected
+        assert passed[0]["off_target_binding_hits"] == 0   # too short to count
+
+    def test_long_off_target_binder_that_misses_the_junction_is_not_fatal(self, base_seq):
+        """It sequesters probe but cannot miscall, so one is tolerated."""
+        blast = {"p1": [_hit("Homo sapiens FOO", 100.0, q_from=1, q_to=21)]}
+        passed, rejected = apply_gene_aware_filter([base_seq], blast)
+        assert len(passed) == 1
+        assert passed[0]["off_target_binding_hits"] == 1
+
+    def test_two_off_target_binders_pass(self, base_seq):
         blast = {"p1": [
-            {"subject_id": "Homo sapiens FOO", "match_percentage": 96.0},
-            {"subject_id": "Homo sapiens BAR", "match_percentage": 95.5},
+            _hit("Homo sapiens FOO", 96.0, q_from=1, q_to=21),
+            _hit("Homo sapiens BAR", 95.5, q_from=1, q_to=22),
         ]}
         passed, rejected = apply_gene_aware_filter([base_seq], blast)
         assert len(passed) == 1
 
-    def test_three_high_similarity_off_target_rejects(self, base_seq):
+    def test_three_off_target_binders_reject_as_promiscuous(self, base_seq):
+        # All stop at query 22 or earlier: with junction 20 and clamp 3 a hit
+        # must reach 23 to span, so none of these is ligation-competent.
         blast = {"p1": [
-            {"subject_id": "Homo sapiens FOO", "match_percentage": 96.0},
-            {"subject_id": "Homo sapiens BAR", "match_percentage": 95.5},
-            {"subject_id": "Homo sapiens BAZ", "match_percentage": 95.1},
+            _hit("Homo sapiens FOO", 96.0, q_from=1, q_to=20),
+            _hit("Homo sapiens BAR", 95.5, q_from=1, q_to=21),
+            _hit("Homo sapiens BAZ", 95.1, q_from=1, q_to=22),
         ]}
         passed, rejected = apply_gene_aware_filter([base_seq], blast)
         assert len(rejected) == 1
         assert rejected[0]["reason"] == "multiple_off_target_high_similarity"
+
+    def test_junction_hit_below_the_length_floor_does_not_reject(self, base_seq):
+        """Spans the junction, but too short to hold a duplex at the anneal temp."""
+        blast = {"p1": [_hit("Homo sapiens TLR1", 100.0, q_from=18, q_to=23)]}
+        passed, rejected = apply_gene_aware_filter([base_seq], blast)
+        assert len(passed) == 1
+
+    def test_low_identity_hit_is_ignored(self, base_seq):
+        blast = {"p1": [_junction_hit("Homo sapiens TLR1", pct=80.0)]}
+        passed, rejected = apply_gene_aware_filter([base_seq], blast)
+        assert len(passed) == 1
+
+    def test_record_without_a_locatable_junction_raises(self):
+        """Silently degrading to the identity-only verdict is how this bug lived."""
+        naked = {"probe_id": "p1", "gene": "TLR6"}
+        with pytest.raises(ValueError, match="junction"):
+            apply_gene_aware_filter([naked], {"p1": []})
+
+    def test_explicit_junction_index_is_honoured(self, base_seq):
+        seq = {**base_seq}
+        seq.pop("arm3")
+        seq["junction_index"] = 20
+        blast = {"p1": [_junction_hit("Homo sapiens TLR1 transcript")]}
+        _, rejected = apply_gene_aware_filter([seq], blast)
+        assert rejected[0]["reason"] == "off_target_ligation_competent"
 
 
 # ---------------------------------------------------------------------------

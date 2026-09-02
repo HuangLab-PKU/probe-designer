@@ -201,6 +201,61 @@ def melting_temperature(seq: str, model: NNModel, reaction) -> float:
     return at_reference_salt + shift
 
 
+def duplex_melting_temperature(
+    seq: str, c_seq: str, model: NNModel, reaction
+) -> float:
+    """Tm (°C) of a duplex held at a **fixed alignment**, mismatches included.
+
+    :func:`melting_temperature` assumes a perfect duplex and lets the caller's
+    single strand imply its partner. The cross-ligation screen needs the other
+    thing: two sequences whose pairing register is already fixed by geometry,
+    scored as they actually sit — mismatches and all. Letting an aligner choose
+    the register instead is exactly the defect audited on 2026-09-02.
+
+    Args:
+        seq: one strand, 5'→3'.
+        c_seq: the partner base-for-base, ``c_seq[i]`` pairing ``seq[i]`` (i.e.
+            the partner read 3'→5'). This is Biopython's own ``c_seq``
+            convention — *not* the reverse complement. Must match ``seq`` in
+            length; clip both to the paired window before calling.
+
+    Biopython's internal- and terminal-mismatch tables (``DNA_IMM1`` /
+    ``DNA_TMM1``, its ``Tm_NN`` defaults) supply the mismatch terms.
+    ``strict=False`` lets an unparameterised neighbour drop out of the sum
+    rather than raise: a register carrying such a context is mismatch-rich and
+    nowhere near the threshold either way, and raising would silently discard a
+    candidate register — the very failure mode this function exists to prevent.
+    """
+    if len(seq) != len(c_seq):
+        raise ValueError(
+            f"fixed-alignment Tm needs equal lengths; got {len(seq)} vs "
+            f"{len(c_seq)} — clip both to the paired window first"
+        )
+    kwargs = reaction.tm_nn_kwargs()
+    if model.reference_monovalent_mM is None:
+        return mt.Tm_NN(
+            seq, c_seq=c_seq, nn_table=model.table, strict=False, **kwargs
+        )
+
+    at_reference_salt = mt.Tm_NN(
+        seq, c_seq=c_seq, nn_table=model.table, strict=False,
+        **{**kwargs, "saltcorr": 0},
+    )
+    reference_kwargs = {
+        **kwargs,
+        "Na": 0.0, "K": model.reference_monovalent_mM,
+        "Tris": 0.0, "Mg": 0.0, "dNTPs": 0.0,
+    }
+    shift = (
+        mt.Tm_NN(seq, c_seq=c_seq, nn_table=model.table, strict=False, **kwargs)
+        - mt.Tm_NN(
+            seq, c_seq=c_seq, nn_table=model.table, strict=False,
+            **reference_kwargs,
+        )
+    )
+    return at_reference_salt + shift
+
+
 __all__ = [
     "CHEMISTRY_STRANDS",
     "DEFAULT_HYBRID_MODEL",
@@ -211,6 +266,7 @@ __all__ = [
     "NNModel",
     "R_DNA_BANERJEE2020",
     "RNA_RNA",
+    "duplex_melting_temperature",
     "melting_temperature",
     "nn_model_for",
     "nn_model_for_chemistry",

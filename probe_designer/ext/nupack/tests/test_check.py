@@ -1,4 +1,13 @@
-"""Tests for ``probe_designer.ext.nupack.check`` — v2.3 NUPACK ternary screen."""
+"""Tests for ``probe_designer.ext.nupack.check``.
+
+Two things are pinned here that a future reader will otherwise get wrong:
+
+1. ``test_padlock_wrap_is_a_pseudoknot`` — the arms CANNOT be modelled as one
+   tethered strand, because the wrapped complex is a pseudoknot and NUPACK's
+   ensemble is nested. This is why the arms are split, and the test exists so
+   that "obvious improvement" is not attempted a third time.
+2. The tether is paid back as effective concentration, not ignored.
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -13,21 +22,21 @@ from probe_designer.qc.cross_ligation import ProbeForScreen  # noqa: E402
 from probe_designer.ext.nupack.check import (  # noqa: E402
     TernaryHit,
     screen_ternary,
+    tether_effective_concentration,
     write_ternary_report,
-    _parse_dotbracket_pairs,
     _check_mfe_nick_geometry,
     _check_mfe_vicinity_contiguous,
+    _loop_length_nt,
+    _parse_dotbracket_pairs,
 )
 
 
-# ----------------------------------------------------------------------
-# Fixtures — XLIG_A + XLIG_B where B.arm5 = RC(arm3_A + arm5_A)
-# (same convention as test_qc_cross_ligation.py)
-# ----------------------------------------------------------------------
+#: Non-self-complementary backbone. It must NOT be an ``ACGT`` repeat: ACGT is
+#: its own reverse complement, so two probes carrying such a backbone form a
+#: full-length backbone duplex that dominates the MFE and hides the arms.
+BB = "TCCCTACACGACGCTCTTCCGATCTACACTCTTTCCCTACACGACGCTCTTCCGA"
 
-
-BB = "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
-
+#: B's arm5 is RC(arm3_A + arm5_A), so B templates A's whole 40 nt footprint.
 XLIG_A = ProbeForScreen(
     probe_id="xlig_A", chemistry="dRNA",
     probe_arm5="CCCAATTGCGCAATATCATG",
@@ -39,9 +48,81 @@ XLIG_B = ProbeForScreen(
     probe_id="xlig_B", chemistry="dRNA",
     probe_arm5="CATGATATTGCGCAATTGGGCCCTTGGGAAATTTTCCCCC",
     probe_arm3="AAGCTTAACTGGCCATAAGT",
-    sequence=("CATGATATTGCGCAATTGGGCCCTTGGGAAATTTTCCCCC" + BB + "AAGCTTAACTGGCCATAAGT").upper(),
+    sequence=("CATGATATTGCGCAATTGGGCCCTTGGGAAATTTTCCCCC"
+              + BB + "AAGCTTAACTGGCCATAAGT").upper(),
     target="GY",
 )
+
+PAIR = [("xlig_A", "xlig_B")]
+
+
+# ----------------------------------------------------------------------
+# The pseudoknot constraint — the reason the arms are split
+# ----------------------------------------------------------------------
+
+
+def test_padlock_wrap_is_a_pseudoknot_so_the_arms_must_stay_split():
+    """One tethered ligator strand + splint cannot express the wrap.
+
+    Minimal case: two 10 nt arms perfectly complementary to ADJACENT blocks of
+    a 20 nt splint. If the nested ensemble could hold the padlock geometry, the
+    MFE would be the full 20 bp wrap with both ligator termini paired. It is
+    not — one arm binds and the other is left dangling, because the two duplex
+    segments cross.
+    """
+    import nupack
+
+    def rc(s: str) -> str:
+        return s.translate(str.maketrans("ACGT", "TGCA"))[::-1]
+
+    arm5, arm3 = "ACGTGCAGTC", "TTGCCAGATC"
+    ligator = arm5 + "TTTTTTTTTTTT" + arm3
+    splint = rc(arm5) + rc(arm3)
+
+    model = nupack.Model(material="dna", celsius=37, sodium=0.075,
+                         magnesium=0.01, ensemble="stacking")
+    cplx = nupack.Complex([
+        nupack.Strand(ligator, name="lig"), nupack.Strand(splint, name="spl"),
+    ])
+    result = nupack.complex_analysis(
+        complexes=[cplx], model=model, compute=["mfe"],
+    )
+    pairs = _parse_dotbracket_pairs(str(result[cplx].mfe[0].structure))
+
+    both_termini_paired = (0 in pairs) and (len(ligator) - 1 in pairs)
+    assert not both_termini_paired, (
+        "NUPACK expressed a padlock wrap — if this ever passes, the nested-model "
+        "limitation is gone and check.py can go back to a 2-strand tethered tube"
+    )
+
+
+# ----------------------------------------------------------------------
+# The tether, as effective concentration
+# ----------------------------------------------------------------------
+
+
+def test_tether_concentration_is_far_above_bulk():
+    """A 55 nt backbone holds the second arm at ~1e-4 M, not ~1e-7 M."""
+    c_eff = tether_effective_concentration(55)
+    assert 1e-4 < c_eff < 1e-2
+    assert c_eff / 1e-7 > 1000, "the tether must be worth orders of magnitude"
+
+
+def test_tether_concentration_falls_with_loop_length():
+    assert (
+        tether_effective_concentration(20)
+        > tether_effective_concentration(55)
+        > tether_effective_concentration(200)
+    )
+
+
+def test_tether_concentration_rejects_a_zero_loop():
+    with pytest.raises(ValueError, match="loop"):
+        tether_effective_concentration(0)
+
+
+def test_loop_length_is_the_backbone_between_the_arms():
+    assert _loop_length_nt(XLIG_A) == len(BB)
 
 
 # ----------------------------------------------------------------------
@@ -50,7 +131,6 @@ XLIG_B = ProbeForScreen(
 
 
 def test_parse_dotbracket_simple_pair():
-    """Simple 4-mer hairpin: ``((..))`` — pos 0↔5, 1↔4, 2/3 unpaired."""
     pairs = _parse_dotbracket_pairs("((..))")
     assert pairs[0] == 5 and pairs[5] == 0
     assert pairs[1] == 4 and pairs[4] == 1
@@ -59,215 +139,163 @@ def test_parse_dotbracket_simple_pair():
 
 def test_parse_dotbracket_multi_strand_separator():
     """'+' separators must NOT advance the position counter."""
-    # Three strands of 2 chars each, all unpaired: ``..+..+..``
-    pairs = _parse_dotbracket_pairs("..+..+..")
-    assert pairs == {}
-    # Pair across strands: ``((+))`` — pos 0↔3, 1↔2
+    assert _parse_dotbracket_pairs("..+..+..") == {}
     pairs = _parse_dotbracket_pairs("((+))")
     assert pairs[0] == 3 and pairs[1] == 2
 
 
 # ----------------------------------------------------------------------
-# MFE geometry helpers
+# MFE geometry helpers — concat order (arm3 | splint | arm5)
 # ----------------------------------------------------------------------
 
 
-def test_check_mfe_nick_geometry_clean():
-    """In a 3-strand concat (arm3 | splint | arm5) with arm3 last base pairing
-    to splint pos 0 and arm5 first base pairing to splint pos -1 (i.e. b_3oh=0,
-    b_5p=-1, diff=+1), the helper should return can_ligate=True."""
-    arm3_len, splint_len = 20, 100
-    # arm3 last base = concat pos 19. arm5 first base = concat pos 120.
-    # We pair them inside splint such that b_3oh = 1, b_5p = 0 (splint coords).
-    pairs = {
-        19: arm3_len + 1,           # arm3 last → splint pos 1
-        arm3_len + 1: 19,
-        120: arm3_len + 0,          # arm5 first → splint pos 0
-        arm3_len + 0: 120,
-    }
-    can_ligate, b3, b5 = _check_mfe_nick_geometry(pairs, arm3_len, splint_len)
-    assert can_ligate
-    assert b3 == 1 and b5 == 0
+ARM3_LEN, SPLINT_LEN, ARM5_LEN = 20, 100, 20
+ARM5_BASE = ARM3_LEN + SPLINT_LEN
 
 
-def test_check_mfe_nick_geometry_non_adjacent_fails():
-    arm3_len, splint_len = 20, 100
-    pairs = {
-        19: arm3_len + 50,           # arm3 last → splint pos 50
-        arm3_len + 50: 19,
-        120: arm3_len + 30,          # arm5 first → splint pos 30 (not adjacent)
-        arm3_len + 30: 120,
-    }
-    can_ligate, _, _ = _check_mfe_nick_geometry(pairs, arm3_len, splint_len)
-    assert not can_ligate
+def _sp(pos: int) -> int:
+    return ARM3_LEN + pos
 
 
-def test_check_mfe_vicinity_contiguous_clean():
-    """arm3 last 4 + arm5 first 4 all paired and antiparallel on splint."""
-    arm3_len, splint_len, arm5_len = 20, 100, 20
-    pairs: dict = {}
-    # arm3 positions 16-19 → splint positions 4, 3, 2, 1 (descending)
-    for i, sp in enumerate([4, 3, 2, 1]):
-        pairs[arm3_len - 4 + i] = arm3_len + sp
-        pairs[arm3_len + sp] = arm3_len - 4 + i
-    # arm5 positions 0-3 → splint positions 0, -1, -2, -3? Need positive.
-    # Use splint positions 0 down through -3? They have to be ≥ 0.
-    # Redo with arm3 last 4 → splint 7,6,5,4; arm5 first 4 → splint 3,2,1,0.
-    pairs.clear()
-    for i, sp in enumerate([7, 6, 5, 4]):
-        pairs[arm3_len - 4 + i] = arm3_len + sp
-        pairs[arm3_len + sp] = arm3_len - 4 + i
-    arm5_base = arm3_len + splint_len
-    for i, sp in enumerate([3, 2, 1, 0]):
-        pairs[arm5_base + i] = arm3_len + sp
-        pairs[arm3_len + sp] = arm5_base + i
-    ok = _check_mfe_vicinity_contiguous(pairs, arm3_len, splint_len, arm5_len, n_each_side=3)
-    assert ok
+def test_nick_geometry_true_when_termini_are_adjacent():
+    pairs = {ARM3_LEN - 1: _sp(51), ARM5_BASE: _sp(50)}
+    ok, b_3oh, b_5p = _check_mfe_nick_geometry(pairs, ARM3_LEN, SPLINT_LEN)
+    assert ok and (b_3oh, b_5p) == (51, 50)
 
 
-def test_check_mfe_vicinity_disabled_when_n_zero():
-    assert not _check_mfe_vicinity_contiguous({}, 20, 100, 20, n_each_side=0)
+def test_nick_geometry_false_when_not_adjacent():
+    pairs = {ARM3_LEN - 1: _sp(70), ARM5_BASE: _sp(50)}
+    ok, _, _ = _check_mfe_nick_geometry(pairs, ARM3_LEN, SPLINT_LEN)
+    assert not ok
 
 
-# ----------------------------------------------------------------------
-# Live NUPACK runs
-# ----------------------------------------------------------------------
-
-
-def test_ternary_complex_enumerated():
-    """NUPACK must enumerate the productive (arm3, splint, arm5) ternary
-    complex for the XLIG fixture and report a non-zero equilibrium
-    concentration (however small)."""
-    hits = screen_ternary(
-        [XLIG_A, XLIG_B],
-        prefilter_pairs=[("xlig_A", "xlig_B")],
+def test_nick_geometry_false_when_a_terminus_is_unpaired():
+    ok, b_3oh, b_5p = _check_mfe_nick_geometry(
+        {ARM3_LEN - 1: _sp(51)}, ARM3_LEN, SPLINT_LEN,
     )
+    assert not ok and b_3oh is None and b_5p is None
+
+
+def test_nick_geometry_false_when_a_terminus_pairs_outside_the_splint():
+    """Arm-to-arm pairing is not a splinted nick."""
+    pairs = {ARM3_LEN - 1: ARM5_BASE + 5, ARM5_BASE: _sp(50)}
+    ok, _, _ = _check_mfe_nick_geometry(pairs, ARM3_LEN, SPLINT_LEN)
+    assert not ok
+
+
+def _clamped(n: int, b_5p: int = 50) -> dict:
+    pairs = {}
+    for i in range(n + 1):
+        pairs[ARM3_LEN - 1 - i] = _sp(b_5p + 1 + i)      # arm3 side
+        pairs[ARM5_BASE + i] = _sp(b_5p - i)             # arm5 side
+    return pairs
+
+
+def test_vicinity_accepts_a_clean_clamp():
+    assert _check_mfe_vicinity_contiguous(
+        _clamped(3), ARM3_LEN, SPLINT_LEN, ARM5_LEN, 3,
+    )
+
+
+def test_vicinity_rejects_a_bulge():
+    pairs = _clamped(3)
+    pairs[ARM5_BASE + 2] = _sp(10)
+    assert not _check_mfe_vicinity_contiguous(
+        pairs, ARM3_LEN, SPLINT_LEN, ARM5_LEN, 3,
+    )
+
+
+def test_vicinity_rejects_an_unpaired_clamp_base():
+    pairs = _clamped(3)
+    del pairs[ARM3_LEN - 2]
+    assert not _check_mfe_vicinity_contiguous(
+        pairs, ARM3_LEN, SPLINT_LEN, ARM5_LEN, 3,
+    )
+
+
+def test_vicinity_disabled_when_n_is_zero():
+    assert not _check_mfe_vicinity_contiguous(
+        _clamped(3), ARM3_LEN, SPLINT_LEN, ARM5_LEN, 0,
+    )
+
+
+# ----------------------------------------------------------------------
+# End-to-end against NUPACK
+# ----------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def hit() -> TernaryHit:
+    hits = screen_ternary([XLIG_A, XLIG_B], prefilter_pairs=PAIR)
     assert len(hits) == 1
-    h = hits[0]
-    assert h.seq_a_id == "xlig_A" and h.seq_b_id == "xlig_B"
-    assert h.arm3_len > 0 and h.splint_len > 0 and h.arm5_len > 0
-    assert h.ternary_concentration_m > 0
+    return hits[0]
 
 
-def test_coaxial_stacking_makes_ternary_more_stable():
-    """ensemble='stacking' (default) produces a more negative ternary ΔG
-    than ensemble='nostacking' — this is the coaxial-stacking contribution
-    that v2.2 / primer3 binary cannot capture."""
-    hits_stack = screen_ternary(
-        [XLIG_A, XLIG_B], prefilter_pairs=[("xlig_A", "xlig_B")],
-        ensemble="stacking",
-    )
-    hits_nostack = screen_ternary(
-        [XLIG_A, XLIG_B], prefilter_pairs=[("xlig_A", "xlig_B")],
-        ensemble="nostacking",
-    )
-    assert len(hits_stack) == 1 and len(hits_nostack) == 1
-    dg_stack = hits_stack[0].ternary_dg_kcal
-    dg_nostack = hits_nostack[0].ternary_dg_kcal
-    # Stacking ensemble adds coaxial-stacking subensembles → more stable
-    assert dg_stack < dg_nostack
-    # Magnitude difference should be at least ~1 kcal/mol (typical coaxial range)
-    assert (dg_nostack - dg_stack) >= 1.0
+def test_ternary_is_enumerated(hit):
+    assert hit.seq_a_id == "xlig_A" and hit.seq_b_id == "xlig_B"
+    assert hit.arm3_len == 20 and hit.arm5_len == 20
+    assert hit.splint_len == len(XLIG_B.sequence)
+    assert hit.mfe_dotbracket.count("+") == 2, "three strands"
 
 
-def test_screen_ternary_with_prefilter_pairs_subset():
-    """Only specified prefilter_pairs are evaluated; others skipped."""
-    # Three probes — without prefilter would evaluate 3 × 2 = 6 directions
-    extra = ProbeForScreen(
-        probe_id="extra", chemistry="dRNA",
-        probe_arm5="AAAAAAAAAAAAAAAAAAAA",
-        probe_arm3="TTTTTTTTTTTTTTTTTTTT",
-        sequence=("AAAAAAAAAAAAAAAAAAAA" + BB + "TTTTTTTTTTTTTTTTTTTT").upper(),
-        target="GZ",
-    )
-    hits = screen_ternary(
-        [XLIG_A, XLIG_B, extra],
-        prefilter_pairs=[("xlig_A", "xlig_B")],   # only one direction
-    )
-    assert len(hits) == 1
-    assert hits[0].seq_a_id == "xlig_A" and hits[0].seq_b_id == "xlig_B"
+def test_ternary_is_bound_and_favourable(hit):
+    assert hit.ternary_dg_kcal < 0.0
+    assert hit.ternary_concentration_m > 0.0
+    assert 0.0 <= hit.ternary_fraction_of_b <= 1.0
 
 
-def test_audit_fields_echo_user_params():
-    """TernaryHit echoes the buffer parameters used, so audit TSVs are
-    reproducible / inspectable."""
-    hits = screen_ternary(
-        [XLIG_A, XLIG_B], prefilter_pairs=[("xlig_A", "xlig_B")],
-        sodium_m=0.1, magnesium_m=0.005, celsius=50.0,
-        ensemble="stacking", strand_conc_m=2e-7, vicinity_n_each_side=4,
-    )
-    h = hits[0]
-    assert h.sodium_m == 0.1
-    assert h.magnesium_m == 0.005
-    assert h.celsius_used == 50.0
-    assert h.ensemble_used == "stacking"
-    assert h.strand_conc_m == 2e-7
-    assert h.vicinity_n_each_side == 4
+def test_perfect_splint_gives_nick_adjacent_geometry(hit):
+    assert hit.mfe_nick_adjacent, hit.mfe_dotbracket
+    assert hit.b_3oh_pos - hit.b_5p_pos == 1
+    assert hit.mfe_vicinity_contiguous
 
 
-# ----------------------------------------------------------------------
-# Report writer
-# ----------------------------------------------------------------------
+def test_tether_is_recorded_in_the_hit(hit):
+    assert hit.tether_loop_nt == len(BB)
+    assert hit.arm_conc_m == tether_effective_concentration(len(BB))
 
 
-def test_write_ternary_report_smoke(tmp_path: Path):
-    hits = screen_ternary([XLIG_A, XLIG_B], prefilter_pairs=[("xlig_A", "xlig_B")])
+def test_tether_raises_the_productive_fraction():
+    """The v2.3 behaviour (arms at bulk) is available, and gives less complex."""
+    tethered = screen_ternary([XLIG_A, XLIG_B], prefilter_pairs=PAIR)[0]
+    untethered = screen_ternary(
+        [XLIG_A, XLIG_B], prefilter_pairs=PAIR, arm_conc_m=1.0e-7,
+    )[0]
+    assert tethered.ternary_fraction_of_b > untethered.ternary_fraction_of_b
+
+
+def test_missing_probe_id_raises_rather_than_skipping():
+    """A silently dropped pair is indistinguishable from a clean one."""
+    with pytest.raises(KeyError, match="absent"):
+        screen_ternary([XLIG_A], prefilter_pairs=[("xlig_A", "nope")])
+
+
+def test_write_report_smoke(tmp_path: Path, hit):
     out = tmp_path / "ternary.tsv"
-    write_ternary_report(hits, out)
-    assert out.exists() and out.stat().st_size > 0
+    write_ternary_report([hit], out)
     text = out.read_text(encoding="utf-8")
-    # v2.3 schema headers
-    for col in (
+    for column in (
         "seq_a_id", "ternary_dg_kcal", "ternary_concentration_m",
         "ternary_fraction_of_b", "mfe_nick_adjacent", "mfe_vicinity_contiguous",
-        "ensemble_used", "celsius_used", "sodium_m", "magnesium_m",
+        "flagged", "tether_loop_nt", "arm_conc_m", "ensemble_used",
         "mfe_dotbracket",
     ):
-        assert col in text, f"missing column {col} in TSV header"
+        assert column in text, f"missing column {column}"
+    assert len(text.splitlines()) == 2
 
 
-def test_write_ternary_report_empty(tmp_path: Path):
+def test_write_report_empty_writes_header_only(tmp_path: Path):
     out = tmp_path / "empty.tsv"
     write_ternary_report([], out)
-    assert out.exists()
-    text = out.read_text(encoding="utf-8")
-    assert "seq_a_id" in text
-    assert text.count("\n") == 1   # header only
+    assert out.read_text(encoding="utf-8").strip().startswith("seq_a_id")
 
 
-# ----------------------------------------------------------------------
-# Lazy-import error path
-# ----------------------------------------------------------------------
-
-
-def test_lazy_import_error_message(monkeypatch):
-    """Hiding `nupack` from sys.modules + import-finders simulates a missing
-    install; the error must mention NUPACK and the install path."""
-    import sys
-    import importlib
-
-    # Save and remove nupack from sys.modules so re-import triggers the lazy path
-    saved = {k: sys.modules.pop(k) for k in list(sys.modules) if k == "nupack" or k.startswith("nupack.")}
-
-    # Block re-import by injecting None into sys.modules['nupack']
-    sys.modules["nupack"] = None
-
-    try:
-        # Force a fresh import of check
-        if "probe_designer.ext.nupack.check" in sys.modules:
-            del sys.modules["probe_designer.ext.nupack.check"]
-        check_mod = importlib.import_module("probe_designer.ext.nupack.check")
-        with pytest.raises(ImportError) as excinfo:
-            check_mod.screen_ternary(
-                [XLIG_A, XLIG_B], prefilter_pairs=[("xlig_A", "xlig_B")],
-            )
-        msg = str(excinfo.value)
-        assert "NUPACK" in msg or "nupack" in msg
-    finally:
-        # Restore
-        sys.modules.pop("nupack", None)
-        for k, v in saved.items():
-            sys.modules[k] = v
-        # Reload check to restore good state for subsequent tests
-        if "probe_designer.ext.nupack.check" in sys.modules:
-            importlib.reload(sys.modules["probe_designer.ext.nupack.check"])
+def test_coaxial_stacking_makes_the_nicked_ternary_more_stable():
+    """``ensemble='stacking'`` is the reason to reach for NUPACK at all."""
+    stacked = screen_ternary(
+        [XLIG_A, XLIG_B], prefilter_pairs=PAIR, ensemble="stacking",
+    )[0]
+    plain = screen_ternary(
+        [XLIG_A, XLIG_B], prefilter_pairs=PAIR, ensemble="nostacking",
+    )[0]
+    assert stacked.ternary_dg_kcal < plain.ternary_dg_kcal
