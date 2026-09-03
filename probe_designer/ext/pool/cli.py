@@ -16,7 +16,7 @@ import typer
 
 from probe_designer.qc.cross_ligation import (
     DEFAULT_TM_THRESHOLD_C,
-    screen_cross_ligation_v2,
+    screen_cross_ligation,
     write_dimer_report,
 )
 
@@ -93,22 +93,19 @@ def check(
 
     logger.info("Pool %s — %d binding-arm probes loaded.", pool_id, len(probes))
 
-    tier1, dimers = screen_cross_ligation_v2(
-        probes,
-        tm_threshold_c=xlig_tm_threshold,
-    )
-    confirmed = [d for d in dimers if d.flagged_overall and d.a_can_ligate_on_b]
+    registers = screen_cross_ligation(probes, tm_threshold_c=xlig_tm_threshold)
+    confirmed = [d for d in registers if d.flagged_overall]
 
     out_dir = root / "pools" / pool_id / "pool_check"
     out_dir.mkdir(parents=True, exist_ok=True)
-    write_dimer_report(confirmed, out_dir / "confirmed_dimers_v2.tsv")
-    write_dimer_report(dimers, out_dir / "all_dimers_v2.tsv")
+    write_dimer_report(confirmed, out_dir / "confirmed_registers.tsv")
+    write_dimer_report(registers, out_dir / "all_registers.tsv")
 
     n_pairs = len(probes) * (len(probes) - 1) // 2
     typer.echo(
         f"pool={pool_id}: probes={len(probes)} pairs={n_pairs} "
-        f"tier1_hits={len(tier1)} primer3_dimers={len(dimers)} "
-        f"confirmed_v2={len(confirmed)} -> {out_dir}"
+        f"ligation_competent={len(registers)} confirmed={len(confirmed)} "
+        f"-> {out_dir}"
     )
 
     if nupack:

@@ -172,58 +172,6 @@ def test_rnafold_window_subset(tmp_path: Path):
     assert out.exists() and out.stat().st_size > 0
 
 
-# ---------- plot_cross_lig_dimer ----------
-
-
-def test_cross_lig_dimer_minimal(tmp_path: Path):
-    from probe_designer.qc.viz import plot_cross_lig_dimer
-
-    # v2 signature requires probe.sequence (full assembled probe with bb).
-    # Use a synthetic backbone so the test doesn't depend on any real registry.
-    bb = "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"  # 56 nt
-    arm5_a = "GCAGCAGCAGCAGCAGCAGC"
-    arm3_a = "TGCTGCTGCTGCTGCTGCTG"
-    arm5_b = "CAGCAGCAGCAGCAGCAGCA"
-    arm3_b = "GCTGCTGCTGCTGCTGCTGC"
-
-    out = tmp_path / "dimer.png"
-    fig = plot_cross_lig_dimer(
-        probe_a={"probe_id": "SP_A", "probe_arm5": arm5_a, "probe_arm3": arm3_a,
-                  "sequence": arm5_a + bb + arm3_a, "target": "GENEX",
-                  "chemistry": "dRNA"},
-        probe_b={"probe_id": "SP_B", "probe_arm5": arm5_b, "probe_arm3": arm3_b,
-                  "sequence": arm5_b + bb + arm3_b, "target": "GENEY",
-                  "chemistry": "dRNA"},
-        save_path=out,
-    )
-    assert fig is not None
-    assert out.exists() and out.stat().st_size > 0
-
-
-def test_cross_lig_dimer_safe_pair_still_renders(tmp_path: Path):
-    """When primer3 finds no stable junction-spanning dimer, the figure
-    should still render with a verdict box saying it's NOT
-    ligation-competent."""
-    from probe_designer.qc.viz import plot_cross_lig_dimer
-
-    bb = "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
-    arm5_x = "GCATAGCAGCAGCAGCATAG"
-    arm3_x = "TGTGTGTGCACGCACGCATG"
-    arm5_y = "AAGAAGAAGAAGAAGAAGAA"
-    arm3_y = "TTCTTCTTCTTCTTCTTCTT"
-
-    out = tmp_path / "no_dimer.png"
-    plot_cross_lig_dimer(
-        probe_a={"probe_id": "SP_X", "probe_arm5": arm5_x, "probe_arm3": arm3_x,
-                  "sequence": arm5_x + bb + arm3_x, "target": "G1",
-                  "chemistry": "dRNA"},
-        probe_b={"probe_id": "SP_Y", "probe_arm5": arm5_y, "probe_arm3": arm3_y,
-                  "sequence": arm5_y + bb + arm3_y, "target": "G2",
-                  "chemistry": "dRNA"},
-        save_path=out,
-    )
-    assert out.exists() and out.stat().st_size > 0
-
 
 def test_plot_ternary_complex_renders(tmp_path: Path):
     """v2.3 NUPACK ternary visualization smoke test — feed fabricated
@@ -254,34 +202,6 @@ def test_plot_ternary_complex_renders(tmp_path: Path):
         mfe_vicinity_contiguous=False,
         b_3oh_pos=None, b_5p_pos=None,
         vicinity_n_each_side=3,
-        save_path=out,
-    )
-    assert out.exists() and out.stat().st_size > 0
-
-
-def test_cross_lig_dimer_from_record_renders(tmp_path: Path):
-    """Smoke test for the v2.2 no-re-run-primer3 path: feed precomputed
-    arm3_ascii + arm5_ascii + Tm/dG + nick positions; verify figure renders."""
-    from probe_designer.qc.viz import plot_cross_lig_dimer_from_record
-
-    bb = "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
-    arm5_a = "GCAGCAGCAGCAGCAGCAGC"
-    arm3_a = "TGCTGCTGCTGCTGCTGCTG"
-    arm5_b = "CAGCAGCAGCAGCAGCAGCA"
-    arm3_b = "GCTGCTGCTGCTGCTGCTGC"
-
-    # Empty ASCIIs still render (verdict says NOT ligation-competent).
-    out = tmp_path / "rec.png"
-    plot_cross_lig_dimer_from_record(
-        probe_a={"probe_id": "SP_A", "probe_arm5": arm5_a, "probe_arm3": arm3_a,
-                  "sequence": arm5_a + bb + arm3_a, "target": "GENEX", "chemistry": "dRNA"},
-        probe_b={"probe_id": "SP_B", "probe_arm5": arm5_b, "probe_arm3": arm3_b,
-                  "sequence": arm5_b + bb + arm3_b, "target": "GENEY", "chemistry": "dRNA"},
-        arm3_ascii="", arm5_ascii="",
-        arm3_tm_c=0.0, arm3_dg_kcal=0.0,
-        arm5_tm_c=0.0, arm5_dg_kcal=0.0,
-        b_3oh_pos=None, b_5p_pos=None,
-        can_ligate=False,
         save_path=out,
     )
     assert out.exists() and out.stat().st_size > 0

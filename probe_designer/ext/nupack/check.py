@@ -52,7 +52,11 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from probe_designer.qc.cross_ligation import ProbeForScreen, build_v2_geom
+from probe_designer.qc.cross_ligation import (
+    ProbeForScreen,
+    backbone_loop_nt,
+    ligation_geometry,
+)
 
 from probe_designer.ext.nupack.config import (
     DEFAULT_CELSIUS,
@@ -104,12 +108,9 @@ def tether_effective_concentration(loop_nt: int) -> float:
     return density_per_nm3 * _AVOGADRO_PER_NM3_TO_M
 
 
-def _loop_length_nt(probe: ProbeForScreen) -> int:
-    """Backbone nucleotides between the two arms of one probe."""
-    arm3_eff, arm5_eff, seq = build_v2_geom(probe)
-    arm5_end = seq.index(arm5_eff) + len(arm5_eff)
-    arm3_start = seq.rindex(arm3_eff)
-    return arm3_start - arm5_end
+#: The tether's contour, from ``qc.cross_ligation``'s single derivation of where
+#: the arms sit in the assembled sequence.
+_loop_length_nt = backbone_loop_nt
 
 
 # ----------------------------------------------------------------------
@@ -262,8 +263,8 @@ def _evaluate_ternary_directional(
             "and `pip install nupack-x.x.tar.gz` into the probe-design env."
         ) from exc
 
-    arm3_eff, arm5_eff, _ = build_v2_geom(ligator)
-    _, _, splint_seq = build_v2_geom(splint)
+    arm3_eff, arm5_eff, _ = ligation_geometry(ligator)
+    _, _, splint_seq = ligation_geometry(splint)
 
     loop_nt = _loop_length_nt(ligator)
     if arm_conc_m is None:

@@ -88,7 +88,7 @@ def test_within_batch_xlig_pair_flagged():
     assert len(hits) >= 1
     # Both endpoints of any confirmed hit appear in by_cand
     for h in hits:
-        assert h.a_can_ligate_on_b is True
+        assert h.dimer.junction_run_nt >= 2 * (h.dimer.vicinity_n_each_side + 1)
         assert h.probe_a_id in by_cand
 
 
@@ -103,7 +103,7 @@ def test_pool_partner_marks_existing_side():
     """
     splint = _pfs("pool_xlig_partner", _B_ARM5_FROM_A, "AAGCTTAACTGGCCATAAGT", target="POOL_G")
     hits, by_cand = screen_candidates([XLIG_A], splint_probes=[splint])
-    confirmed = [h for h in hits if h.a_can_ligate_on_b]
+    confirmed = [h for h in hits if h.dimer.flagged_overall]
     assert confirmed, f"expected ≥1 confirmed hit; got {hits}"
     for h in confirmed:
         # XLIG_A is candidate (a_is_existing_pool=False); pool_xlig_partner is pool (b_is_existing_pool=True)

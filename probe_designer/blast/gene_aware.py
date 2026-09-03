@@ -23,6 +23,8 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 
+from probe_designer.chemistry import LIGASE_CLAMP_NT
+
 logger = logging.getLogger(__name__)
 
 
@@ -294,9 +296,11 @@ DEFAULT_IDENTITY_THRESHOLD: float = 95.0
 #: one arm is noise. The old rule had no length term and rejected a good probe on
 #: a 15/15 arm-internal hit.
 DEFAULT_MIN_ALIGN_LENGTH: int = 20
-#: Contiguous bases the ligase needs on each side of the nick — see
-#: ``qc.cross_ligation.DEFAULT_VICINITY_N`` and [[reference-splintr-fidelity]].
-DEFAULT_CLAMP_NT: int = 3
+#: Contiguous bases the ligase needs on each side of the nick. Imported from
+#: ``chemistry``, not restated: an off-target this verdict calls
+#: "ligation-competent" and one the register scan calls the same must be the
+#: same thing.
+DEFAULT_CLAMP_NT: int = LIGASE_CLAMP_NT
 #: How many non-junction off-target binders are tolerated before the probe is
 #: judged promiscuous. These do not miscall, they sequester probe.
 DEFAULT_MAX_OFF_TARGET_BINDING: int = 3
@@ -372,13 +376,18 @@ def apply_gene_aware_filter(
             a for a in credible
             if not is_same_gene_hit(a.get("subject_id", ""), gene)
         ]
-        ligatable = [
-            a for a in off_target
-            if hsp_spans_junction(
-                a.get("query_from", 0), a.get("query_to", 0), junction, clamp_nt,
-            )
-        ]
-        binding_only = [a for a in off_target if a not in ligatable]
+        # Partition in the single pass that already evaluates the predicate.
+        # Filtering `binding_only` by `not in ligatable` walked the whole
+        # ligatable list per element comparing dicts field-by-field — quadratic
+        # in the off-target count, which with `max_target_seqs 500` routinely
+        # runs into the hundreds.
+        ligatable: List[Dict] = []
+        binding_only: List[Dict] = []
+        for hit in off_target:
+            bucket = ligatable if hsp_spans_junction(
+                hit.get("query_from", 0), hit.get("query_to", 0), junction, clamp_nt,
+            ) else binding_only
+            bucket.append(hit)
 
         if ligatable:
             rejected.append({

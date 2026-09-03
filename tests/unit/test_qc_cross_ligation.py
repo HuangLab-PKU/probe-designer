@@ -25,11 +25,11 @@ from probe_designer.qc.cross_ligation import (
     build_v2_geom,
     find_ligation_registers,
     junction_block,
-    screen_cross_ligation_v2,
+    screen_cross_ligation,
     screen_self_circularisation,
     write_dimer_report,
     write_self_circ_report,
-    _build_geometry,
+    build_geometry,
     _fray_trim,
     _register_window,
 )
@@ -59,7 +59,7 @@ def _probe(pid: str, seq: str, target: str = "GENE_B") -> ProbeForScreen:
 
 
 def _ligator_hits(probes, ligator_id="A"):
-    _, dimers = screen_cross_ligation_v2(probes, include_self_pairs=False)
+    dimers = screen_cross_ligation(probes, include_self_pairs=False)
     return [
         d for d in dimers
         if d.seq_a_id == ligator_id and d.seq_b_id != ligator_id
@@ -68,7 +68,7 @@ def _ligator_hits(probes, ligator_id="A"):
 
 def _is_flagged(probes, ligator_id="A") -> bool:
     return any(
-        d.flagged_overall and d.a_can_ligate_on_b
+        d.flagged_overall
         for d in _ligator_hits(probes, ligator_id)
     )
 
@@ -91,22 +91,20 @@ def test_junction_block_empty_when_an_arm_is_too_short():
 
 def test_find_registers_is_exact_on_a_constructed_splint():
     """The needle sits at a known offset, so ``j`` is known exactly."""
-    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    geom = build_geometry(PROBE_A, DEFAULT_VICINITY_N)
     splint = F1 + rc(geom.junction_block) + F2
-    registers = find_ligation_registers(geom, splint, DEFAULT_VICINITY_N)
+    registers = find_ligation_registers(geom.needle, splint, DEFAULT_VICINITY_N)
     assert registers == [len(F1) + DEFAULT_VICINITY_N]
 
 
 def test_register_window_puts_the_nick_between_j_and_j_plus_one():
-    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    geom = build_geometry(PROBE_A, DEFAULT_VICINITY_N)
     splint = F1 + SPLINT40 + F2
-    j = find_ligation_registers(geom, splint, DEFAULT_VICINITY_N)[0]
-    lig_sub, c_sub, nick_idx = _register_window(
-        geom.ligator, len(geom.arm3_effective), len(geom.arm5), splint, j,
-    )
+    j = find_ligation_registers(geom.needle, splint, DEFAULT_VICINITY_N)[0]
+    lig_sub, c_sub, nick_idx = _register_window(geom, splint, j)
     # arm3's 3'-OH is the base just before the nick; arm5's 5'-P just after.
     assert lig_sub[nick_idx - 1] == geom.arm3_effective[-1]
-    assert lig_sub[nick_idx] == geom.arm5[0]
+    assert lig_sub[nick_idx] == geom.arm5_effective[0]
     # And on a perfect splint the whole 40 nt pairs.
     assert all(a != b for a, b in zip(lig_sub, c_sub))  # complementary, never equal
     assert len(lig_sub) == len(ROTATED_A)
@@ -133,12 +131,12 @@ def test_fray_trim_walks_through_a_single_mismatch():
 
 
 def test_empty_probe_list_returns_empty():
-    assert screen_cross_ligation_v2([]) == ([], [])
+    assert screen_cross_ligation([]) == []
 
 
 def test_single_probe_has_no_cross_pair():
-    tier1, dimers = screen_cross_ligation_v2([PROBE_A], include_self_pairs=False)
-    assert tier1 == [] and dimers == []
+    dimers = screen_cross_ligation([PROBE_A], include_self_pairs=False)
+    assert dimers == []
 
 
 def test_safe_pair_produces_no_register_at_all():
@@ -150,10 +148,10 @@ def test_safe_pair_produces_no_register_at_all():
         "safe_B", "dRNA", "AAGAAGAAGAAGAAGAAGAA", "TTCTTCTTCTTCTTCTTCTT",
         "AAGAAGAAGAAGAAGAAGAA" + BB + "TTCTTCTTCTTCTTCTTCTT", "G2",
     )
-    tier1, dimers = screen_cross_ligation_v2(
+    dimers = screen_cross_ligation(
         [safe_a, safe_b], include_self_pairs=False,
     )
-    assert tier1 == [] and dimers == []
+    assert dimers == []
 
 
 def test_perfect_splint_is_flagged():
@@ -227,21 +225,21 @@ def test_limiting_arm_tm_is_the_min_not_the_max():
 
 def test_self_pair_is_screened_when_requested():
     """A probe templating another copy of itself: ``combinations`` excluded it."""
-    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    geom = build_geometry(PROBE_A, DEFAULT_VICINITY_N)
     # Give A a backbone carrying the RC of its own junction block, so a second
     # copy of A can act as its splint.
     seq = ARM5_A + "TCCCTA" + rc(geom.junction_block) + "CGCTCTTCCG" + ARM3_A
     self_lig = ProbeForScreen("S", "dRNA", ARM5_A, ARM3_A, seq, "GENE_S")
 
-    _, without = screen_cross_ligation_v2([self_lig], include_self_pairs=False)
-    _, with_self = screen_cross_ligation_v2([self_lig], include_self_pairs=True)
+    without = screen_cross_ligation([self_lig], include_self_pairs=False)
+    with_self = screen_cross_ligation([self_lig], include_self_pairs=True)
     assert without == []
     assert [d for d in with_self if d.is_self_pair], "self-pair must be reachable"
 
 
 def test_self_circularisation_is_detected():
     """One molecule presenting its own 3'-OH and 5'-P — no splint at all."""
-    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    geom = build_geometry(PROBE_A, DEFAULT_VICINITY_N)
     spacer = "TCCCTACACGACGCTCTTCCGATCTACGT"   # long enough to clear both arms
     seq = ARM5_A + spacer + rc(geom.junction_block) + spacer + ARM3_A
     folder = ProbeForScreen("SC", "dRNA", ARM5_A, ARM3_A, seq, "GENE_SC")
@@ -254,7 +252,7 @@ def test_self_circularisation_is_detected():
 
 def test_self_circularisation_rejects_registers_overlapping_the_arms():
     """A base cannot pair with itself, so an overlapping register is not a fold."""
-    geom = _build_geometry(PROBE_A, DEFAULT_VICINITY_N)
+    geom = build_geometry(PROBE_A, DEFAULT_VICINITY_N)
     # Same block, but with no room between the arms — the 40 nt register would
     # have to reuse arm bases as its own template.
     seq = ARM5_A + "TCCCTA" + rc(geom.junction_block) + "CGCTCTTCCG" + ARM3_A
@@ -299,7 +297,7 @@ def test_ilock_removes_arm5_first_base_not_arm3_first_base():
 
 def test_ilock_junction_block_does_not_duplicate_the_snp_base():
     """The shared base appears once at the nick, on the arm3 side."""
-    geom = _build_geometry(ILOCK, DEFAULT_VICINITY_N)
+    geom = build_geometry(ILOCK, DEFAULT_VICINITY_N)
     arm3 = ILOCK.probe_arm3.upper()
     arm5 = ILOCK.probe_arm5.upper()
     assert geom.junction_block == arm3[-4:] + arm5[1:5]
@@ -321,19 +319,19 @@ def test_non_ilock_arms_are_untouched():
 def test_disabling_the_clamp_is_rejected():
     """n=0 would admit every position on every splint — fail loudly instead."""
     with pytest.raises(ValueError, match="vicinity_n_each_side"):
-        screen_cross_ligation_v2([PROBE_A], vicinity_n_each_side=0)
+        screen_cross_ligation([PROBE_A], vicinity_n_each_side=0)
 
 
 def test_arm_missing_from_sequence_raises():
     bad = ProbeForScreen("bad", "dRNA", ARM5_A, ARM3_A, "ACGT" * 10, "G")
     with pytest.raises(ValueError, match="registry inconsistent"):
-        screen_cross_ligation_v2([bad, PROBE_A])
+        screen_cross_ligation([bad, PROBE_A])
 
 
 def test_threshold_is_honoured():
     probes = [PROBE_A, _probe("B", F1 + SPLINT40 + F2)]
     assert _is_flagged(probes)
-    _, dimers = screen_cross_ligation_v2(
+    dimers = screen_cross_ligation(
         probes, tm_threshold_c=200.0, include_self_pairs=False,
     )
     assert dimers, "the register still exists"
@@ -341,7 +339,7 @@ def test_threshold_is_honoured():
 
 
 def test_write_dimer_report_smoke(tmp_path: Path):
-    _, dimers = screen_cross_ligation_v2(
+    dimers = screen_cross_ligation(
         [PROBE_A, _probe("B", F1 + SPLINT40 + F2)], include_self_pairs=False,
     )
     out = tmp_path / "dimers.tsv"
@@ -372,10 +370,10 @@ def test_reaction_conditions_change_the_score():
     probes = [PROBE_A, _probe("B", F1 + SPLINT40 + F2)]
     hot = ReactionConditions(monovalent_mM=500.0)
     cold = ReactionConditions(monovalent_mM=10.0)
-    _, hot_dimers = screen_cross_ligation_v2(
+    hot_dimers = screen_cross_ligation(
         probes, reaction=hot, include_self_pairs=False,
     )
-    _, cold_dimers = screen_cross_ligation_v2(
+    cold_dimers = screen_cross_ligation(
         probes, reaction=cold, include_self_pairs=False,
     )
     assert hot_dimers[0].overall_tm_c > cold_dimers[0].overall_tm_c
