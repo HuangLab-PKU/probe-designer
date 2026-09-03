@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from .nilsson import NilssonWeights
+
 
 ALL_CHEMISTRIES: Tuple[str, ...] = ("dRNA", "cDNA")
 
@@ -79,6 +81,24 @@ class TcrConfig:
     rt_primer_max_len: int = 30
     rt_primer_tm_range: Tuple[float, float] = (55.0, 75.0)  # RT (Maxima H Minus) 50 C + margin
 
+    # Clone-specificity screen: (cdr3, chain) pairs covering the patient's
+    # whole TCR repertoire. A candidate site whose 40-mer reaches a second
+    # CDR3 is dropped — see ext/tcr/repertoire.py. None = screen off.
+    repertoire: Optional[List[Tuple[str, str]]] = None
+
+    # Minimum nt of the allowed sub-region (CDR3) on EACH side of the ligation
+    # nick. SplintR clamps ~3 nt either side, so a nick with less than that
+    # inside the CDR3 seals on germline V/J bases and stops discriminating the
+    # clone. 0 = the historical unconstrained scan, kept as the default so
+    # earlier runs reproduce; 3 is the SplintR-grounded value.
+    min_ligation_margin: int = 0
+
+    # Magoulopoulou/Nilsson site-quality contribution (see ext/tcr/nilsson.py).
+    # None = off, which is the default so every earlier TCR run reproduces
+    # bit-for-bit. Pass a (homopolymer, junction_gc, gc) triple of weights to
+    # let the three rules re-rank candidate sites; they never reject a site.
+    nilsson_weights: Optional["NilssonWeights"] = None
+
     # Phase toggles
     skip_blast: bool = False
     plot_tm_landscape: bool = True
@@ -121,6 +141,31 @@ class TcrConfig:
                 raise ValueError(
                     f"Invalid {label}: {lo_hi} (low must be strictly less than high)"
                 )
+
+        if self.min_ligation_margin < 0:
+            raise ValueError(
+                f"min_ligation_margin must be >= 0, got {self.min_ligation_margin}"
+            )
+
+        # Nilsson weights: accept a 3-tuple (CLI/YAML shape) or the dataclass.
+        if self.nilsson_weights is not None and not isinstance(
+            self.nilsson_weights, NilssonWeights
+        ):
+            w = tuple(self.nilsson_weights)
+            if len(w) != 3:
+                raise ValueError(
+                    "nilsson_weights must be (homopolymer, junction_gc, gc), "
+                    f"got {self.nilsson_weights!r}"
+                )
+            self.nilsson_weights = NilssonWeights(*(float(x) for x in w))
+        if self.nilsson_weights is not None and any(
+            x < 0 for x in (self.nilsson_weights.homopolymer,
+                            self.nilsson_weights.junction_gc,
+                            self.nilsson_weights.gc)
+        ):
+            raise ValueError(
+                f"nilsson_weights must be non-negative, got {self.nilsson_weights!r}"
+            )
 
         # Numbering: exactly one of start_no / last_no_from must be set
         if (self.start_no is None) == (self.last_no_from is None):

@@ -32,6 +32,11 @@ from probe_designer.blast.gene_aware import (
 )
 from probe_designer.ext.tcr.config import TcrConfig
 from probe_designer.ext.tcr.landscape import plot_tm_landscape
+from probe_designer.ext.tcr.nilsson import nilsson_terms
+from probe_designer.ext.tcr.repertoire import (
+    build_repertoire_index,
+    is_clone_specific,
+)
 from probe_designer.ext.tcr.probe import (
     TcrProbeDesigner,
     validate_subseq_in_target,
@@ -151,6 +156,12 @@ def _phase1_find_select(
     }
     skipped: List[str] = []
 
+    repertoire_index = {}
+    if cfg.repertoire:
+        repertoire_index = build_repertoire_index(cfg.repertoire, kmer=cfg.bds_len)
+        logger.info("Repertoire screen: %d clones, %d indexed %d-mers",
+                    len(cfg.repertoire), len(repertoire_index), cfg.bds_len)
+
     for _, row in clones_df.iterrows():
         clone_name = str(row["consensus_id"])
         target_seq = str(row["chain_nt"])
@@ -173,6 +184,47 @@ def _phase1_find_select(
             s["clone_id"] = clone_id
         all_sites[clone_name] = sites
 
+        # Clone specificity, measured: drop sites whose footprint also occurs
+        # in another clone of this patient's repertoire. Runs before the margin
+        # rule because it is the direct evidence the margin only approximates.
+        if repertoire_index:
+            unique = [s for s in sites
+                      if is_clone_specific(s["target_sequence"],
+                                           repertoire_index, allowed)]
+            if not unique:
+                logger.warning(
+                    "[%s] every candidate site also occurs in another clone of "
+                    "the repertoire — skipping clone", clone_name,
+                )
+                skipped.append(clone_name)
+                continue
+            if len(unique) != len(sites):
+                logger.info("[%s] repertoire screen: %d/%d candidates unique",
+                            clone_name, len(unique), len(sites))
+            sites = unique
+
+        # Clone specificity: keep the ligase's ~3 nt clamp inside the CDR3.
+        # Applied after all_sites so the Tm landscape still shows the full
+        # scan, and reported so a shrunken candidate pool is never silent.
+        if cfg.min_ligation_margin:
+            m = cfg.min_ligation_margin
+            eligible = [
+                s for s in sites
+                if s["ligation_point"] - s["cdr3_start"] >= m
+                and s["cdr3_end"] - s["ligation_point"] >= m
+            ]
+            if not eligible:
+                logger.warning(
+                    "[%s] no site keeps %d nt of CDR3 either side of the nick "
+                    "(CDR3 is %d nt) — skipping clone",
+                    clone_name, m, len(allowed),
+                )
+                skipped.append(clone_name)
+                continue
+            logger.info("[%s] ligation margin >= %d nt: %d/%d candidates kept",
+                        clone_name, m, len(eligible), len(sites))
+            sites = eligible
+
         # Soft Tm design (2026-07-19): no hard Tm gate. Every scanned site is a
         # candidate; arm-Tm proximity to the reaction-anchored target enters the
         # SCORE (two-sided) and select_non_overlapping_sites picks the score
@@ -193,6 +245,15 @@ def _phase1_find_select(
                 s["score"] = round(
                     (s.get("mfe") or 0.0) - s.get(f"tm_diff_{chem}", 0.0) - tm_dev, 3,
                 )
+                # Magoulopoulou/Nilsson site quality (opt-in): re-ranks only,
+                # never rejects, so a clone with no compliant site still ships.
+                if cfg.nilsson_weights is not None:
+                    terms = nilsson_terms(
+                        s["target_sequence"], cfg.arm_len, chem,
+                        weights=cfg.nilsson_weights,
+                    )
+                    s.update(terms)
+                    s["score"] = round(s["score"] + terms["nilsson_score"], 3)
                 # tm_cDNA_warning kept for downstream readers (informational)
                 s["tm_cDNA_warning"] = not (50.0 <= s["tm_cDNA"] <= 75.0)
                 ranked.append(s)
@@ -349,6 +410,12 @@ def _assemble_one(chemistry: str, bds_row: Dict, no: int,
         "blast_hit_count": bds_row.get("blast_hit_count", 0),
         "blast_top_hits": bds_row.get("blast_top_hits", ""),
         "tm_cdna_warning": bds_row.get("tm_cDNA_warning", False),
+        # Present only when the Nilsson contribution was enabled; NA otherwise
+        # so the column never lies about a site that was never assessed.
+        "nilsson_pass": bds_row.get("nilsson_pass", pd.NA),
+        "homopolymer_run": bds_row.get("homopolymer_run", pd.NA),
+        "junction_base": bds_row.get("junction_base", pd.NA),
+        "nilsson_gc_content": bds_row.get("gc_content", pd.NA),
     }
 
 
