@@ -28,6 +28,7 @@ except ImportError:
 
 from probe_designer.config import BlastConfig, FilterConfig
 from probe_designer.chemistry import dna_revcomp_to_rna
+from probe_designer.nn_tables import melting_temperature, nn_model_for
 from probe_designer.policy import ThermoPolicy
 
 
@@ -255,21 +256,23 @@ class SequenceFilter:
         is applied after the nearest-neighbor Tm.
         """
         rc = self.filter_config.reaction_conditions()
-        buffer = rc.tm_nn_kwargs()
+        model = nn_model_for(sequence_type, target_type, rc.hybrid_nn_model)
+        # A DNA:RNA hybrid table needs the RNA-sense strand; the other tables
+        # take the arm as given.
+        to_table_strand = (
+            dna_revcomp_to_rna
+            if sequence_type == "DNA" and target_type == "RNA"
+            else (lambda s: s)
+        )
 
         def arm_tm(seq: str) -> float:
             try:
-                if sequence_type == "DNA" and target_type == "RNA":
-                    tm = mt.Tm_NN(dna_revcomp_to_rna(seq), nn_table=mt.R_DNA_NN1, **buffer)
-                elif sequence_type == "RNA" and target_type == "RNA":
-                    tm = mt.Tm_NN(seq, nn_table=mt.RNA_NN1, **buffer)
-                else:
-                    tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **buffer)
+                tm = melting_temperature(to_table_strand(seq), model, rc)
             except ValueError as exc:
                 # Ambiguous/short arm (e.g. contains N): reject via 0.0, but surface it.
                 logger.warning("Tm computation failed for %r: %s", seq, exc)
                 return 0.0
-            return rc.apply_formamide(tm)
+            return rc.apply_solvents(tm)
 
         return {
             'tm': arm_tm(arm_3prime + arm_5prime),
@@ -911,6 +914,7 @@ class SequenceFilter:
                                 'evalue': float('inf'),
                                 'identity': 0.0,
                                 'alignment_count': 0,
+                                'query_length': None,
                                 'missing': True
                             }
             
@@ -936,6 +940,7 @@ class SequenceFilter:
                             'evalue': float('inf'),
                             'identity': 0.0,
                             'alignment_count': 0,
+                            'query_length': None,
                             'missing': True
                         }
             
@@ -989,17 +994,25 @@ class SequenceFilter:
                                 'hit_def': alignment.hit_def,
                                 'evalue': hsp.expect,
                                 'identity': hsp.identities / hsp.align_length,
+                                # How much of the probe aligned. Identity alone
+                                # cannot tell a 40/40 hit from a 32/40 one, and
+                                # that difference is exactly what a site built
+                                # on a minor isoform looks like against the
+                                # canonical transcript.
+                                'align_length': hsp.align_length,
+                                'identities': hsp.identities,
                                 'score': hsp.score,
                                 'frame': hsp.frame
                             })
                             evalues.append(hsp.expect)
                             identities.append(hsp.identities / hsp.align_length)
-                
+
                 blast_data[query_id] = {
                     'alignments': alignments,
                     'evalue': min(evalues) if evalues else float('inf'),
                     'identity': max(identities) if identities else 0.0,
-                    'alignment_count': len(alignments)
+                    'alignment_count': len(alignments),
+                    'query_length': getattr(blast_record, 'query_length', None),
                 }
             
             # print(f"Parsed {batch_records} records from batch {batch_num}")  # Reduced output
@@ -1086,12 +1099,16 @@ class SequenceFilter:
             target_organism_alignments = 0
             non_target_gene_alignments = 0
             complementarity_found = False
-            
+
             # Get target organisms from filter config, fallback to blast config species
             target_organisms = self.filter_config.target_organisms
             if target_organisms is None:
                 target_organisms = self.blast_config.species or []
-            
+
+            probe_length = len(site.get('sequence') or '') or (
+                blast_info.get('query_length') or 0
+            )
+
             for alignment in blast_info['alignments']:
                 hit_def = alignment['hit_def'].lower()
                 is_target_organism = any(org.lower() in hit_def for org in target_organisms)
@@ -1105,16 +1122,39 @@ class SequenceFilter:
                     if not is_same_gene:
                         non_target_gene_alignments += 1
                     else:
-                        # Check complementarity with target sequence
-                        if self._check_complementarity(site['sequence'], alignment):
+                        # Check complementarity with target sequence, and that
+                        # the probe aligned over (essentially) its whole length.
+                        # A partial same-gene hit means the transcript splices
+                        # part of the probe away — it is not an on-target hit.
+                        if (
+                            self._check_complementarity(site['sequence'], alignment)
+                            and self._covers_probe(alignment, probe_length)
+                        ):
                             complementarity_found = True
-            
+
             # Must have target organism alignment AND complementarity AND no non-target gene alignments
             if target_organism_alignments == 0 or not complementarity_found or non_target_gene_alignments > 0:
                 return False
-        
+
         return True
-    
+
+    def _covers_probe(self, alignment: Dict[str, Any], probe_length: int) -> bool:
+        """True when this alignment spans enough of the probe to be on-target.
+
+        Threshold is ``filter_config.min_same_gene_coverage`` (default 0.95).
+        An alignment carrying no length is NOT assumed full: the check exists
+        precisely because the missing number used to be read as "fine".
+        """
+        if probe_length <= 0:
+            return True  # nothing to measure against
+        align_length = alignment.get('align_length')
+        if align_length is None:
+            return False
+        min_coverage = getattr(
+            self.filter_config, 'min_same_gene_coverage', 0.95
+        )
+        return align_length >= min_coverage * probe_length
+
     def _check_complementarity(self, probe_sequence: str, alignment: Dict[str, Any]) -> bool:
         """Check if probe sequence is complementary to the aligned reference sequence."""
         try:

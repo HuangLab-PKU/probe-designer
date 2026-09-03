@@ -23,6 +23,7 @@ from typing import Callable, Dict, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
+from probe_designer.nn_tables import melting_temperature, nn_model_for
 from probe_designer.chemistry import (
     ReactionConditions,
     dna_revcomp_to_rna,
@@ -55,14 +56,15 @@ def _gc_percent(seq: str) -> float:
 def _compute_tm(primer: str, reaction: ReactionConditions) -> float:
     """Tm of a DNA RT primer annealed to its mRNA template.
 
-    The primer:template duplex is DNA:RNA, so ``R_DNA_NN1`` must be fed the RNA
-    (template) strand — the reverse complement of the primer — per Biopython's
-    convention. Salt/Mg conditions come from ``reaction``. Reverse transcription
-    carries no formamide, so the caller passes a formamide-free ReactionConditions.
+    The primer:template duplex is DNA:RNA, so the hybrid table must be fed the
+    RNA (template) strand — the reverse complement of the primer — per
+    Biopython's convention. Salt/Mg conditions and the choice of hybrid NN set
+    come from ``reaction`` (audit R6). Reverse transcription carries no
+    formamide, so the caller passes a formamide-free ReactionConditions.
     """
-    rna_template = dna_revcomp_to_rna(primer)
-    tm = mt.Tm_NN(rna_template, nn_table=mt.R_DNA_NN1, **reaction.tm_nn_kwargs())
-    return round(reaction.apply_formamide(tm), 1)
+    model = nn_model_for("DNA", "RNA", reaction.hybrid_nn_model)
+    tm = melting_temperature(dna_revcomp_to_rna(primer), model, reaction)
+    return round(reaction.apply_solvents(tm), 1)
 
 
 def _resolve_strand(strand) -> int:
@@ -292,3 +294,4 @@ def design_rt_primer_from_target(
         "gap_nt": gap, "strand": 1,
         "notes": "; ".join(notes) if notes else "",
     }
+

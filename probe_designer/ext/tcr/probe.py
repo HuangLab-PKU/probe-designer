@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 from Bio.SeqUtils import MeltingTemp as mt
 
+from probe_designer.nn_tables import melting_temperature, nn_model_for
 from probe_designer.chemistry import (
     ReactionConditions,
     dna_revcomp_to_rna,
@@ -100,18 +101,19 @@ class TcrProbeDesigner:
     def _tm_hybrid(self, dna_arm: str) -> float:
         """Tm of a DNA probe arm hybridizing to mRNA.
 
-        ``R_DNA_NN1`` requires the RNA (target) strand, so the DNA arm is
-        reverse-complemented to its RNA-sense before the lookup. Buffer +
-        formamide come from ``self.reaction``.
+        The hybrid table requires the RNA (target) strand, so the DNA arm is
+        reverse-complemented to its RNA-sense before the lookup. Buffer,
+        co-solvents and the choice of hybrid NN set come from ``self.reaction``,
+        so a config selecting Banerjee 2020 reaches TCR too (audit R6).
         """
-        rna = dna_revcomp_to_rna(dna_arm)
-        tm = mt.Tm_NN(rna, nn_table=mt.R_DNA_NN1, **self.reaction.tm_nn_kwargs())
-        return self.reaction.apply_formamide(tm)
+        model = nn_model_for("DNA", "RNA", self.reaction.hybrid_nn_model)
+        tm = melting_temperature(dna_revcomp_to_rna(dna_arm), model, self.reaction)
+        return self.reaction.apply_solvents(tm)
 
     def _tm_dna(self, seq: str) -> float:
-        """Tm of a DNA:DNA duplex (cDNA chemistry), ``DNA_NN4`` at the buffer."""
-        tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **self.reaction.tm_nn_kwargs())
-        return self.reaction.apply_formamide(tm)
+        """Tm of a DNA:DNA duplex (cDNA chemistry) at the buffer."""
+        tm = melting_temperature(seq, nn_model_for("DNA", "DNA"), self.reaction)
+        return self.reaction.apply_solvents(tm)
 
     # ------------------------------------------------------------------
     # Core scan
@@ -268,3 +270,4 @@ class TcrProbeDesigner:
                     break
         selected.sort(key=lambda x: x["st"])
         return selected
+

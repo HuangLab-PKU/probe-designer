@@ -123,6 +123,20 @@ def design(
              "flag, all isoforms (including retained_intron, NMD, "
              "processed_transcript) participate, which can dilute consensus."
     ),
+    # --- Isoform crediting (isoform_consensus) ---
+    min_isoform_arm_nt: Optional[int] = typer.Option(
+        None, "--min-isoform-arm-nt", min=0,
+        help="An isoform counts as targeted only when a contiguous run of its "
+             "own mRNA spans the ligation junction with at least this many nt "
+             "on each side (the junction-centred core rule). Default 16. "
+             "0 credits any isoform the junction is paired on."
+    ),
+    allow_noncoding_only: bool = typer.Option(
+        False, "--allow-noncoding-only",
+        help="Keep sites that bind no protein-coding transcript of their own "
+             "gene. Off by default: such sites cannot report the gene's "
+             "expression. Genes with no coding transcript are exempt anyway."
+    ),
     # --- Reaction buffer overrides (chemistry.ReactionConditions) ---
     monovalent_mm: Optional[float] = typer.Option(
         None, "--monovalent-mm", help="Reaction monovalent K+ (mM). Default 75."
@@ -177,6 +191,10 @@ def design(
     cfg = ConfigManager(str(config_path), species=species)
     cfg.search.search_strategy = strategy.value
 
+    if min_isoform_arm_nt is not None:
+        cfg.search.min_isoform_arm_nt = min_isoform_arm_nt
+    if allow_noncoding_only:
+        cfg.search.require_protein_coding = False
     if blast_species:
         cfg.blast.species = list(blast_species)
     if genome_fasta:

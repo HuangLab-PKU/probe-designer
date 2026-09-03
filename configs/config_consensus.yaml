@@ -10,9 +10,18 @@ search:
   search_strategy: "isoform_consensus"
   binding_site_length: 40
   max_binding_sites: 100
-  window_size: 50
   step_size: 1
   genes_file: "path/to/your/gene_list.txt"  # Path to gene list file (can be overridden by --genes_file)
+  # Isoform crediting (2026-08-02). An isoform counts as targeted only when a
+  # contiguous run of ITS mRNA spans the ligation junction with at least
+  # min_isoform_arm_nt on each side, and a site must bind at least one
+  # protein-coding transcript of its own gene. Before this, any isoform merely
+  # OVERLAPPING the window was credited, which both inflated the coverage count
+  # and preferred windows straddling a splice boundary — six sites in the
+  # 2026-07-27 CRC panel bound no coding transcript at all. Genes with no
+  # coding transcript are exempt from the second rule (with a warning).
+  min_isoform_arm_nt: 16
+  require_protein_coding: true
 
 filter:
   # Schema-v2 (2026-05-14): gate on GC%; legacy G-only fields kept for back-compat

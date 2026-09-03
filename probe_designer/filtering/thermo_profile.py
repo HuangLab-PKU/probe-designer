@@ -17,18 +17,15 @@ import logging
 from pathlib import Path
 
 import numpy as np
-from Bio.SeqUtils import MeltingTemp as mt
 
 from probe_designer.chemistry import ReactionConditions
+from probe_designer.nn_tables import melting_temperature, nn_model_for_chemistry
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_ARM_LENGTH = 20
 
 
-def _nn_table(chemistry: str):
-    """dRNA / iLock -> DNA:RNA hybrid table; cDNA -> DNA:DNA table."""
-    return mt.DNA_NN4 if str(chemistry).lower() == "cdna" else mt.R_DNA_NN1
 
 
 def compute_tm_profile(
@@ -54,16 +51,15 @@ def compute_tm_profile(
     """
     seq = seq.upper()
     n = len(seq)
-    table = _nn_table(chemistry)
-    buffer = reaction.tm_nn_kwargs()
+    model = nn_model_for_chemistry(chemistry, reaction.hybrid_nn_model)
     out = np.full(n, np.nan, dtype=np.float64)
     for i in range(n - arm_length + 1):
         window = seq[i:i + arm_length]
         try:
-            tm = mt.Tm_NN(window, nn_table=table, **buffer)
+            tm = melting_temperature(window, model, reaction)
         except ValueError:
             continue
-        out[i] = reaction.apply_formamide(tm)
+        out[i] = reaction.apply_solvents(tm)
     return out
 
 

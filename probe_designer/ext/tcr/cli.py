@@ -13,9 +13,22 @@ from typing import List, Optional
 import typer
 
 from probe_designer.ext.tcr.config import ALL_CHEMISTRIES, TcrConfig
+from probe_designer.ext.tcr.repertoire import load_repertoire_file
 from probe_designer.ext.tcr.pipeline import run_tcr_pipeline
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_triple(value: str, sep: str = ",") -> tuple:
+    parts = value.split(sep)
+    if len(parts) != 3:
+        raise typer.BadParameter(
+            f"Expected three values separated by {sep!r}, got {value!r}"
+        )
+    try:
+        return tuple(float(p) for p in parts)
+    except ValueError as e:
+        raise typer.BadParameter(f"Could not parse {value!r}: {e}") from e
 
 
 def _parse_pair(value: str, *, kind: type, sep: str = ",") -> tuple:
@@ -99,6 +112,36 @@ def command(
         "50,65", "--rt-primer-tm-range",
         help="RT primer Tm window 'low,high' (default: 50,65)."
     ),
+    repertoire: Optional[Path] = typer.Option(
+        None, "--repertoire",
+        help="Repertoire table (.csv/.xlsx) for the SAME patient, carrying a "
+             "chain column and a CDR3 column. Any candidate site whose 40-mer "
+             "also occurs in another clone is dropped: both arms would "
+             "hybridise there and the nick would be fully paired, so the "
+             "ligase closes it. Neither BLAST nor a Tm filter sees that, "
+             "because the off-target is another TCR the panel is deliberately "
+             "imaging.",
+    ),
+    min_ligation_margin: int = typer.Option(
+        0, "--min-cdr3-margin",
+        help="Require this many nt of CDR3 on EACH side of the ligation nick. "
+             "SplintR clamps ~3 nt either side, so a nick nearer the CDR3 edge "
+             "seals on germline V/J and no longer tells clones apart. Default 0 "
+             "reproduces earlier runs; 3 is the SplintR-grounded value.",
+    ),
+    nilsson_bonus: bool = typer.Option(
+        False, "--nilsson-bonus",
+        help="Let the Magoulopoulou 2026 (Nilsson lab) padlock rules re-rank "
+             "candidate sites: no homopolymer >= 4 nt, G/C at the ligation "
+             "junction, GC 40-60%. Scoring only — no site is ever rejected, so "
+             "clones whose CDR3 admits no compliant site still get a probe. "
+             "Off by default so earlier runs reproduce exactly.",
+    ),
+    nilsson_weights: str = typer.Option(
+        "2,2,2", "--nilsson-weights",
+        help="Weights 'homopolymer,junction_gc,gc' for --nilsson-bonus. "
+             "Ignored unless --nilsson-bonus is passed.",
+    ),
     skip_blast: bool = typer.Option(
         False, "--skip-blast",
         help="Skip the NCBI BLAST QC round. BLAST is informational for TCR "
@@ -175,6 +218,12 @@ def command(
             skip_blast=skip_blast,
             plot_tm_landscape=plot_tm_landscape,
             codebook=codebook,
+            min_ligation_margin=min_ligation_margin,
+            repertoire=(load_repertoire_file(repertoire)
+                        if repertoire is not None else None),
+            nilsson_weights=(
+                _parse_triple(nilsson_weights) if nilsson_bonus else None
+            ),
         )
 
     if target_pool and not check_cross_lig:
@@ -211,9 +260,9 @@ def command(
 
         splint_probes = None
         if target_pool:
-            from pathlib import Path as _Path
+            from probe_book.root import resolve_root
             from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
-            root = (repo_root or _Path.cwd()).resolve()
+            root = resolve_root(repo_root)
             try:
                 splint_probes = load_pool_as_probes_for_screen(target_pool, root)
             except (ImportError, FileNotFoundError) as exc:
