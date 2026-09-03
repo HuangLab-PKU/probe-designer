@@ -342,6 +342,8 @@ def _phase2_blast(
                 "probe_id": f"{s['gene_name']}_pos{s['pos']}_{chem}",
                 "binding_sequence": binding,
                 "gene": s["gene_name"],
+                "arm3": s[f"arm_3prime_{chem}"].upper(),
+                "chemistry": chem,
             })
         logger.info("Phase 2 [%s]: BLAST QC on %d selected sites", chem, len(seqs))
         run_batch_blast_search(seqs, blast_dir, label=f"TCR_{chem}")

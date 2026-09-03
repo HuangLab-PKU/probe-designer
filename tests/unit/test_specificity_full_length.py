@@ -29,7 +29,26 @@ def _site(gene="FABP1", sequence=PROBE):
     return {"gene_name": gene, "sequence": sequence}
 
 
-def _alignment(align_length, *, hit_def="Homo sapiens FABP1 mRNA", identity=1.0):
+def _alignment(
+    align_length,
+    *,
+    hit_def="Homo sapiens FABP1 mRNA",
+    identity=1.0,
+    mismatch_at=None,
+    frame=(1, -1),
+    query_start=1,
+):
+    """One parsed HSP, as ``_parse_single_batch_file`` now emits it.
+
+    ``align_length`` columns starting at ``query_start`` (1-based), every one
+    paired unless ``mismatch_at`` -- a 0-based position in the probe -- says
+    otherwise. The midline is what lets the filter ask WHERE a mismatch fell
+    rather than only how many there were.
+    """
+    begin = query_start - 1
+    midline = ["|"] * align_length
+    if mismatch_at is not None:
+        midline[mismatch_at - begin] = " "
     return {
         "hit_id": "ENST00000393750",
         "hit_def": hit_def,
@@ -37,7 +56,10 @@ def _alignment(align_length, *, hit_def="Homo sapiens FABP1 mRNA", identity=1.0)
         "identity": identity,
         "align_length": align_length,
         "score": 80,
-        "frame": (1, -1),
+        "frame": frame,
+        "midline": "".join(midline),
+        "query_seq": PROBE[begin:begin + align_length],
+        "query_start": query_start,
     }
 
 
@@ -204,3 +226,106 @@ class TestParserRecordsAlignLength:
         (info,) = filt._parse_single_batch_file(str(xml), 1).values()
 
         assert not filt._check_specificity_criteria(info, _site())
+
+
+class TestJunctionPairing:
+    """Coverage says how much aligned; it cannot say WHERE the gap fell.
+
+    Both alignments below are 39/40 over the probe's full length. One is the
+    terminal mismatch BLAST routinely trims and is harmless; the other puts the
+    unpaired base on the ligation junction, where SplintR will not close the
+    nick. The old gate scored both 0.975 and passed both.
+    """
+
+    def test_mismatch_on_the_nick_is_rejected(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=19)), _site()
+        )
+
+    def test_mismatch_at_the_far_end_still_passes(self):
+        assert _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=39)), _site()
+        )
+
+    def test_mismatch_just_outside_the_clamp_passes(self):
+        # +/-3 is the SplintR clamp width; position 16 is one base beyond it.
+        assert _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=16)), _site()
+        )
+
+    def test_mismatch_inside_the_clamp_is_rejected(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=17)), _site()
+        )
+
+    def test_alignment_stopping_before_the_nick_is_rejected(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(15)), _site()
+        )
+
+    def test_missing_midline_is_not_credited(self):
+        # Same stance as a missing align_length: an absent measurement is not
+        # a pass. It is also the shape a silently-inert check would take.
+        alignment = _alignment(40)
+        alignment["midline"] = ""
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(alignment), _site()
+        )
+
+    def test_gate_can_be_turned_off(self):
+        assert _filter(require_junction_pairing=False)._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=19)), _site()
+        )
+
+    def test_vicinity_width_is_configurable(self):
+        # n=1 clamps only the two bases flanking the nick, so 17 clears it.
+        assert _filter(junction_vicinity_nt=1)._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=17)), _site()
+        )
+
+
+class TestBindingStrand:
+    """An antisense transcript carries the probe's own sequence, not its
+    complement, so the probe cannot bind it -- for either chemistry. Easy to
+    miss, because an antisense locus really is a different gene: the same-gene
+    test says "different" and the rejection looks right. The SP369 audit found
+    30 such hits among 4299 full-length identities, enough to move the
+    non-specific set from 40 to 61.
+    """
+
+    def _antisense(self):
+        return _alignment(40, hit_def="Homo sapiens KRT7-AS RNA", frame=(1, 1))
+
+    def _sense_off_target(self):
+        return _alignment(40, hit_def="Homo sapiens SPINK1 mRNA", frame=(1, -1))
+
+    def test_antisense_hit_to_another_gene_is_not_an_off_target(self):
+        assert _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40), self._antisense()), _site()
+        )
+
+    def test_bindable_off_target_still_rejects(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40), self._sense_off_target()), _site()
+        )
+
+    def test_unreported_frame_is_still_counted_against_the_probe(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(
+                _alignment(40),
+                _alignment(40, hit_def="Homo sapiens SPINK1 mRNA", frame=()),
+            ),
+            _site(),
+        )
+
+    def test_sense_design_flips_which_strand_binds(self):
+        # A cDNA-style design stores the site mRNA-sense, so its real hits are
+        # plus-strand and the minus-strand hit is the one it cannot bind.
+        cfg = _filter(binding_hit_frame=1)
+        assert cfg._check_specificity_criteria(
+            _blast_info(
+                _alignment(40, frame=(1, 1)),
+                self._sense_off_target(),
+            ),
+            _site(),
+        )

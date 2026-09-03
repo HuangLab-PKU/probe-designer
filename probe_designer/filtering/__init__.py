@@ -26,6 +26,12 @@ try:
 except ImportError:
     _HAS_VIENNARNA = False
 
+from probe_designer.blast.geometry import (
+    DEFAULT_VICINITY_N,
+    frame_is_bindable,
+    hsp_spans_junction,
+    midpoint_junction_offset,
+)
 from probe_designer.config import BlastConfig, FilterConfig
 from probe_designer.chemistry import dna_revcomp_to_rna
 from probe_designer.nn_tables import melting_temperature, nn_model_for
@@ -1002,7 +1008,16 @@ class SequenceFilter:
                                 'align_length': hsp.align_length,
                                 'identities': hsp.identities,
                                 'score': hsp.score,
-                                'frame': hsp.frame
+                                'frame': hsp.frame,
+                                # The |/space line and the query coordinates it
+                                # is indexed by. Both sat in the same <Hsp> node
+                                # all along; only the summary numbers were read,
+                                # so nothing downstream could ask WHERE a
+                                # mismatch fell -- least of all whether it fell
+                                # on the ligation junction.
+                                'midline': hsp.match,
+                                'query_seq': hsp.query,
+                                'query_start': hsp.query_start,
                             })
                             evalues.append(hsp.expect)
                             identities.append(hsp.identities / hsp.align_length)
@@ -1120,15 +1135,25 @@ class SequenceFilter:
                     is_same_gene = gene_name in hit_def or any(gene_part in hit_def for gene_part in gene_name.split('_'))
                     
                     if not is_same_gene:
-                        non_target_gene_alignments += 1
+                        # A hit on the strand the probe cannot template off
+                        # is not an off-target: that transcript carries the
+                        # probe's own sequence rather than its complement. Easy
+                        # to miss, because an antisense locus really is a
+                        # different gene -- the same-gene test says "different"
+                        # and the rejection looks correct.
+                        if self._hit_is_on_binding_strand(alignment):
+                            non_target_gene_alignments += 1
                     else:
-                        # Check complementarity with target sequence, and that
-                        # the probe aligned over (essentially) its whole length.
-                        # A partial same-gene hit means the transcript splices
-                        # part of the probe away — it is not an on-target hit.
+                        # Check complementarity with target sequence, that the
+                        # probe aligned over (essentially) its whole length, and
+                        # that the ligation junction itself is contiguously
+                        # paired. A partial same-gene hit means the transcript
+                        # splices part of the probe away; a hit that breaks at
+                        # the nick cannot be ligated shut at all.
                         if (
                             self._check_complementarity(site['sequence'], alignment)
                             and self._covers_probe(alignment, probe_length)
+                            and self._spans_junction(alignment, probe_length)
                         ):
                             complementarity_found = True
 
@@ -1155,21 +1180,67 @@ class SequenceFilter:
         )
         return align_length >= min_coverage * probe_length
 
+    def _spans_junction(self, alignment: Dict[str, Any], probe_length: int) -> bool:
+        """True when the nick vicinity is contiguously paired in this alignment.
+
+        ``_covers_probe`` measures how MUCH aligned; this measures WHERE, and
+        they are not interchangeable. A 39/40 hit scores 0.975 either way, but
+        only one of the two is a probe that still circularises: a terminal
+        mismatch BLAST trimmed is harmless, a mismatch sitting on the ligation
+        junction is a dead probe. Same criterion the exon walk in
+        ``isoform_coverage`` applies -- contiguous Watson-Crick pairing across
+        the nick, ``junction_vicinity_nt`` bases each side.
+
+        An alignment carrying no midline is NOT credited, for the same reason a
+        missing ``align_length`` is not read as full coverage.
+        """
+        if not getattr(self.filter_config, 'require_junction_pairing', True):
+            return True
+        if probe_length <= 0:
+            return True  # nothing to locate the nick in
+        return hsp_spans_junction(
+            alignment.get('midline') or '',
+            alignment.get('query_seq') or '',
+            alignment.get('query_start') or 1,
+            midpoint_junction_offset(probe_length),
+            vicinity_n=getattr(
+                self.filter_config, 'junction_vicinity_nt', DEFAULT_VICINITY_N
+            ),
+        )
+
+    def _hit_is_on_binding_strand(self, alignment: Dict[str, Any]) -> bool:
+        """Whether this hit lies on the strand the probe can actually bind.
+
+        Sites are stored as RC(target) (see ``search_strategies``), so a real
+        hit carries hit frame -1 and a plus-strand hit is a transcript holding
+        the probe's own sequence. ``filter_config.binding_hit_frame`` flips the
+        expectation for a sense-strand (cDNA) design. A frame BLAST did not
+        report stays counted, exactly as before.
+        """
+        frame = alignment.get('frame')
+        if not frame or len(frame) < 2:
+            return True
+        return frame_is_bindable(
+            frame[1], getattr(self.filter_config, 'binding_hit_frame', -1)
+        )
+
     def _check_complementarity(self, probe_sequence: str, alignment: Dict[str, Any]) -> bool:
         """Check if probe sequence is complementary to the aligned reference sequence."""
         try:
-            # Check complementarity based on BLAST frame information
-            # frame[1] = -1 indicates complementary strand
+            # Which hit frame means "the subject carries what the probe pairs
+            # with" follows from how the site was stored, not from the aligner:
+            # filter_config.binding_hit_frame is -1 for the default RC(target)
+            # layout and +1 for a sense-strand (cDNA) design.
             if 'frame' in alignment and len(alignment['frame']) >= 2:
                 frame_1 = alignment['frame'][1]
-                if frame_1 == -1:
-                    return True  # Complementary strand
-                elif frame_1 == 1:
-                    return False  # Same strand
-                else:
-                    # Unknown frame, use identity as fallback
-                    if alignment['identity'] > 0.95:
-                        return True
+                if frame_1 in (1, -1):
+                    return frame_is_bindable(
+                        frame_1,
+                        getattr(self.filter_config, 'binding_hit_frame', -1),
+                    )
+                # Unknown frame, use identity as fallback
+                if alignment['identity'] > 0.95:
+                    return True
             
             # Fallback: if identity is very high (>95%), assume it's complementary
             if alignment['identity'] > 0.95:

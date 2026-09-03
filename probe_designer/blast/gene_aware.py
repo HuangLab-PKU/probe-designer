@@ -23,6 +23,14 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 
+from probe_designer.blast.geometry import (
+    DEFAULT_VICINITY_N,
+    hit_is_bindable,
+    hsp_junction_verdict,
+    junction_offset,
+    midpoint_junction_offset,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -182,6 +190,18 @@ def run_batch_blast_search(
 # ----------------------------------------------------------------------
 
 
+def _text_of(node: ET.Element, tag: str) -> str:
+    el = node.find(tag)
+    return (el.text or "") if el is not None else ""
+
+
+def _int_of(node: ET.Element, tag: str) -> Optional[int]:
+    el = node.find(tag)
+    if el is None or not (el.text or "").strip():
+        return None
+    return int(el.text)
+
+
 def parse_blast_results(
     seqs: List[Dict],
     blast_dir: Path,
@@ -192,7 +212,12 @@ def parse_blast_results(
 
     Returns a dict ``{probe_id: [hit_dict, ...]}`` where each hit dict has
     ``subject_id``, ``align_length``, ``identities``, ``match_percentage``,
-    ``evalue``.
+    ``evalue``, plus the ligation-geometry fields ``hit_frame``, ``midline``,
+    ``query_seq`` and ``query_start`` -- which strand the subject matched on and
+    where each base of the query landed. All four sit in the same ``<Hsp>`` node
+    as the summary numbers; the parser simply never read them, so no consumer
+    could ask whether a hit is on a strand the probe binds or whether it holds
+    together across the ligation nick.
     """
     blast_dir = Path(blast_dir)
     results: Dict[str, List[Dict]] = {}
@@ -233,6 +258,10 @@ def parse_blast_results(
                                 "identities": ids,
                                 "match_percentage": pct,
                                 "evalue": float(ev.text) if ev is not None else 1.0,
+                                "hit_frame": _int_of(hsp, "Hsp_hit-frame"),
+                                "midline": _text_of(hsp, "Hsp_midline"),
+                                "query_seq": _text_of(hsp, "Hsp_qseq"),
+                                "query_start": _int_of(hsp, "Hsp_query-from") or 1,
                             })
                 results[pid] = hits
         except Exception as e:
@@ -245,21 +274,61 @@ def parse_blast_results(
 # ----------------------------------------------------------------------
 
 
+def hit_can_ligate(
+    hit: Dict,
+    chemistry: str,
+    junction_offset_nt: int,
+    *,
+    vicinity_n: int = DEFAULT_VICINITY_N,
+) -> bool:
+    """Whether the probe could actually ligate on this hit.
+
+    Two ways a hit drops out, neither visible in an identity percentage:
+
+    * the subject matched on the strand the probe cannot template off (an
+      antisense transcript carries the probe's own sequence, not its
+      complement), or
+    * the alignment breaks inside the ligase's clamp around the nick, so the
+      probe anneals but never closes.
+
+    A hit whose XML carried no midline is KEPT. This is an off-target count:
+    "no evidence" must not turn into an acquittal.
+    """
+    if not hit_is_bindable(hit.get("hit_frame"), chemistry):
+        return False
+    verdict = hsp_junction_verdict(
+        hit.get("midline") or "",
+        hit.get("query_seq") or "",
+        hit.get("query_start") or 1,
+        junction_offset_nt,
+        vicinity_n=vicinity_n,
+    )
+    return verdict is not False
+
+
 def apply_gene_aware_filter(
     seqs: List[Dict],
     blast: Dict[str, List[Dict]],
+    *,
+    check_geometry: bool = True,
+    vicinity_n: int = DEFAULT_VICINITY_N,
 ) -> Tuple[List[Dict], List[Dict]]:
     """Split ``seqs`` into (passed, rejected) by the gene-aware rule.
 
-    Each ``seqs`` element must carry ``probe_id`` and ``gene``.
+    Each ``seqs`` element must carry ``probe_id`` and ``gene``. ``arm3`` and
+    ``chemistry`` place the ligation nick exactly; without them the nick is
+    assumed to sit at the midpoint of ``binding_sequence`` and the chemistry to
+    be arm-antisense (``dRNA``).
 
-    Rejection conditions:
+    Rejection conditions, counted over the hits the probe could actually ligate
+    on (see :func:`hit_can_ligate`; ``check_geometry=False`` counts them all,
+    which is what this filter did before 2026-09-03):
         - Any 100%-identity hit to a different gene, OR
         - Three or more >=95%-identity hits to different genes.
 
     Passed records are augmented with ``blast_hits``, ``best_match_percentage``,
-    ``same_gene_exact``. Rejected records carry ``reason`` and
-    ``off_target_subjects``.
+    ``same_gene_exact`` and ``blast_hits_unligatable``. Rejected records carry
+    ``reason`` and ``off_target_subjects``.
     """
     passed: List[Dict] = []
     rejected: List[Dict] = []
@@ -267,6 +336,20 @@ def apply_gene_aware_filter(
         pid = s["probe_id"]
         gene = s["gene"]
         alignments = blast.get(pid, [])
+        unligatable = 0
+        if check_geometry:
+            chemistry = s.get("chemistry") or "dRNA"
+            arm3 = s.get("arm3") or ""
+            offset = (
+                junction_offset(arm3, chemistry) if arm3
+                else midpoint_junction_offset(len(s.get("binding_sequence") or ""))
+            )
+            kept = [
+                a for a in alignments
+                if hit_can_ligate(a, chemistry, offset, vicinity_n=vicinity_n)
+            ]
+            unligatable = len(alignments) - len(kept)
+            alignments = kept
         exact = [a for a in alignments if a.get("match_percentage", 0) == 100.0]
         off_target_exact = [a for a in exact
                             if not is_same_gene_hit(a.get("subject_id", ""), gene)]
@@ -295,6 +378,7 @@ def apply_gene_aware_filter(
                 "blast_hits": len(alignments),
                 "best_match_percentage": best,
                 "same_gene_exact": len(exact) - len(off_target_exact),
+                "blast_hits_unligatable": unligatable,
             })
     return passed, rejected
 

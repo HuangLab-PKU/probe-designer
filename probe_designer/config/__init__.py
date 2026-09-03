@@ -148,6 +148,19 @@ class FilterConfig:
     # minor isoform looks like against the canonical transcript — passed like a
     # 40/40 one. 0.95 leaves room for a trimmed terminal mismatch.
     min_same_gene_coverage: float = 0.95
+    # Ligation geometry. Coverage says how MUCH of the probe aligned; these say
+    # WHERE. A padlock only circularises where its two arms meet on contiguous
+    # target, so a same-gene hit whose alignment breaks at the nick is a dead
+    # probe even at 39/40 identity -- which scores 0.975 and passed. Added
+    # 2026-09-03; the vicinity is the SplintR clamp width, matching
+    # qc.cross_ligation.DEFAULT_VICINITY_N and the isoform-coverage exon walk.
+    require_junction_pairing: bool = True
+    junction_vicinity_nt: int = 3
+    # Hit frame a bindable alignment carries. The mRNA pipeline stores each site
+    # as RC(target), so its real hits are minus-strand and a plus-strand hit is
+    # an antisense transcript the probe cannot pair with. Set to +1 for a
+    # sense-strand (cDNA) design, whose arms template off the cDNA instead.
+    binding_hit_frame: int = -1
 
     def reaction_conditions(self) -> ReactionConditions:
         """Materialize the flat buffer fields into a ReactionConditions.

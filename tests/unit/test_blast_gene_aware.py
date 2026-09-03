@@ -195,3 +195,97 @@ def test_parse_blast_results_round_trip(tmp_path: Path):
     assert hit["match_percentage"] == 100.0
     assert hit["align_length"] == 40
     assert "TLR6" in hit["subject_id"]
+
+
+# ---------------------------------------------------------------------------
+# apply_gene_aware_filter — hits the probe could not actually ligate on
+# ---------------------------------------------------------------------------
+
+ARM3 = "TTTTTTTTTTTTTTTTTTTT"
+ARM5 = "AAAAAAAAAAAAAAAAAAAA"
+
+
+def _seq(chemistry="dRNA"):
+    return {
+        "probe_id": "p1",
+        "gene": "KRT7",
+        "chemistry": chemistry,
+        "arm3": ARM3,
+        "binding_sequence": ARM3 + ARM5,
+    }
+
+
+def _hit(subject, *, hit_frame=-1, midline="|" * 40, align_length=40):
+    return {
+        "subject_id": subject,
+        "align_length": align_length,
+        "identities": align_length,
+        "match_percentage": 100.0,
+        "evalue": 1e-20,
+        "hit_frame": hit_frame,
+        "midline": midline,
+        "query_seq": (ARM3 + ARM5)[:align_length],
+        "query_start": 1,
+    }
+
+
+class TestLigationGeometryInTheFilter:
+    def test_antisense_transcript_no_longer_condemns_the_probe(self):
+        # A plus-strand hit means that transcript carries the probe's own
+        # sequence rather than its complement, so the probe cannot pair with
+        # it. Note the probe's OWN antisense locus was never the problem here:
+        # is_same_gene_hit's KRT7 matches inside "KRT7-AS" (the dash is a
+        # non-word character), so this path already read it as same-gene. What
+        # changes is an antisense transcript of a DIFFERENT gene.
+        passed, rejected = apply_gene_aware_filter(
+            [_seq()],
+            {"p1": [_hit("Homo sapiens KRT8 antisense RNA 1 (KRT8-AS1)",
+                         hit_frame=1)]},
+        )
+        assert len(passed) == 1 and not rejected
+        assert passed[0]["blast_hits_unligatable"] == 1
+
+    def test_bindable_off_target_still_condemns(self):
+        passed, rejected = apply_gene_aware_filter(
+            [_seq()], {"p1": [_hit("Homo sapiens KRT8 mRNA", hit_frame=-1)]},
+        )
+        assert not passed and rejected[0]["reason"] == "off_target_exact_match"
+
+    def test_hit_broken_at_the_nick_is_not_an_off_target(self):
+        # Anneals over both arms, cannot be ligated shut: not a competing site.
+        broken = "|" * 19 + " " + "|" * 20
+        passed, _ = apply_gene_aware_filter(
+            [_seq()], {"p1": [_hit("Homo sapiens KRT8 mRNA", midline=broken)]},
+        )
+        assert len(passed) == 1
+
+    def test_one_arm_hit_is_not_an_off_target(self):
+        passed, _ = apply_gene_aware_filter(
+            [_seq()],
+            {"p1": [_hit("Homo sapiens KRT8 mRNA", midline="|" * 20,
+                         align_length=20)]},
+        )
+        assert len(passed) == 1
+
+    def test_hit_without_a_midline_still_condemns(self):
+        # No evidence must not become an acquittal in an off-target count.
+        passed, rejected = apply_gene_aware_filter(
+            [_seq()], {"p1": [_hit("Homo sapiens KRT8 mRNA", midline="")]},
+        )
+        assert not passed and rejected
+
+    def test_geometry_check_can_be_turned_off(self):
+        passed, rejected = apply_gene_aware_filter(
+            [_seq()],
+            {"p1": [_hit("Homo sapiens KRT8 antisense RNA 1 (KRT8-AS1)",
+                         hit_frame=1)]},
+            check_geometry=False,
+        )
+        assert not passed and rejected
+
+    def test_cdna_chemistry_flips_the_bindable_strand(self):
+        passed, rejected = apply_gene_aware_filter(
+            [_seq("cDNA")],
+            {"p1": [_hit("Homo sapiens KRT8 mRNA", hit_frame=1)]},
+        )
+        assert not passed and rejected
