@@ -45,7 +45,7 @@ def _run_ternary(
     """Standalone ternary run on a bank-tracked pool."""
     from probe_book.root import resolve_root
     from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
-    from probe_designer.qc.cross_ligation import screen_cross_ligation_v2
+    from probe_designer.qc.cross_ligation import screen_cross_ligation
 
     repo_root = resolve_root(repo_root)
     out_dir = out_dir or (repo_root / "pools" / pool_id / "pool_check")
@@ -55,22 +55,27 @@ def _run_ternary(
     probes = load_pool_as_probes_for_screen(pool_id, repo_root)
     print(f"  {len(probes)} probes loaded")
 
-    # Build prefilter pair list per mode
+    # Build the prefilter pair list. The register scan is the gate; NUPACK only
+    # re-scores what it already flagged, so the modes differ by how much of the
+    # scan's output to carry forward.
+    #   all-registers — every ligation-competent register, Tm-clearing or not
+    #   confirmed     — only those over the Tm threshold (the default)
+    #   all-pairs     — skip the gate entirely; O(N^2) NUPACK calls
     print(f"Running prefilter (mode={mode}) ...")
-    if mode == "all-pairs":
+    aliases = {"tier1": "all-registers", "v22-nick": "confirmed"}
+    resolved = aliases.get(mode, mode)
+    if resolved == "all-pairs":
         prefilter_pairs = None
+    elif resolved in ("all-registers", "confirmed"):
+        registers = screen_cross_ligation(probes)
+        if resolved == "confirmed":
+            registers = [d for d in registers if d.flagged_overall]
+        prefilter_pairs = [(d.seq_a_id, d.seq_b_id) for d in registers]
     else:
-        tier1, dimers = screen_cross_ligation_v2(probes)
-        if mode == "tier1":
-            prefilter_pairs = [(h.probe_a_id, h.probe_b_id) for h in tier1]
-        elif mode == "v22-nick":
-            prefilter_pairs = [
-                (d.seq_a_id, d.seq_b_id)
-                for d in dimers
-                if d.flagged_overall and d.a_can_ligate_on_b
-            ]
-        else:
-            raise ValueError(f"unknown --nupack-mode {mode!r}; expected tier1 | v22-nick | all-pairs")
+        raise ValueError(
+            f"unknown --nupack-mode {mode!r}; expected "
+            f"all-registers | confirmed | all-pairs"
+        )
     print(f"  prefilter pairs: {'(all-pairs)' if prefilter_pairs is None else len(prefilter_pairs)}")
 
     t0 = time.time()

@@ -81,16 +81,18 @@ def hit_is_bindable(hit_frame: Optional[int], chemistry: str) -> bool:
 
 
 def junction_offset(arm3: str, chemistry: str) -> int:
-    """Query index of the first base 3' of the nick, for an ``arm3 + arm5`` query.
+    """Query index of the first ligated base 3' of the nick, for an ``arm3 + arm5`` query.
 
-    Mirrors :func:`~probe_designer.blast.gene_aware.extract_binding_query`: the
-    iLock query drops ``arm3[-1]`` (the SNP nt shared with ``arm5[0]``), so the
-    nick sits one base earlier than ``len(arm3)``.
+    ``len(arm3)`` for every chemistry. The iLock query
+    (:func:`~probe_designer.blast.gene_aware.extract_binding_query`) drops
+    ``arm3[-1]``, but ``arm5[0] == arm3[-1]``, so it still reads
+    ``arm3 + arm5[1:]`` -- which is the ligated product: FEN1 cleaves the flap
+    *plus* ``arm5[0]``, leaving ``arm3[-1]`` as the 3'-OH and ``arm5[1]`` as the
+    5'-P (:func:`probe_designer.qc.cross_ligation.ligation_geometry`). A nick at
+    ``len(arm3) - 1`` is the out-of-phase iLock geometry of cross-lig v2.2.
+    ``chemistry`` stays in the signature so callers need not special-case iLock.
     """
-    length = len(arm3 or "")
-    if chemistry == "iLock":
-        return max(length - 1, 0)
-    return length
+    return len(arm3 or "")
 
 
 def midpoint_junction_offset(probe_length: int) -> int:

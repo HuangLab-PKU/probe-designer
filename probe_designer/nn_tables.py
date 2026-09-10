@@ -165,6 +165,37 @@ def nn_model_for_chemistry(
     return nn_model_for(seq_t, tgt_t, hybrid_model)
 
 
+def _tm_nn_salt_referenced(
+    seq: str, model: NNModel, reaction, **tm_nn_extra
+) -> float:
+    """``Tm_NN`` honouring the model's salt reference — the one copy of it.
+
+    For a 1 M-referenced table this is plain ``Tm_NN``. For a table measured at
+    a finite salt the parameters already embody that condition, so the salt
+    model is used only for the shift from the reference to the actual buffer;
+    the (over-)correction from 1 M is common to both terms and cancels. Getting
+    this wrong costs −14.5 °C on real arms (see the module docstring), which is
+    why it lives in exactly one place and every caller delegates here.
+
+    ``tm_nn_extra`` passes through to ``Tm_NN`` — that is how the fixed-alignment
+    variant supplies ``c_seq`` / ``strict`` without restating the salt logic.
+    """
+    kwargs = reaction.tm_nn_kwargs()
+
+    def tm(**overrides) -> float:
+        return mt.Tm_NN(
+            seq, nn_table=model.table, **tm_nn_extra, **{**kwargs, **overrides}
+        )
+
+    if model.reference_monovalent_mM is None:
+        return tm()
+    at_reference_salt = tm(saltcorr=0)
+    shift = tm() - tm(
+        Na=0.0, K=model.reference_monovalent_mM, Tris=0.0, Mg=0.0, dNTPs=0.0,
+    )
+    return at_reference_salt + shift
+
+
 def melting_temperature(seq: str, model: NNModel, reaction) -> float:
     """Tm (°C) of ``seq`` under ``reaction``, honouring the model's salt reference.
 
@@ -179,26 +210,42 @@ def melting_temperature(seq: str, model: NNModel, reaction) -> float:
     model is used only for the shift from the reference to the actual buffer:
     the (over-)correction from 1 M is common to both terms and cancels.
     """
-    kwargs = reaction.tm_nn_kwargs()
-    if model.reference_monovalent_mM is None:
-        return mt.Tm_NN(seq, nn_table=model.table, **kwargs)
+    return _tm_nn_salt_referenced(seq, model, reaction)
 
-    at_reference_salt = mt.Tm_NN(
-        seq, nn_table=model.table, **{**kwargs, "saltcorr": 0}
+
+def duplex_melting_temperature(
+    seq: str, c_seq: str, model: NNModel, reaction
+) -> float:
+    """Tm (°C) of a duplex held at a **fixed alignment**, mismatches included.
+
+    :func:`melting_temperature` assumes a perfect duplex and lets the caller's
+    single strand imply its partner. The cross-ligation screen needs the other
+    thing: two sequences whose pairing register is already fixed by geometry,
+    scored as they actually sit — mismatches and all. Letting an aligner choose
+    the register instead is exactly the defect audited on 2026-09-02.
+
+    Args:
+        seq: one strand, 5'→3'.
+        c_seq: the partner base-for-base, ``c_seq[i]`` pairing ``seq[i]`` (i.e.
+            the partner read 3'→5'). This is Biopython's own ``c_seq``
+            convention — *not* the reverse complement. Must match ``seq`` in
+            length; clip both to the paired window before calling.
+
+    Biopython's internal- and terminal-mismatch tables (``DNA_IMM1`` /
+    ``DNA_TMM1``, its ``Tm_NN`` defaults) supply the mismatch terms.
+    ``strict=False`` lets an unparameterised neighbour drop out of the sum
+    rather than raise: a register carrying such a context is mismatch-rich and
+    nowhere near the threshold either way, and raising would silently discard a
+    candidate register — the very failure mode this function exists to prevent.
+    """
+    if len(seq) != len(c_seq):
+        raise ValueError(
+            f"fixed-alignment Tm needs equal lengths; got {len(seq)} vs "
+            f"{len(c_seq)} — clip both to the paired window first"
+        )
+    return _tm_nn_salt_referenced(
+        seq, model, reaction, c_seq=c_seq, strict=False,
     )
-    reference_kwargs = {
-        **kwargs,
-        "Na": 0.0,
-        "K": model.reference_monovalent_mM,
-        "Tris": 0.0,
-        "Mg": 0.0,
-        "dNTPs": 0.0,
-    }
-    shift = (
-        mt.Tm_NN(seq, nn_table=model.table, **kwargs)
-        - mt.Tm_NN(seq, nn_table=model.table, **reference_kwargs)
-    )
-    return at_reference_salt + shift
 
 
 __all__ = [
@@ -211,6 +258,7 @@ __all__ = [
     "NNModel",
     "R_DNA_BANERJEE2020",
     "RNA_RNA",
+    "duplex_melting_temperature",
     "melting_temperature",
     "nn_model_for",
     "nn_model_for_chemistry",

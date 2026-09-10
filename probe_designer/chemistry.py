@@ -36,6 +36,29 @@ _COMPLEMENT = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N",
                "U": "A",   # accept RNA input
                "-": "-"}   # preserve gaps in aligned sequences
 
+#: Strict Watson-Crick partners — no N, no gap, no RNA aliasing. Separate from
+#: ``_COMPLEMENT`` on purpose: that map is for *transforming* a sequence, where
+#: passing N and '-' through is the useful behaviour, and it would make
+#: ``is_watson_crick("N", "N")`` true. Deciding whether two bases actually pair
+#: is a different question and needs the strict table.
+WATSON_CRICK: Dict[str, str] = {"A": "T", "T": "A", "C": "G", "G": "C"}
+
+#: Contiguous Watson-Crick pairs a ligase needs on each side of the nick before
+#: it will seal. SplintR / PBCV-1 clamps ~3 nt each side (Lohman 2014;
+#: Krzywkowski 2017) — see [[reference-splintr-fidelity]].
+#:
+#: **This is the one definition.** The register scan, the BLAST off-target
+#: verdict and the NUPACK MFE check all have to mean the same thing by
+#: "ligation-competent"; when each kept its own copy nothing failed if they
+#: diverged, the screens just quietly disagreed. Same discipline as the buffer
+#: constants deriving from ``ReactionConditions`` (audit P5).
+LIGASE_CLAMP_NT: int = 3
+
+
+def is_watson_crick(base: str, partner: str) -> bool:
+    """True iff the two bases form a Watson-Crick pair (strict ACGT)."""
+    return WATSON_CRICK.get(base) == partner
+
 # Tm depression coefficient (degC per % v/v) for co-solvents / denaturants.
 # Formamide keeps a dedicated field (historical + default); ANY other solvent
 # goes in ReactionConditions.solvents keyed here. This is the extension point

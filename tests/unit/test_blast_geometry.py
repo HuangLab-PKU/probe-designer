@@ -110,16 +110,18 @@ class TestJunctionOffset:
     def test_plain_chemistry_nicks_after_arm3(self):
         assert junction_offset("A" * 20, "dRNA") == 20
 
-    def test_ilock_nick_moves_with_the_dropped_snp_nt(self):
-        assert junction_offset("A" * 20, "iLock") == 19
+    def test_ilock_nick_follows_fen1_cleavage(self):
+        # FEN1 takes arm5[0] with the flap, so the whole arm3 is ligated.
+        assert junction_offset("A" * 20, "iLock") == 20
 
     @pytest.mark.parametrize("chemistry", ["dRNA", "cDNA", "iLock"])
-    def test_offset_lands_on_the_first_base_of_arm5(self, chemistry):
+    def test_offset_lands_on_the_first_ligated_base_of_arm5(self, chemistry):
         from probe_designer.blast.gene_aware import extract_binding_query
 
         arm3, arm5 = "T" * 19 + "C", "G" + "A" * 19
         query = extract_binding_query(arm5, arm3, chemistry)
-        assert query[junction_offset(arm3, chemistry)] == arm5[0]
+        first_ligated = arm5[1] if chemistry == "iLock" else arm5[0]
+        assert query[junction_offset(arm3, chemistry)] == first_ligated
 
     def test_midpoint_matches_the_isoform_walk_convention(self):
         # arm_3prime is the first length // 2 nt of the probe.
