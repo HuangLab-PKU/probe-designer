@@ -1123,6 +1123,7 @@ class SequenceFilter:
             probe_length = len(site.get('sequence') or '') or (
                 blast_info.get('query_length') or 0
             )
+            nick = self._nick_offset(site, probe_length)
 
             for alignment in blast_info['alignments']:
                 hit_def = alignment['hit_def'].lower()
@@ -1151,9 +1152,9 @@ class SequenceFilter:
                         # splices part of the probe away; a hit that breaks at
                         # the nick cannot be ligated shut at all.
                         if (
-                            self._check_complementarity(site['sequence'], alignment)
+                            self._check_complementarity(alignment)
                             and self._covers_probe(alignment, probe_length)
-                            and self._spans_junction(alignment, probe_length)
+                            and self._spans_junction(alignment, nick)
                         ):
                             complementarity_found = True
 
@@ -1180,7 +1181,21 @@ class SequenceFilter:
         )
         return align_length >= min_coverage * probe_length
 
-    def _spans_junction(self, alignment: Dict[str, Any], probe_length: int) -> bool:
+    def _nick_offset(self, site: Dict[str, Any], probe_length: int) -> int:
+        """Query index of the first base 3' of the ligation nick.
+
+        Read the arm the site actually carries. The mRNA strategies split at
+        ``bds_len // 2`` (``search_strategies``), so today this equals the
+        midpoint -- but deriving the nick from a convention held in another
+        module is how a gate ends up testing the wrong position the day that
+        convention changes. The gene-aware path already locates it from arm3.
+        """
+        arm_3prime = site.get('arm_3prime') or ''
+        if arm_3prime:
+            return len(arm_3prime)
+        return midpoint_junction_offset(probe_length)
+
+    def _spans_junction(self, alignment: Dict[str, Any], nick_offset: int) -> bool:
         """True when the nick vicinity is contiguously paired in this alignment.
 
         ``_covers_probe`` measures how MUCH aligned; this measures WHERE, and
@@ -1196,13 +1211,13 @@ class SequenceFilter:
         """
         if not getattr(self.filter_config, 'require_junction_pairing', True):
             return True
-        if probe_length <= 0:
+        if nick_offset <= 0:
             return True  # nothing to locate the nick in
         return hsp_spans_junction(
             alignment.get('midline') or '',
             alignment.get('query_seq') or '',
             alignment.get('query_start') or 1,
-            midpoint_junction_offset(probe_length),
+            nick_offset,
             vicinity_n=getattr(
                 self.filter_config, 'junction_vicinity_nt', DEFAULT_VICINITY_N
             ),
@@ -1224,33 +1239,18 @@ class SequenceFilter:
             frame[1], getattr(self.filter_config, 'binding_hit_frame', -1)
         )
 
-    def _check_complementarity(self, probe_sequence: str, alignment: Dict[str, Any]) -> bool:
-        """Check if probe sequence is complementary to the aligned reference sequence."""
-        try:
-            # Which hit frame means "the subject carries what the probe pairs
-            # with" follows from how the site was stored, not from the aligner:
-            # filter_config.binding_hit_frame is -1 for the default RC(target)
-            # layout and +1 for a sense-strand (cDNA) design.
-            if 'frame' in alignment and len(alignment['frame']) >= 2:
-                frame_1 = alignment['frame'][1]
-                if frame_1 in (1, -1):
-                    return frame_is_bindable(
-                        frame_1,
-                        getattr(self.filter_config, 'binding_hit_frame', -1),
-                    )
-                # Unknown frame, use identity as fallback
-                if alignment['identity'] > 0.95:
-                    return True
-            
-            # Fallback: if identity is very high (>95%), assume it's complementary
-            if alignment['identity'] > 0.95:
-                return True
-            
-            return False
-        except Exception as e:
-            print(f"Error checking complementarity: {e}")
-            return False
-    
+    def _check_complementarity(self, alignment: Dict[str, Any]) -> bool:
+        """Whether the subject carries what the probe pairs with.
+
+        The strand decision itself lives in :meth:`_hit_is_on_binding_strand`;
+        this only adds the legacy fallback for an alignment BLAST reported no
+        frame for, where high identity is read as evidence of a real hybrid.
+        """
+        frame = alignment.get('frame')
+        if frame and len(frame) >= 2 and frame[1] in (1, -1):
+            return self._hit_is_on_binding_strand(alignment)
+        return alignment.get('identity', 0) > 0.95
+
     def save_filtered_results(self, filtered_sites: Dict[str, List[Dict[str, Any]]], output_dir: str):
         """Save filtered binding sites to Excel and JSON, plus stats."""
         os.makedirs(output_dir, exist_ok=True)

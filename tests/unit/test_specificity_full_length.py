@@ -329,3 +329,36 @@ class TestBindingStrand:
             ),
             _site(),
         )
+
+
+class TestNickFromTheRealArm:
+    """The nick is where the arms actually meet, not necessarily the midpoint.
+
+    The mRNA strategies split at ``bds_len // 2`` (``search_strategies``), so
+    the two agree today. Reading ``arm_3prime`` keeps the gate aimed at the real
+    junction if that ever changes -- the gene-aware path already does.
+    """
+
+    def _unbalanced_site(self):
+        site = _site()
+        site['arm_3prime'] = PROBE[:22]
+        site['arm_5prime'] = PROBE[22:]
+        return site
+
+    def test_mismatch_at_the_real_nick_is_rejected(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=22)), self._unbalanced_site()
+        )
+
+    def test_mismatch_in_the_midpoint_clamp_only_now_passes(self):
+        # Position 17 sits inside the midpoint clamp [17,22] but 5 nt away from
+        # the real nick at 22, whose clamp is [19,24]. Judged on the arm, this
+        # probe is fine; judged on the midpoint it was rejected.
+        assert _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=17)), self._unbalanced_site()
+        )
+
+    def test_falls_back_to_the_midpoint_without_arms(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, mismatch_at=19)), _site()
+        )
