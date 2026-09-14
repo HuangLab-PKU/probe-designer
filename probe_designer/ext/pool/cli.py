@@ -81,7 +81,10 @@ def check(
 
     try:
         from probe_book.root import resolve_root
-        from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
+        from probe_designer.ext.pool.loader import (
+            load_pool_as_probes_for_screen,
+            load_pool_site_quality,
+        )
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
@@ -107,6 +110,36 @@ def check(
         f"ligation_competent={len(registers)} confirmed={len(confirmed)} "
         f"-> {out_dir}"
     )
+
+    # Before a site is reused: the set-based false-positive status of every pooled
+    # site, in the probe's own chemistry. Advisory like the dimer report, but a
+    # proven false positive, or a site the chemistries disagree on, is named.
+    try:
+        quality = load_pool_site_quality(pool_id, root)
+    except FileNotFoundError as exc:
+        typer.echo(f"site_quality: not checked -- {exc}")
+    else:
+        from collections import Counter
+
+        fields = ["probe_id", "site_id", "chemistry", "gene_symbol", "fp_status",
+                  "candidate_set_size", "differs_by_chemistry", "fp_conflict", "fp_proof"]
+        with open(out_dir / "site_quality.tsv", "w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=fields, delimiter="\t",
+                                    lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(quality)
+        counts = Counter(q["fp_status"] for q in quality)
+        review = [q for q in quality
+                  if q["fp_status"] == "implicated" or q["differs_by_chemistry"]]
+        typer.echo(
+            f"site_quality: {len(quality)} sited probe(s) {dict(sorted(counts.items()))}; "
+            f"{len(review)} to review -> {out_dir / 'site_quality.tsv'}"
+        )
+        for q in review:
+            why = ("implicated" if q["fp_status"] == "implicated"
+                   else f"{q['fp_status']} here, but the chemistries disagree")
+            typer.echo(f"  WARNING {q['probe_id']} {q['gene_symbol']} {q['site_id']} "
+                       f"({q['chemistry']}): {why}; {q['fp_proof']}")
 
     if nupack:
         # Lazy import — fails cleanly if NUPACK 4 isn't installed
