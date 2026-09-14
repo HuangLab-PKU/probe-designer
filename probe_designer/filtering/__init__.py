@@ -27,9 +27,13 @@ except ImportError:
     _HAS_VIENNARNA = False
 
 from probe_designer.blast.geometry import (
+    DEFAULT_IDENTITY_THRESHOLD,
+    DEFAULT_MAX_OFF_TARGET_BINDING,
+    DEFAULT_MIN_ALIGN_LENGTH,
     DEFAULT_VICINITY_N,
     frame_is_bindable,
     hsp_spans_junction,
+    junction_is_ligatable,
     midpoint_junction_offset,
 )
 from probe_designer.config import BlastConfig, FilterConfig
@@ -1018,6 +1022,10 @@ class SequenceFilter:
                                 'midline': hsp.match,
                                 'query_seq': hsp.query,
                                 'query_start': hsp.query_start,
+                                # 1-based inclusive, as gene_aware records them;
+                                # they still place the nick without a midline.
+                                'query_from': hsp.query_start,
+                                'query_to': hsp.query_end,
                             })
                             evalues.append(hsp.expect)
                             identities.append(hsp.identities / hsp.align_length)
@@ -1113,6 +1121,8 @@ class SequenceFilter:
             # Check organism specificity and gene specificity
             target_organism_alignments = 0
             non_target_gene_alignments = 0
+            ligatable_off_targets = 0
+            binding_off_targets = 0
             complementarity_found = False
 
             # Get target organisms from filter config, fallback to blast config species
@@ -1143,7 +1153,14 @@ class SequenceFilter:
                         # different gene -- the same-gene test says "different"
                         # and the rejection looks correct.
                         if self._hit_is_on_binding_strand(alignment):
-                            non_target_gene_alignments += 1
+                            if not getattr(self.filter_config, 'ligation_aware_off_targets', True):
+                                non_target_gene_alignments += 1
+                            else:
+                                closes = self._off_target_closes(alignment, nick)
+                                if closes is True:
+                                    ligatable_off_targets += 1
+                                elif closes is False:
+                                    binding_off_targets += 1
                     else:
                         # Check complementarity with target sequence, that the
                         # probe aligned over (essentially) its whole length, and
@@ -1158,11 +1175,36 @@ class SequenceFilter:
                         ):
                             complementarity_found = True
 
-            # Must have target organism alignment AND complementarity AND no non-target gene alignments
-            if target_organism_alignments == 0 or not complementarity_found or non_target_gene_alignments > 0:
+            # A target-organism alignment and a real on-target hit, and no
+            # off-target the probe could ligate on -- nor too many it only binds.
+            if target_organism_alignments == 0 or not complementarity_found:
+                return False
+            if non_target_gene_alignments > 0 or ligatable_off_targets > 0:
+                return False
+            if binding_off_targets >= DEFAULT_MAX_OFF_TARGET_BINDING:
                 return False
 
         return True
+
+    def _off_target_closes(self, alignment: Dict[str, Any], nick_offset: int) -> Optional[bool]:
+        """How a different-gene hit counts against the site, or ``None`` if it does not.
+
+        The rule ``blast.gene_aware.apply_gene_aware_filter`` applies, on its
+        thresholds. Under ``DEFAULT_IDENTITY_THRESHOLD`` percent identity or
+        ``DEFAULT_MIN_ALIGN_LENGTH`` aligned bases the duplex does not hold at the
+        hybridisation temperature: noise, ``None``. Otherwise ``True`` when a
+        ligase could close the hit across the nick -- signal indistinguishable
+        from the target -- and ``False`` when the probe can only bind there.
+        """
+        align_length = alignment.get('align_length') or 0
+        identities = alignment.get('identities') or 0
+        if (align_length < DEFAULT_MIN_ALIGN_LENGTH
+                or 100 * identities < DEFAULT_IDENTITY_THRESHOLD * align_length):
+            return None
+        return junction_is_ligatable(
+            alignment, nick_offset,
+            getattr(self.filter_config, 'junction_vicinity_nt', DEFAULT_VICINITY_N),
+        )
 
     def _covers_probe(self, alignment: Dict[str, Any], probe_length: int) -> bool:
         """True when this alignment spans enough of the probe to be on-target.

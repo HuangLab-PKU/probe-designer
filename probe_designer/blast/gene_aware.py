@@ -23,8 +23,15 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 
-from probe_designer.blast.geometry import hit_is_bindable, hsp_junction_verdict
-from probe_designer.chemistry import LIGASE_CLAMP_NT
+from probe_designer.blast.geometry import (
+    DEFAULT_CLAMP_NT,
+    DEFAULT_IDENTITY_THRESHOLD,
+    DEFAULT_MAX_OFF_TARGET_BINDING,
+    DEFAULT_MIN_ALIGN_LENGTH,
+    hit_is_bindable,
+    hsp_covers_junction,
+    junction_is_ligatable,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -95,27 +102,6 @@ def binding_query_junction_index(arm3: str) -> int:
     ``arm3`` in its first ``len(arm3)`` positions.
     """
     return len(arm3)
-
-
-def hsp_covers_junction(
-    query_from: int, query_to: int, junction_index: int, clamp_nt: int,
-) -> bool:
-    """Whether an HSP covers the ligation junction with the ligase's clamp.
-
-    ``query_from`` / ``query_to`` are BLAST's 1-based inclusive query
-    coordinates. The hit must cover ``clamp_nt`` bases on each side of the
-    junction — anything less cannot be closed by a ligase, so it is an
-    off-target the probe *binds*, not one it can circularise on.
-
-    This distinction is the whole point: a probe whose arm happens to match 15/15
-    somewhere is not a false-signal risk, while a 39/40 hit straddling the
-    junction very much is. Judging on identity alone conflates them.
-    """
-    if query_from <= 0 or query_to <= 0:
-        return False
-    start0 = query_from - 1                 # 0-based inclusive
-    end0 = query_to                         # 0-based exclusive
-    return start0 <= junction_index - clamp_nt and end0 >= junction_index + clamp_nt
 
 
 # ----------------------------------------------------------------------
@@ -309,50 +295,6 @@ def parse_blast_results(
 # ----------------------------------------------------------------------
 
 
-#: Identity a hit needs before it counts against a probe at all.
-DEFAULT_IDENTITY_THRESHOLD: float = 95.0
-#: Aligned length a hit needs before it counts. Below roughly this the duplex is
-#: not stable at the hybridisation temperature, so a short perfect match inside
-#: one arm is noise. The old rule had no length term and rejected a good probe on
-#: a 15/15 arm-internal hit.
-DEFAULT_MIN_ALIGN_LENGTH: int = 20
-#: Contiguous bases the ligase needs on each side of the nick. Imported from
-#: ``chemistry``, not restated: an off-target this verdict calls
-#: "ligation-competent" and one the register scan calls the same must be the
-#: same thing.
-DEFAULT_CLAMP_NT: int = LIGASE_CLAMP_NT
-#: How many non-junction off-target binders are tolerated before the probe is
-#: judged promiscuous. These do not miscall, they sequester probe.
-DEFAULT_MAX_OFF_TARGET_BINDING: int = 3
-
-
-def _junction_is_ligatable(
-    hit: Dict, junction: int, clamp_nt: int, *, check_geometry: bool = True,
-) -> bool:
-    """Whether a ligase could close this HSP across the nick.
-
-    The midline decides when the hit carries one: every column within
-    ``clamp_nt`` of the nick must pair, so a mismatch there means the probe
-    anneals but never closes. Without a midline (or with ``check_geometry``
-    off) the query coordinates still rule out a hit that does not reach
-    ``clamp_nt`` bases past the nick on both sides. With neither, nothing
-    excludes the hit and it counts: in an off-target tally, missing evidence
-    must not acquit.
-    """
-    if check_geometry:
-        verdict = hsp_junction_verdict(
-            hit.get("midline") or "",
-            hit.get("query_seq") or "",
-            hit.get("query_start") or hit.get("query_from") or 1,
-            junction,
-            vicinity_n=clamp_nt,
-        )
-        if verdict is not None:
-            return verdict
-    q_from, q_to = hit.get("query_from") or 0, hit.get("query_to") or 0
-    if q_from > 0 and q_to > 0:
-        return hsp_covers_junction(q_from, q_to, junction, clamp_nt)
-    return True
 
 
 def hit_can_ligate(
@@ -377,7 +319,7 @@ def hit_can_ligate(
     """
     if not hit_is_bindable(hit.get("hit_frame"), chemistry):
         return False
-    return _junction_is_ligatable(hit, junction_offset_nt, vicinity_n)
+    return junction_is_ligatable(hit, junction_offset_nt, vicinity_n)
 
 
 def apply_gene_aware_filter(
@@ -414,7 +356,7 @@ def apply_gene_aware_filter(
       (see :func:`probe_designer.blast.geometry.binding_hit_frame`);
     * ``off_target_ligation_competent`` — a different gene, at or above
       ``identity_threshold``, at least ``min_align_length`` long, and paired
-      ``clamp_nt`` bases each side of the junction (:func:`_junction_is_ligatable`:
+      ``clamp_nt`` bases each side of the junction (:func:`~probe_designer.blast.geometry.junction_is_ligatable`:
       the midline when present, else the query coordinates). One is enough to
       reject: it produces signal indistinguishable from the real target.
     * ``off_target_binding`` — same identity and length, but not closable at the
@@ -466,7 +408,7 @@ def apply_gene_aware_filter(
         ligatable: List[Dict] = []
         binding_only: List[Dict] = []
         for hit in alignments:
-            closes = _junction_is_ligatable(
+            closes = junction_is_ligatable(
                 hit, junction, clamp_nt, check_geometry=check_geometry,
             )
             if check_geometry and not closes:

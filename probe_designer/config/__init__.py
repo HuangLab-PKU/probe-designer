@@ -161,6 +161,14 @@ class FilterConfig:
     # an antisense transcript the probe cannot pair with. Set to +1 for a
     # sense-strand (cDNA) design, whose arms template off the cDNA instead.
     binding_hit_frame: int = -1
+    # Judge off-target hits the way blast.gene_aware does. A different-gene hit
+    # counts only when identical and long enough to hold at the hybridisation
+    # temperature; one a ligase could close across the nick rejects outright
+    # (it reads as the target), one that can only bind rejects only in numbers
+    # (it sequesters probe). False restores the older rule, where any
+    # different-gene hit on the binding strand rejected -- a 15/15 match inside
+    # one arm included. Added 2026-09-14.
+    ligation_aware_off_targets: bool = True
 
     def reaction_conditions(self) -> ReactionConditions:
         """Materialize the flat buffer fields into a ReactionConditions.

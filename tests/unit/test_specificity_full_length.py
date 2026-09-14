@@ -55,11 +55,14 @@ def _alignment(
         "evalue": 1e-13,
         "identity": identity,
         "align_length": align_length,
+        "identities": round(identity * align_length) - (mismatch_at is not None),
         "score": 80,
         "frame": frame,
         "midline": "".join(midline),
         "query_seq": PROBE[begin:begin + align_length],
         "query_start": query_start,
+        "query_from": query_start,
+        "query_to": begin + align_length,
     }
 
 
@@ -361,4 +364,54 @@ class TestNickFromTheRealArm:
     def test_falls_back_to_the_midpoint_without_arms(self):
         assert not _filter()._check_specificity_criteria(
             _blast_info(_alignment(40, mismatch_at=19)), _site()
+        )
+
+
+class TestLigationAwareOffTargets:
+    """Off-target hits are judged the way the gene-aware path judges them.
+
+    The old rule rejected a site on ANY different-gene hit on the binding strand,
+    so a 15/15 perfect match inside one arm -- which neither holds at the
+    hybridisation temperature nor ligates -- threw away a good site.
+    """
+
+    OFF = "Homo sapiens SPINK1 mRNA"
+
+    def _info(self, *off_targets):
+        return _blast_info(_alignment(40), *off_targets)
+
+    def test_short_hit_inside_one_arm_no_longer_rejects(self):
+        assert _filter()._check_specificity_criteria(
+            self._info(_alignment(15, hit_def=self.OFF)), _site()
+        )
+
+    def test_full_length_off_target_still_rejects(self):
+        assert not _filter()._check_specificity_criteria(
+            self._info(_alignment(40, hit_def=self.OFF)), _site()
+        )
+
+    def test_long_off_target_broken_at_the_nick_only_binds(self):
+        # 39/40 is credible, but the mismatch sits inside the clamp, so no
+        # ligase closes it. A single binder is tolerated.
+        assert _filter()._check_specificity_criteria(
+            self._info(_alignment(40, hit_def=self.OFF, mismatch_at=19)), _site()
+        )
+
+    def test_binders_that_miss_the_nick_reject_only_in_numbers(self):
+        binder = _alignment(20, hit_def=self.OFF, query_start=21)  # arm5 only
+        assert _filter()._check_specificity_criteria(
+            self._info(binder, binder), _site()
+        )
+        assert not _filter()._check_specificity_criteria(
+            self._info(binder, binder, binder), _site()
+        )
+
+    def test_hit_without_a_midline_is_placed_by_its_coordinates(self):
+        hit = _alignment(40, hit_def=self.OFF)
+        hit["midline"] = ""
+        assert not _filter()._check_specificity_criteria(self._info(hit), _site())
+
+    def test_flag_off_restores_the_old_rule(self):
+        assert not _filter(ligation_aware_off_targets=False)._check_specificity_criteria(
+            self._info(_alignment(15, hit_def=self.OFF)), _site()
         )
