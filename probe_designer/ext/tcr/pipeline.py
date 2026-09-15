@@ -33,10 +33,7 @@ from probe_designer.blast.gene_aware import (
 from probe_designer.ext.tcr.config import TcrConfig
 from probe_designer.ext.tcr.landscape import plot_tm_landscape
 from probe_designer.ext.tcr.nilsson import nilsson_terms
-from probe_designer.ext.tcr.repertoire import (
-    build_repertoire_index,
-    is_clone_specific,
-)
+from probe_designer.ext.tcr.repertoire import RepertoireScreen
 from probe_designer.ext.tcr.probe import (
     TcrProbeDesigner,
     validate_subseq_in_target,
@@ -156,11 +153,13 @@ def _phase1_find_select(
     }
     skipped: List[str] = []
 
-    repertoire_index = {}
+    repertoire_screen = None
     if cfg.repertoire:
-        repertoire_index = build_repertoire_index(cfg.repertoire, kmer=cfg.bds_len)
-        logger.info("Repertoire screen: %d clones, %d indexed %d-mers",
-                    len(cfg.repertoire), len(repertoire_index), cfg.bds_len)
+        repertoire_screen = RepertoireScreen(
+            cfg.repertoire, kmer=cfg.bds_len, max_mismatches=cfg.repertoire_max_mismatches)
+        logger.info("Repertoire screen: %d clones; a site counts on another clone when the %d nt "
+                    "around its nick match and <= %d bases differ", len(cfg.repertoire),
+                    2 * repertoire_screen.clamp, repertoire_screen.max_mismatches)
 
     for _, row in clones_df.iterrows():
         clone_name = str(row["consensus_id"])
@@ -184,13 +183,15 @@ def _phase1_find_select(
             s["clone_id"] = clone_id
         all_sites[clone_name] = sites
 
-        # Clone specificity, measured: drop sites whose footprint also occurs
-        # in another clone of this patient's repertoire. Runs before the margin
-        # rule because it is the direct evidence the margin only approximates.
-        if repertoire_index:
+        # Clone specificity, measured: drop sites that could still ligate on another
+        # clone of this patient's repertoire -- the exact 40-mer, or a near copy whose
+        # differences all lie outside the ligase's clamp. Runs before the margin rule
+        # because it is the direct evidence the margin only approximates.
+        if repertoire_screen is not None:
             unique = [s for s in sites
-                      if is_clone_specific(s["target_sequence"],
-                                           repertoire_index, allowed)]
+                      if repertoire_screen.is_clone_specific(
+                          s["target_sequence"], own_cdr3=allowed,
+                          nick=s["ligation_point"] - s["st"])]
             if not unique:
                 logger.warning(
                     "[%s] every candidate site also occurs in another clone of "

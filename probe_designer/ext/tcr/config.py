@@ -86,6 +86,12 @@ class TcrConfig:
     # CDR3 is dropped — see ext/tcr/repertoire.py. None = screen off.
     repertoire: Optional[List[Tuple[str, str]]] = None
 
+    # How far a near copy on another clone may differ and still count as a host: the
+    # clamp around the nick must match, and at most this many bases elsewhere differ.
+    # 4 is what caught the 2026-09-15 cases (1-4 mismatches, all >= 10 nt from the nick);
+    # 0 restores the exact-40-mer screen of earlier runs.
+    repertoire_max_mismatches: int = 4
+
     # Minimum nt of the allowed sub-region (CDR3) on EACH side of the ligation
     # nick. SplintR clamps ~3 nt either side, so a nick with less than that
     # inside the CDR3 seals on germline V/J bases and stops discriminating the

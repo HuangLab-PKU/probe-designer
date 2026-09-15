@@ -115,12 +115,22 @@ def command(
     repertoire: Optional[Path] = typer.Option(
         None, "--repertoire",
         help="Repertoire table (.csv/.xlsx) for the SAME patient, carrying a "
-             "chain column and a CDR3 column. Any candidate site whose 40-mer "
-             "also occurs in another clone is dropped: both arms would "
+             "chain column and a CDR3 column. Any candidate site that could "
+             "still ligate on another clone is dropped (its 40-mer occurs there, "
+             "or a copy whose differences all sit outside the 3 nt clamp either "
+             "side of the nick; see --repertoire-mismatches): both arms would "
              "hybridise there and the nick would be fully paired, so the "
              "ligase closes it. Neither BLAST nor a Tm filter sees that, "
              "because the off-target is another TCR the panel is deliberately "
              "imaging.",
+    ),
+    repertoire_mismatches: int = typer.Option(
+        4, "--repertoire-mismatches",
+        help="With --repertoire: a near copy on another clone still counts as a "
+             "host when the 6 nt around the nick match and at most this many "
+             "bases elsewhere in the 40-mer differ. Such a copy anneals and is "
+             "sealed, so only a difference inside the clamp tells the clones "
+             "apart. Default 4; 0 restores the exact-40-mer screen.",
     ),
     min_ligation_margin: int = typer.Option(
         0, "--min-cdr3-margin",
@@ -221,6 +231,7 @@ def command(
             min_ligation_margin=min_ligation_margin,
             repertoire=(load_repertoire_file(repertoire)
                         if repertoire is not None else None),
+            repertoire_max_mismatches=repertoire_mismatches,
             nilsson_weights=(
                 _parse_triple(nilsson_weights) if nilsson_bonus else None
             ),
