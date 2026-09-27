@@ -1,0 +1,45 @@
+# 行尾统一 LF —— 仓库里存 LF，检出也是 LF。
+#
+# 不用 `text=auto` 的默认行为（按平台原生检出，Windows 得到 CRLF），是因为这些仓放在
+# 共享存储上：**同一个工作树**会被 Linux 和 Windows 同时看到，没有"各自原生"这回事。
+# 不统一的后果实测过 —— probe_design/bank 曾显示 50 个文件被修改，其中 45 个纯属行尾假象。
+* text=auto eol=lf
+
+# 二进制显式声明。text=auto 的自动探测通常够用，但这些仓里 xlsx / 图像 / 模型权重很多，
+# 一次误判就是文件损坏，不值得赌。
+*.xlsx binary
+*.xls  binary
+*.xlsm binary
+*.pptx binary
+*.docx binary
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.bmp  binary
+*.tif  binary
+*.tiff binary
+*.ico  binary
+*.svgz binary
+*.gz   binary
+*.bz2  binary
+*.zip  binary
+*.7z   binary
+*.npy  binary
+*.npz  binary
+*.pkl  binary
+*.pt   binary
+*.pth  binary
+*.h5   binary
+*.hdf5 binary
+*.db   binary
+*.sqlite binary
+*.ai   binary
+*.dxf  binary
+*.mat  binary
+
+# vendored 的第三方代码保持上游原样，不做行尾规范化
+**/3rdparty/** -text
+**/third_party/** -text
+**/vendor/** -text

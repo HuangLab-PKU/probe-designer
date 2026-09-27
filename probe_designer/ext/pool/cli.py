@@ -16,7 +16,7 @@ import typer
 
 from probe_designer.qc.cross_ligation import (
     DEFAULT_TM_THRESHOLD_C,
-    screen_cross_ligation_v2,
+    screen_cross_ligation,
     write_dimer_report,
 )
 
@@ -80,11 +80,15 @@ def check(
         )
 
     try:
-        from probe_designer.ext.pool.loader import load_pool_as_probes_for_screen
+        from probe_book.root import resolve_root
+        from probe_designer.ext.pool.loader import (
+            load_pool_as_probes_for_screen,
+            load_pool_site_quality,
+        )
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    root = (repo_root or Path.cwd()).resolve()
+    root = resolve_root(repo_root)
     try:
         probes = load_pool_as_probes_for_screen(pool_id, root)
     except (ImportError, FileNotFoundError) as exc:
@@ -92,23 +96,50 @@ def check(
 
     logger.info("Pool %s — %d binding-arm probes loaded.", pool_id, len(probes))
 
-    tier1, dimers = screen_cross_ligation_v2(
-        probes,
-        tm_threshold_c=xlig_tm_threshold,
-    )
-    confirmed = [d for d in dimers if d.flagged_overall and d.a_can_ligate_on_b]
+    registers = screen_cross_ligation(probes, tm_threshold_c=xlig_tm_threshold)
+    confirmed = [d for d in registers if d.flagged_overall]
 
     out_dir = root / "pools" / pool_id / "pool_check"
     out_dir.mkdir(parents=True, exist_ok=True)
-    write_dimer_report(confirmed, out_dir / "confirmed_dimers_v2.tsv")
-    write_dimer_report(dimers, out_dir / "all_dimers_v2.tsv")
+    write_dimer_report(confirmed, out_dir / "confirmed_registers.tsv")
+    write_dimer_report(registers, out_dir / "all_registers.tsv")
 
     n_pairs = len(probes) * (len(probes) - 1) // 2
     typer.echo(
         f"pool={pool_id}: probes={len(probes)} pairs={n_pairs} "
-        f"tier1_hits={len(tier1)} primer3_dimers={len(dimers)} "
-        f"confirmed_v2={len(confirmed)} -> {out_dir}"
+        f"ligation_competent={len(registers)} confirmed={len(confirmed)} "
+        f"-> {out_dir}"
     )
+
+    # Before a site is reused: the set-based false-positive status of every pooled
+    # site, in the probe's own chemistry. Advisory like the dimer report, but a
+    # proven false positive, or a site the chemistries disagree on, is named.
+    try:
+        quality = load_pool_site_quality(pool_id, root)
+    except FileNotFoundError as exc:
+        typer.echo(f"site_quality: not checked -- {exc}")
+    else:
+        from collections import Counter
+
+        fields = ["probe_id", "site_id", "chemistry", "gene_symbol", "fp_status",
+                  "candidate_set_size", "differs_by_chemistry", "fp_conflict", "fp_proof"]
+        with open(out_dir / "site_quality.tsv", "w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=fields, delimiter="\t",
+                                    lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(quality)
+        counts = Counter(q["fp_status"] for q in quality)
+        review = [q for q in quality
+                  if q["fp_status"] == "implicated" or q["differs_by_chemistry"]]
+        typer.echo(
+            f"site_quality: {len(quality)} sited probe(s) {dict(sorted(counts.items()))}; "
+            f"{len(review)} to review -> {out_dir / 'site_quality.tsv'}"
+        )
+        for q in review:
+            why = ("implicated" if q["fp_status"] == "implicated"
+                   else f"{q['fp_status']} here, but the chemistries disagree")
+            typer.echo(f"  WARNING {q['probe_id']} {q['gene_symbol']} {q['site_id']} "
+                       f"({q['chemistry']}): {why}; {q['fp_proof']}")
 
     if nupack:
         # Lazy import — fails cleanly if NUPACK 4 isn't installed
@@ -154,10 +185,11 @@ def create_design(
     try:
         from probe_book.pool import PoolKind, PoolManifest
         from probe_book.probe import ProbeRegistry
+        from probe_book.root import resolve_root
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    root = (repo_root or Path.cwd()).resolve()
+    root = resolve_root(repo_root)
 
     probe_ids: List[str] = list(probe)
     if probes_file:
@@ -223,10 +255,11 @@ def promote(
     """
     try:
         from probe_book.pool import PoolKind, PoolManifest
+        from probe_book.root import resolve_root
     except ImportError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
-    root = (repo_root or Path.cwd()).resolve()
+    root = resolve_root(repo_root)
     mpath = root / "pools" / pool_id / "manifest.yaml"
     if not mpath.exists():
         raise typer.BadParameter(f"pool manifest not found: {mpath}")

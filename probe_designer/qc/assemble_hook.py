@@ -26,7 +26,11 @@ from probe_designer.qc.cross_lig_check import (
     DEFAULT_TM_THRESHOLD_C,
     screen_candidates,
 )
-from probe_designer.qc.cross_ligation import ProbeForScreen
+from probe_designer.qc.cross_ligation import (
+    REPORT_COLUMNS as DIMER_REPORT_COLUMNS,
+    ProbeForScreen,
+    dimer_row,
+)
 
 
 def probes_df_to_candidates(df: pd.DataFrame) -> list[CandidateProbe]:
@@ -87,35 +91,27 @@ def _format_partner_summary(hits: list[CrossLigHit], me: str) -> str:
     return ";".join(sorted(parts))
 
 
-REPORT_COLUMNS: tuple[str, ...] = (
-    "probe_a_id", "probe_b_id", "probe_a_gene", "probe_b_gene",
-    "direction",
-    "overall_tm_c", "arm3_tm_c", "arm3_dg_kcal",
-    "arm5_tm_c", "arm5_dg_kcal",
-    "a_can_ligate_on_b", "vicinity_contiguous",
-    "b_3oh_pos", "b_5p_pos",
-    "a_is_existing_pool", "b_is_existing_pool",
+#: The screen's own columns, plus the two this layer adds. Renamed at the
+#: DataFrame boundary only because the xlsx has always said ``probe_*`` / gene;
+#: the values come from ``cross_ligation.dimer_row`` so the two report writers
+#: cannot drift.
+_RENAMES = {
+    "seq_a_id": "probe_a_id", "seq_b_id": "probe_b_id",
+    "a_target": "probe_a_gene", "b_target": "probe_b_gene",
+}
+REPORT_COLUMNS: tuple[str, ...] = tuple(
+    [_RENAMES.get(c, c) for c in DIMER_REPORT_COLUMNS]
+    + ["a_is_existing_pool", "b_is_existing_pool"]
 )
 
 
 def _hits_to_report_df(hits: Iterable[CrossLigHit]) -> pd.DataFrame:
     rows = []
     for h in hits:
-        b3 = h.b_3oh_pos if h.b_3oh_pos is not None else ""
-        b5 = h.b_5p_pos if h.b_5p_pos is not None else ""
-        rows.append({
-            "probe_a_id": h.probe_a_id, "probe_b_id": h.probe_b_id,
-            "probe_a_gene": h.a_target, "probe_b_gene": h.b_target,
-            "direction": h.direction,
-            "overall_tm_c": h.overall_tm_c,
-            "arm3_tm_c": h.arm3_tm_c, "arm3_dg_kcal": h.arm3_dg_kcal,
-            "arm5_tm_c": h.arm5_tm_c, "arm5_dg_kcal": h.arm5_dg_kcal,
-            "a_can_ligate_on_b": h.a_can_ligate_on_b,
-            "vicinity_contiguous": h.vicinity_contiguous,
-            "b_3oh_pos": b3, "b_5p_pos": b5,
-            "a_is_existing_pool": h.a_is_existing_pool,
-            "b_is_existing_pool": h.b_is_existing_pool,
-        })
+        row = {_RENAMES.get(k, k): v for k, v in dimer_row(h.dimer).items()}
+        row["a_is_existing_pool"] = h.a_is_existing_pool
+        row["b_is_existing_pool"] = h.b_is_existing_pool
+        rows.append(row)
     if not rows:
         return pd.DataFrame(columns=list(REPORT_COLUMNS))
     return pd.DataFrame(rows).sort_values(
@@ -130,7 +126,7 @@ def apply_cross_lig_check(
     reject: bool = False,
     tm_threshold_c: float = DEFAULT_TM_THRESHOLD_C,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Run v2 cross-lig screen on the assembled probes; annotate / optionally reject.
+    """Run the cross-lig screen on assembled probes; annotate / optionally reject.
 
     Args:
         probes_df: assembled probes (Schema-v2 with probe_arm5, probe_arm3,
@@ -138,9 +134,15 @@ def apply_cross_lig_check(
         splint_probes: optional list of :class:`ProbeForScreen` from an
             external pool to screen candidates against. Loaded by the CLI
             layer (``ext.pool.loader``); this function does not import bank.
-        reject: when True, flagged probes are removed from ``annotated_df``
-            and returned in ``dropped_df``.
-        tm_threshold_c: overall dimer Tm cutoff (matches v2 default 27 °C).
+        reject: when True, probes that act as the **ligator** in a confirmed
+            hit are removed from ``annotated_df`` and returned in
+            ``dropped_df``. Only the ligator is dropped: it is the probe that
+            circularises and produces target-independent signal, while the
+            splint merely templated it and is otherwise fine. Dropping both
+            ends of every pair (what this did before v3) discarded twice the
+            probes needed to break the interaction. Every probe involved is
+            still annotated, ligator or not.
+        tm_threshold_c: flag a register whose duplex Tm clears this.
 
     Returns ``(annotated_df, dropped_df, report_df)`` — see module docstring.
     """
@@ -156,15 +158,15 @@ def apply_cross_lig_check(
         lambda pid: _format_partner_summary(by_cand.get(str(pid), []), str(pid))
     )
 
-    report_df = _hits_to_report_df(hits)
-
-    if reject and by_cand:
-        flagged_mask = annotated["cross_lig_partners"] != ""
+    if reject and hits:
+        ligator_ids = {h.probe_a_id for h in hits}
+        flagged_mask = annotated["probe_name"].astype(str).isin(ligator_ids)
         dropped_df = annotated[flagged_mask].copy().reset_index(drop=True)
         annotated = annotated[~flagged_mask].copy().reset_index(drop=True)
     else:
         dropped_df = annotated.iloc[0:0].copy()
 
+    report_df = _hits_to_report_df(hits)
     return annotated, dropped_df, report_df
 
 

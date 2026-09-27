@@ -154,6 +154,44 @@ discrimination field practice asks for, and no probe is discarded. Set
 `enforce_tm_diff_gate = True` for a hard cutoff.
 (`experiments/20260717_tm_buffer_config_impl/output/phase3_summary.txt`)
 
+### 4d. Hybrid NN model choice — `nn_tables` (2026-07-21, audit R6)
+
+Which NN table applies follows from the chemistry, and that decision used to be
+written out separately in four modules (`filtering`, `filtering.thermo_profile`,
+`ext/tcr/probe`, `rt_primer`). It now lives once in `nn_tables.nn_model_for` —
+necessary, not merely tidy: adding a second hybrid model to only some call sites
+would mean a config saying `banerjee2020` while TCR quietly stayed on Sugimoto.
+
+| Model | Salt it was measured at | Selected by | Source |
+|---|---|---|---|
+| `sugimoto1995` (**default**) | 1 M NaCl | `ReactionConditions.hybrid_nn_model` | Sugimoto 1995 *Biochemistry* 34:11211 — Biopython `R_DNA_NN1`, and the default in IDT/MELTING too, so our numbers stay comparable with colleagues'. |
+| `banerjee2020` (opt-in) | **100 mM NaCl** | same | Banerjee 2020 *NAR* 48:12042, **as corrected by *NAR* 2021 49:10796**. Tm error 1.1 °C vs Sugimoto's 4.9 °C at physiological salt. |
+
+**Use the corrected table.** The 2021 correction re-derived ΔS values that had
+been computed from rounded ΔG°37, and it moves the initiation entropies
+materially (−4.9 → −6.4, −7.0 → −8.4). The original values fail the
+ΔG°37 = ΔH° − *T*ΔS° check; the corrected ones satisfy it to 0.015 kcal/mol.
+
+**Notation.** Banerjee writes both strands 5'→3' (`rAC/dGT`); Biopython keys are
+RNA 5'→3' (U written as T) over the complement read 3'→5', so the DNA dimer is
+reversed: `rAC/dGT` → `"AC/TG"`. Both the mapping and the Gibbs relation are
+enforced in `tests/unit/test_nn_tables.py` rather than trusted to transcription.
+
+**Salt reference — the trap.** Biopython's salt corrections assume the
+parameters were derived at 1 M and correct *downward*. That is right for
+Sugimoto/SantaLucia/Freier and **wrong for Banerjee**, whose parameters already
+embody 100 mM NaCl: correcting again costs **−14.5 °C** on real 20-mer arms,
+against the ≈ −4.1 °C the two models genuinely differ by (which is what the
+paper's own 4.9 °C claim predicts). So `NNModel` carries
+`reference_monovalent_mM`, and `nn_tables.melting_temperature` uses the salt
+model only for the *shift* from that reference to the actual buffer — the
+1 M over-correction is common to both terms and cancels.
+
+**Per-arm spread.** Mean disagreement is ≈ −4 °C, but per arm it ranges roughly
+−13 to +6 °C: the two studies distribute stability differently across dimers.
+Switching models therefore re-ranks candidates, it does not merely offset them —
+which is why Sugimoto stays the default and this is an explicit opt-in.
+
 ### 5b. Target accessibility — `chemistry.FoldingConditions` (2026-07-21)
 
 Accessibility asks whether a candidate window is *open* in the folded transcript

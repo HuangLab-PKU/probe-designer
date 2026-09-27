@@ -26,8 +26,19 @@ try:
 except ImportError:
     _HAS_VIENNARNA = False
 
+from probe_designer.blast.geometry import (
+    DEFAULT_IDENTITY_THRESHOLD,
+    DEFAULT_MAX_OFF_TARGET_BINDING,
+    DEFAULT_MIN_ALIGN_LENGTH,
+    DEFAULT_VICINITY_N,
+    frame_is_bindable,
+    hsp_spans_junction,
+    junction_is_ligatable,
+    midpoint_junction_offset,
+)
 from probe_designer.config import BlastConfig, FilterConfig
 from probe_designer.chemistry import dna_revcomp_to_rna
+from probe_designer.nn_tables import melting_temperature, nn_model_for
 from probe_designer.policy import ThermoPolicy
 
 
@@ -255,21 +266,23 @@ class SequenceFilter:
         is applied after the nearest-neighbor Tm.
         """
         rc = self.filter_config.reaction_conditions()
-        buffer = rc.tm_nn_kwargs()
+        model = nn_model_for(sequence_type, target_type, rc.hybrid_nn_model)
+        # A DNA:RNA hybrid table needs the RNA-sense strand; the other tables
+        # take the arm as given.
+        to_table_strand = (
+            dna_revcomp_to_rna
+            if sequence_type == "DNA" and target_type == "RNA"
+            else (lambda s: s)
+        )
 
         def arm_tm(seq: str) -> float:
             try:
-                if sequence_type == "DNA" and target_type == "RNA":
-                    tm = mt.Tm_NN(dna_revcomp_to_rna(seq), nn_table=mt.R_DNA_NN1, **buffer)
-                elif sequence_type == "RNA" and target_type == "RNA":
-                    tm = mt.Tm_NN(seq, nn_table=mt.RNA_NN1, **buffer)
-                else:
-                    tm = mt.Tm_NN(seq, nn_table=mt.DNA_NN4, **buffer)
+                tm = melting_temperature(to_table_strand(seq), model, rc)
             except ValueError as exc:
                 # Ambiguous/short arm (e.g. contains N): reject via 0.0, but surface it.
                 logger.warning("Tm computation failed for %r: %s", seq, exc)
                 return 0.0
-            return rc.apply_formamide(tm)
+            return rc.apply_solvents(tm)
 
         return {
             'tm': arm_tm(arm_3prime + arm_5prime),
@@ -911,6 +924,7 @@ class SequenceFilter:
                                 'evalue': float('inf'),
                                 'identity': 0.0,
                                 'alignment_count': 0,
+                                'query_length': None,
                                 'missing': True
                             }
             
@@ -936,6 +950,7 @@ class SequenceFilter:
                             'evalue': float('inf'),
                             'identity': 0.0,
                             'alignment_count': 0,
+                            'query_length': None,
                             'missing': True
                         }
             
@@ -989,17 +1004,38 @@ class SequenceFilter:
                                 'hit_def': alignment.hit_def,
                                 'evalue': hsp.expect,
                                 'identity': hsp.identities / hsp.align_length,
+                                # How much of the probe aligned. Identity alone
+                                # cannot tell a 40/40 hit from a 32/40 one, and
+                                # that difference is exactly what a site built
+                                # on a minor isoform looks like against the
+                                # canonical transcript.
+                                'align_length': hsp.align_length,
+                                'identities': hsp.identities,
                                 'score': hsp.score,
-                                'frame': hsp.frame
+                                'frame': hsp.frame,
+                                # The |/space line and the query coordinates it
+                                # is indexed by. Both sat in the same <Hsp> node
+                                # all along; only the summary numbers were read,
+                                # so nothing downstream could ask WHERE a
+                                # mismatch fell -- least of all whether it fell
+                                # on the ligation junction.
+                                'midline': hsp.match,
+                                'query_seq': hsp.query,
+                                'query_start': hsp.query_start,
+                                # 1-based inclusive, as gene_aware records them;
+                                # they still place the nick without a midline.
+                                'query_from': hsp.query_start,
+                                'query_to': hsp.query_end,
                             })
                             evalues.append(hsp.expect)
                             identities.append(hsp.identities / hsp.align_length)
-                
+
                 blast_data[query_id] = {
                     'alignments': alignments,
                     'evalue': min(evalues) if evalues else float('inf'),
                     'identity': max(identities) if identities else 0.0,
-                    'alignment_count': len(alignments)
+                    'alignment_count': len(alignments),
+                    'query_length': getattr(blast_record, 'query_length', None),
                 }
             
             # print(f"Parsed {batch_records} records from batch {batch_num}")  # Reduced output
@@ -1085,13 +1121,20 @@ class SequenceFilter:
             # Check organism specificity and gene specificity
             target_organism_alignments = 0
             non_target_gene_alignments = 0
+            ligatable_off_targets = 0
+            binding_off_targets = 0
             complementarity_found = False
-            
+
             # Get target organisms from filter config, fallback to blast config species
             target_organisms = self.filter_config.target_organisms
             if target_organisms is None:
                 target_organisms = self.blast_config.species or []
-            
+
+            probe_length = len(site.get('sequence') or '') or (
+                blast_info.get('query_length') or 0
+            )
+            nick = self._nick_offset(site, probe_length)
+
             for alignment in blast_info['alignments']:
                 hit_def = alignment['hit_def'].lower()
                 is_target_organism = any(org.lower() in hit_def for org in target_organisms)
@@ -1103,43 +1146,153 @@ class SequenceFilter:
                     is_same_gene = gene_name in hit_def or any(gene_part in hit_def for gene_part in gene_name.split('_'))
                     
                     if not is_same_gene:
-                        non_target_gene_alignments += 1
+                        # A hit on the strand the probe cannot template off
+                        # is not an off-target: that transcript carries the
+                        # probe's own sequence rather than its complement. Easy
+                        # to miss, because an antisense locus really is a
+                        # different gene -- the same-gene test says "different"
+                        # and the rejection looks correct.
+                        if self._hit_is_on_binding_strand(alignment):
+                            if not getattr(self.filter_config, 'ligation_aware_off_targets', True):
+                                non_target_gene_alignments += 1
+                            else:
+                                closes = self._off_target_closes(alignment, nick)
+                                if closes is True:
+                                    ligatable_off_targets += 1
+                                elif closes is False:
+                                    binding_off_targets += 1
                     else:
-                        # Check complementarity with target sequence
-                        if self._check_complementarity(site['sequence'], alignment):
+                        # Check complementarity with target sequence, that the
+                        # probe aligned over (essentially) its whole length, and
+                        # that the ligation junction itself is contiguously
+                        # paired. A partial same-gene hit means the transcript
+                        # splices part of the probe away; a hit that breaks at
+                        # the nick cannot be ligated shut at all.
+                        if (
+                            self._check_complementarity(alignment)
+                            and self._covers_probe(alignment, probe_length)
+                            and self._spans_junction(alignment, nick)
+                        ):
                             complementarity_found = True
-            
-            # Must have target organism alignment AND complementarity AND no non-target gene alignments
-            if target_organism_alignments == 0 or not complementarity_found or non_target_gene_alignments > 0:
+
+            # A target-organism alignment and a real on-target hit, and no
+            # off-target the probe could ligate on -- nor too many it only binds.
+            if target_organism_alignments == 0 or not complementarity_found:
                 return False
-        
+            if non_target_gene_alignments > 0 or ligatable_off_targets > 0:
+                return False
+            if binding_off_targets >= DEFAULT_MAX_OFF_TARGET_BINDING:
+                return False
+
         return True
-    
-    def _check_complementarity(self, probe_sequence: str, alignment: Dict[str, Any]) -> bool:
-        """Check if probe sequence is complementary to the aligned reference sequence."""
-        try:
-            # Check complementarity based on BLAST frame information
-            # frame[1] = -1 indicates complementary strand
-            if 'frame' in alignment and len(alignment['frame']) >= 2:
-                frame_1 = alignment['frame'][1]
-                if frame_1 == -1:
-                    return True  # Complementary strand
-                elif frame_1 == 1:
-                    return False  # Same strand
-                else:
-                    # Unknown frame, use identity as fallback
-                    if alignment['identity'] > 0.95:
-                        return True
-            
-            # Fallback: if identity is very high (>95%), assume it's complementary
-            if alignment['identity'] > 0.95:
-                return True
-            
+
+    def _off_target_closes(self, alignment: Dict[str, Any], nick_offset: int) -> Optional[bool]:
+        """How a different-gene hit counts against the site, or ``None`` if it does not.
+
+        The rule ``blast.gene_aware.apply_gene_aware_filter`` applies, on its
+        thresholds. Under ``DEFAULT_IDENTITY_THRESHOLD`` percent identity or
+        ``DEFAULT_MIN_ALIGN_LENGTH`` aligned bases the duplex does not hold at the
+        hybridisation temperature: noise, ``None``. Otherwise ``True`` when a
+        ligase could close the hit across the nick -- signal indistinguishable
+        from the target -- and ``False`` when the probe can only bind there.
+        """
+        align_length = alignment.get('align_length') or 0
+        identities = alignment.get('identities') or 0
+        if (align_length < DEFAULT_MIN_ALIGN_LENGTH
+                or 100 * identities < DEFAULT_IDENTITY_THRESHOLD * align_length):
+            return None
+        return junction_is_ligatable(
+            alignment, nick_offset,
+            getattr(self.filter_config, 'junction_vicinity_nt', DEFAULT_VICINITY_N),
+        )
+
+    def _covers_probe(self, alignment: Dict[str, Any], probe_length: int) -> bool:
+        """True when this alignment spans enough of the probe to be on-target.
+
+        Threshold is ``filter_config.min_same_gene_coverage`` (default 0.95).
+        An alignment carrying no length is NOT assumed full: the check exists
+        precisely because the missing number used to be read as "fine".
+        """
+        if probe_length <= 0:
+            return True  # nothing to measure against
+        align_length = alignment.get('align_length')
+        if align_length is None:
             return False
-        except Exception as e:
-            print(f"Error checking complementarity: {e}")
-            return False
-    
+        min_coverage = getattr(
+            self.filter_config, 'min_same_gene_coverage', 0.95
+        )
+        return align_length >= min_coverage * probe_length
+
+    def _nick_offset(self, site: Dict[str, Any], probe_length: int) -> int:
+        """Query index of the first base 3' of the ligation nick.
+
+        Read the arm the site actually carries. The mRNA strategies split at
+        ``bds_len // 2`` (``search_strategies``), so today this equals the
+        midpoint -- but deriving the nick from a convention held in another
+        module is how a gate ends up testing the wrong position the day that
+        convention changes. The gene-aware path already locates it from arm3.
+        """
+        arm_3prime = site.get('arm_3prime') or ''
+        if arm_3prime:
+            return len(arm_3prime)
+        return midpoint_junction_offset(probe_length)
+
+    def _spans_junction(self, alignment: Dict[str, Any], nick_offset: int) -> bool:
+        """True when the nick vicinity is contiguously paired in this alignment.
+
+        ``_covers_probe`` measures how MUCH aligned; this measures WHERE, and
+        they are not interchangeable. A 39/40 hit scores 0.975 either way, but
+        only one of the two is a probe that still circularises: a terminal
+        mismatch BLAST trimmed is harmless, a mismatch sitting on the ligation
+        junction is a dead probe. Same criterion the exon walk in
+        ``isoform_coverage`` applies -- contiguous Watson-Crick pairing across
+        the nick, ``junction_vicinity_nt`` bases each side.
+
+        An alignment carrying no midline is NOT credited, for the same reason a
+        missing ``align_length`` is not read as full coverage.
+        """
+        if not getattr(self.filter_config, 'require_junction_pairing', True):
+            return True
+        if nick_offset <= 0:
+            return True  # nothing to locate the nick in
+        return hsp_spans_junction(
+            alignment.get('midline') or '',
+            alignment.get('query_seq') or '',
+            alignment.get('query_start') or 1,
+            nick_offset,
+            vicinity_n=getattr(
+                self.filter_config, 'junction_vicinity_nt', DEFAULT_VICINITY_N
+            ),
+        )
+
+    def _hit_is_on_binding_strand(self, alignment: Dict[str, Any]) -> bool:
+        """Whether this hit lies on the strand the probe can actually bind.
+
+        Sites are stored as RC(target) (see ``search_strategies``), so a real
+        hit carries hit frame -1 and a plus-strand hit is a transcript holding
+        the probe's own sequence. ``filter_config.binding_hit_frame`` flips the
+        expectation for a sense-strand (cDNA) design. A frame BLAST did not
+        report stays counted, exactly as before.
+        """
+        frame = alignment.get('frame')
+        if not frame or len(frame) < 2:
+            return True
+        return frame_is_bindable(
+            frame[1], getattr(self.filter_config, 'binding_hit_frame', -1)
+        )
+
+    def _check_complementarity(self, alignment: Dict[str, Any]) -> bool:
+        """Whether the subject carries what the probe pairs with.
+
+        The strand decision itself lives in :meth:`_hit_is_on_binding_strand`;
+        this only adds the legacy fallback for an alignment BLAST reported no
+        frame for, where high identity is read as evidence of a real hybrid.
+        """
+        frame = alignment.get('frame')
+        if frame and len(frame) >= 2 and frame[1] in (1, -1):
+            return self._hit_is_on_binding_strand(alignment)
+        return alignment.get('identity', 0) > 0.95
+
     def save_filtered_results(self, filtered_sites: Dict[str, List[Dict[str, Any]]], output_dir: str):
         """Save filtered binding sites to Excel and JSON, plus stats."""
         os.makedirs(output_dir, exist_ok=True)

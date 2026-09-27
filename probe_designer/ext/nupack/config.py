@@ -16,7 +16,7 @@ destabilization as an effective ``celsius``.
 """
 from __future__ import annotations
 
-from probe_designer.chemistry import ReactionConditions
+from probe_designer.chemistry import LIGASE_CLAMP_NT, ReactionConditions
 
 # Single source of truth for the lab buffer: the shared ReactionConditions
 # defaults (protocol rca.md v5.3). These screen constants are DERIVED from it so
@@ -53,10 +53,11 @@ DEFAULT_STRAND_CONC_M: float = _LAB.strand_nM * 1e-9
 # — empirically picked to match v2.2 sensitivity on validated cross-lig pairs.
 DEFAULT_FRACTION_THRESHOLD: float = 1e-4
 
-# Vicinity contiguity requirement (same convention as qc/cross_ligation.py
-# DEFAULT_VICINITY_N): n bases each side of the nick on each arm must be
-# contiguously paired in the MFE ternary structure.
-DEFAULT_VICINITY_N: int = 3
+# Ligase clamp: n bases each side of the nick, contiguously paired in the MFE
+# ternary. Imported, not restated — the register scan, this check and the BLAST
+# verdict have to mean the same thing by "ligation-competent", and three private
+# copies would let them disagree without anything failing.
+DEFAULT_VICINITY_N: int = LIGASE_CLAMP_NT
 
 
 __all__ = [

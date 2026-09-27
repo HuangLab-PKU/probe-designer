@@ -26,8 +26,8 @@ def test_pool_check_runs_and_writes_v2_report(tmp_path):
     assert result.exit_code == 0, result.output
 
     check_dir = root / "pools" / "test_pool_v1" / "pool_check"
-    assert (check_dir / "confirmed_dimers_v2.tsv").exists()
-    assert (check_dir / "all_dimers_v2.tsv").exists()
+    assert (check_dir / "confirmed_registers.tsv").exists()
+    assert (check_dir / "all_registers.tsv").exists()
 
 
 def test_pool_check_missing_pool_fails_cleanly(tmp_path):

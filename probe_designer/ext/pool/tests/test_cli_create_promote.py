@@ -99,21 +99,21 @@ def test_promote_with_order_binds_all(tmp_path):
     _write_design_pool(tmp_path, "TNBCmarker_cand_v1", ["SP369_p1", "SP369_p2"])
     result = runner.invoke(app, [
         "pool", "promote", "TNBCmarker_cand_v1",
-        "--order", "O0012_SP369_TNBCmarker_20260613",
+        "--order", "O0012_20260613",
         "--concentration", "1e-8", "--repo-root", str(tmp_path),
     ])
     assert result.exit_code == 0, result.output
     pm = PoolManifest.from_yaml(tmp_path / "pools" / "TNBCmarker_cand_v1" / "manifest.yaml")
     assert pm.kind == PoolKind.PHYSICAL.value
-    assert all(e.order_id == "O0012_SP369_TNBCmarker_20260613" for e in pm.recipe)
+    assert all(e.order_id == "O0012_20260613" for e in pm.recipe)
     assert all(e.concentration_M == 1e-8 for e in pm.recipe)
 
 
 def test_promote_auto_resolves_from_inventories(tmp_path):
     _write_registry(tmp_path, ["SP369_p1", "SP369_p2"])
     _write_design_pool(tmp_path, "TNBCmarker_cand_v1", ["SP369_p1", "SP369_p2"])
-    _write_order_inventory(tmp_path, "O0011_SP369_TNBCmarker_20260612", ["SP369_p1"])
-    _write_order_inventory(tmp_path, "O0012_SP369_TNBCmarker_20260613", ["SP369_p2"])
+    _write_order_inventory(tmp_path, "O0011_20260612", ["SP369_p1"])
+    _write_order_inventory(tmp_path, "O0012_20260613", ["SP369_p2"])
     result = runner.invoke(app, [
         "pool", "promote", "TNBCmarker_cand_v1",
         "--auto", "--concentration", "1e-8", "--repo-root", str(tmp_path),
@@ -121,8 +121,8 @@ def test_promote_auto_resolves_from_inventories(tmp_path):
     assert result.exit_code == 0, result.output
     pm = PoolManifest.from_yaml(tmp_path / "pools" / "TNBCmarker_cand_v1" / "manifest.yaml")
     binding = {e.probe_id: e.order_id for e in pm.recipe}
-    assert binding["SP369_p1"] == "O0011_SP369_TNBCmarker_20260612"
-    assert binding["SP369_p2"] == "O0012_SP369_TNBCmarker_20260613"
+    assert binding["SP369_p1"] == "O0011_20260612"
+    assert binding["SP369_p2"] == "O0012_20260613"
 
 
 def test_promote_auto_errors_on_unordered_probe(tmp_path):
