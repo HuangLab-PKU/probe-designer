@@ -58,6 +58,18 @@ class TestIsSameGeneHit:
         # GSN <-> 'gelsolin'
         assert is_same_gene_hit("Mus musculus gelsolin (Gsn), mRNA", "GSN")
 
+    @pytest.mark.parametrize("symbol, description", [
+        ("GSN", "Homo sapiens capping actin protein, gelsolin like (CAPG), mRNA"),
+        ("GSN", "Homo sapiens capping actin protein, gelsolin like (capg), mRNA"),
+        ("ACTB", "Homo sapiens actin beta like 2 (ACTBL2), mRNA"),
+    ])
+    def test_family_name_alias_does_not_override_another_symbol(self, symbol, description):
+        assert not is_same_gene_hit(description, symbol)
+
+    def test_synonym_without_a_symbol_is_still_accepted(self):
+        assert is_same_gene_hit("Homo sapiens gelsolin, mRNA", "GSN")
+        assert is_same_gene_hit("Homo sapiens gelsolin (fragment), mRNA", "GSN")
+
     def test_unrelated_gene_does_not_match(self):
         assert not is_same_gene_hit("Homo sapiens TLR1 transcript", "TLR6")
 

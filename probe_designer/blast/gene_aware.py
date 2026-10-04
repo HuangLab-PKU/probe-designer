@@ -69,6 +69,12 @@ def is_same_gene_hit(subject_def: str, gene_symbol: str) -> bool:
     for pat in patterns:
         if re.search(pat, subject_def, re.IGNORECASE):
             return True
+    # Family descriptions can contain an alias of a different gene (CAPG's
+    # "gelsolin like" is not GSN). A different RefSeq symbol blocks this fallback.
+    tokens = re.findall(r"\(([A-Za-z][A-Za-z0-9_.-]*)\)", subject_def)
+    annotations = {"fragment", "partial", "mrna", "rna", "dna"}
+    if any(token.lower() not in annotations for token in tokens):
+        return False
     for syn in GENE_SYNONYMS.get(sym, []):
         if syn in subj_low:
             return True

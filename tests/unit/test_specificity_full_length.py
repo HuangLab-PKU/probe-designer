@@ -96,6 +96,13 @@ class TestSameGeneNames:
             _blast_info(_alignment(40, hit_def=description)), _site(gene=gene)
         )
 
+    @pytest.mark.parametrize("include_on_target", [False, True])
+    def test_family_name_alias_cannot_credit_or_hide_another_gene(self, include_on_target):
+        other = _alignment(40, hit_def="Homo sapiens capping actin protein, gelsolin like (CAPG), mRNA")
+        own = _alignment(40, hit_def="Homo sapiens gelsolin (GSN), mRNA")
+        hits = [own, other] if include_on_target else [other]
+        assert not _filter()._check_specificity_criteria(_blast_info(*hits), _site(gene="GSN"))
+
     def test_missing_gene_name_is_not_on_target_evidence(self):
         assert not _filter()._check_specificity_criteria(
             _blast_info(_alignment(40)), _site(gene="")
