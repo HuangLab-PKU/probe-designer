@@ -75,6 +75,33 @@ def _blast_info(*alignments):
     }
 
 
+class TestSameGeneNames:
+    @pytest.mark.parametrize("gene, other", [("AR", "EFR3A"), ("MB", "MBNL1"), ("F2", "F2R")])
+    def test_short_symbol_does_not_credit_another_gene(self, gene, other):
+        hit = _alignment(40, hit_def=f"Homo sapiens {other}, transcript variant 1, mRNA")
+        assert not _filter()._check_specificity_criteria(_blast_info(hit), _site(gene=gene))
+
+    def test_variant_hit_cannot_hide_a_ligatable_off_target(self):
+        own = _alignment(40, hit_def="Homo sapiens androgen receptor (AR), mRNA")
+        other = _alignment(40, hit_def="Homo sapiens EFR3A, transcript variant 1, mRNA")
+        assert not _filter()._check_specificity_criteria(_blast_info(own, other), _site(gene="AR"))
+
+    @pytest.mark.parametrize("gene, description", [
+        ("AR", "Homo sapiens androgen receptor (AR), mRNA"),
+        ("C12orf57", "Homo sapiens C12orf57, mRNA"),
+        ("GSN", "Homo sapiens gelsolin, mRNA"),
+    ])
+    def test_symbol_case_and_registered_synonyms_are_credited(self, gene, description):
+        assert _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40, hit_def=description)), _site(gene=gene)
+        )
+
+    def test_missing_gene_name_is_not_on_target_evidence(self):
+        assert not _filter()._check_specificity_criteria(
+            _blast_info(_alignment(40)), _site(gene="")
+        )
+
+
 class TestSameGeneCoverage:
     def test_full_length_same_gene_hit_passes(self):
         assert _filter()._check_specificity_criteria(

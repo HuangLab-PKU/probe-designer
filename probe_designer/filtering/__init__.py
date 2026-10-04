@@ -26,6 +26,7 @@ try:
 except ImportError:
     _HAS_VIENNARNA = False
 
+from probe_designer.blast.gene_aware import is_same_gene_hit
 from probe_designer.blast.geometry import (
     DEFAULT_IDENTITY_THRESHOLD,
     DEFAULT_MAX_OFF_TARGET_BINDING,
@@ -1141,9 +1142,10 @@ class SequenceFilter:
                 
                 if is_target_organism:
                     target_organism_alignments += 1
-                    # Check if this is the same gene (case-insensitive)
-                    gene_name = site.get('gene_name', '').lower()
-                    is_same_gene = gene_name in hit_def or any(gene_part in hit_def for gene_part in gene_name.split('_'))
+                    # Short symbols must not match words such as "variant" (AR).
+                    is_same_gene = is_same_gene_hit(
+                        alignment['hit_def'], site.get('gene_name', '')
+                    )
                     
                     if not is_same_gene:
                         # A hit on the strand the probe cannot template off
